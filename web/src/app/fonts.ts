@@ -1,5 +1,8 @@
 import { Archivo, JetBrains_Mono } from "next/font/google";
 
+// next/font downloads and self-hosts the files. The `variable` class on <html> is what includes
+// their @font-face rules; the font stacks and the measured fallbacks live in globals.css.
+
 // Archivo variable with the width axis: headings use width 125 + weight 600 (identidad-visual.md).
 export const archivo = Archivo({
   subsets: ["latin"],

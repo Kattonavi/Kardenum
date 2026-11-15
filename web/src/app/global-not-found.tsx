@@ -1,7 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import en from "../../messages/en.json";
 import es from "../../messages/es.json";
+import { buttonClass } from "@/components/ui/button";
+import { brand } from "@/lib/brand";
 import { archivo, jetbrainsMono } from "./fonts";
 import "./globals.css";
 
@@ -13,26 +15,23 @@ export const metadata: Metadata = {
   title: es.NotFound.metaTitle,
 };
 
+export const viewport: Viewport = { themeColor: brand.ink };
+
 export default function GlobalNotFound() {
   return (
     <html lang="es" className={`${archivo.variable} ${jetbrainsMono.variable}`}>
       <body className="min-h-dvh">
-        <main className="flex min-h-dvh flex-col justify-center bg-ink px-6 text-stone">
+        <main className="flex min-h-dvh flex-col justify-center px-5 surface-ink lg:px-10">
           <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
-            <p className="font-mono text-xs tracking-[0.14em] text-bronze uppercase">{es.NotFound.label}</p>
-            <h1 className="text-4xl font-semibold tracking-[0.04em] uppercase font-stretch-[125%]">
-              {es.NotFound.title}
-            </h1>
-            <p className="text-lg text-ash">{es.NotFound.body}</p>
-            <Link
-              href="/"
-              className="inline-flex min-h-12 w-fit items-center bg-bronze px-6 text-[13px] font-semibold tracking-[0.14em] text-ink uppercase font-stretch-[125%]"
-            >
+            <p className="type-label text-bronze">{es.NotFound.label}</p>
+            <h1 className="text-4xl leading-[1.1] tracking-[0.01em] type-display">{es.NotFound.title}</h1>
+            <p className="text-lg text-(--muted-text)">{es.NotFound.body}</p>
+            <Link href="/" className={`${buttonClass.primary} w-fit`}>
               {es.NotFound.home}
             </Link>
-            <p lang="en" className="mt-6 border-t border-line pt-6 text-sm text-ash">
+            <p lang="en" className="mt-6 border-t border-line pt-6 text-sm text-(--muted-text)">
               {en.NotFound.title}{" "}
-              <Link href="/en" className="text-stone underline underline-offset-4">
+              <Link href="/en" className="inline-flex min-h-11 items-center text-stone underline">
                 {en.NotFound.home}
               </Link>
             </p>
