@@ -237,6 +237,8 @@ test("the form is usable with the keyboard alone", async ({ page }, testInfo) =>
   test.skip(testInfo.project.name !== "desktop", "keyboard navigation is checked on desktop");
   await page.goto("/contacto");
   const form = quoteForm(page);
+  // The fields are off until the script runs; focus() does not wait for that by itself.
+  await expect(form.line).toBeEnabled();
   await form.line.focus();
   await page.keyboard.press("Tab");
   await expect(form.type).toBeFocused();
@@ -260,19 +262,53 @@ test.describe("without JavaScript", () => {
   test("RF-5: the browser cannot send the form on its own", async ({ page }) => {
     await page.goto("/contacto");
     const form = quoteForm(page);
-    await form.name.fill(`Ana ${CANARY}`);
-    await form.idea.fill(`Idea ${CANARY}`);
 
-    // The send button is off until the script is running, so Enter in a field sends nothing.
-    await expect(form.submit).toBeDisabled();
-    await form.name.press("Enter");
-    await page.waitForLoadState("load");
-    expect(page.url()).not.toContain("?");
+    // The form is off, and says why: nothing can be typed, and Enter or the button send nothing.
+    for (const control of [form.line, form.type, form.idea, form.deadline, form.name, form.submit]) {
+      await expect(control).toBeDisabled();
+    }
+    // Chromium keeps <noscript> as raw text when Playwright turns scripts off (the parser still
+    // believes scripting is on), so the note is checked by its presence, not by its visibility.
+    expect(await form.section.locator("form noscript").textContent()).toContain("El cotizador necesita JavaScript para armar el mensaje.");
 
-    // Even a forced native submission carries nothing: the fields have no name.
-    await form.section.locator("form").evaluate((element: HTMLFormElement) => element.submit());
+    // Even with the fields forced on, filled and sent natively, nothing travels: they have no name.
+    await form.section.locator("form").evaluate((element: HTMLFormElement, canary) => {
+      for (const field of element.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("input, textarea")) {
+        field.disabled = false;
+        field.value = canary;
+      }
+      element.submit();
+    }, CANARY);
     await page.waitForLoadState("load");
     expect(decodeURIComponent(page.url())).not.toContain(CANARY);
     expect(new URL(page.url()).search.replace("?", "")).toBe("");
   });
+});
+
+test("the form cannot be used before its script runs, so nothing typed is erased", async ({ page }) => {
+  // A slow phone: the page is on screen, its scripts are still on their way. A field filled now
+  // would be emptied when the script takes over, so the fields wait for it.
+  let release: () => void = () => {};
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route("**/_next/static/**/*.js", async (route) => {
+    await held;
+    await route.continue();
+  });
+  await page.goto("/contacto", { waitUntil: "domcontentloaded" });
+  const form = quoteForm(page);
+  for (const control of [form.line, form.type, form.idea, form.deadline, form.name, form.submit]) {
+    await expect(control).toBeDisabled();
+  }
+
+  release();
+  // From here on what is typed stays: the script is the one holding it.
+  await form.name.fill("Ana Ruiz");
+  await form.idea.fill("Una idea escrita pronto.");
+  await form.line.selectOption({ label: "Video y animación" });
+  await expect(form.name).toHaveValue("Ana Ruiz");
+  await expect(form.preview).toContainText("Soy Ana Ruiz.");
+  await expect(form.preview).toContainText("Una idea escrita pronto.");
+  await expect(form.preview).toContainText("Línea: Video y animación");
 });

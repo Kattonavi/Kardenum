@@ -133,6 +133,7 @@ export default async function ContactPage({ params }: PageProps<"/[locale]/conta
                 submit: t("submit"),
                 submitNote: t("submitNote"),
                 pendingNote: t("pendingNote"),
+                noScript: t("noScript"),
                 previewRegion: t("previewRegion"),
                 previewLabel: t("previewLabel"),
                 previewName: t("previewName"),

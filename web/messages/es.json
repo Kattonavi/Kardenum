@@ -135,6 +135,7 @@
     "submit": "Enviar por WhatsApp",
     "submitNote": "Se abre WhatsApp con tu mensaje listo. Este formulario no guarda tus datos.",
     "pendingNote": "WhatsApp por activar",
+    "noScript": "El cotizador necesita JavaScript para armar el mensaje.",
     "previewRegion": "Vista previa del mensaje",
     "previewLabel": "Así te llega el mensaje",
     "previewName": "nombre",

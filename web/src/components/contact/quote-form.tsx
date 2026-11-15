@@ -36,6 +36,7 @@ type QuoteFormProps = {
     submit: string;
     submitNote: string;
     pendingNote: string;
+    noScript: string;
     previewRegion: string;
     previewLabel: string;
     previewName: string;
@@ -44,7 +45,8 @@ type QuoteFormProps = {
   };
 };
 
-const fieldClass = "w-full min-h-12 rounded-none border border-graphite bg-white px-3.5 text-base text-ink";
+// Fields are off for an instant while the script loads: they keep their look instead of flashing grey.
+const fieldClass = "w-full min-h-12 rounded-none border border-graphite bg-white px-3.5 text-base text-ink disabled:opacity-100";
 const labelClass = "text-[13px] leading-[1.4] tracking-[0.1em] type-display";
 
 // The address never changes while the form is on screen: nothing to subscribe to.
@@ -57,6 +59,9 @@ const subscribeToNothing = () => () => {};
  * RF-5 also holds before this script runs (slow phone) and without JavaScript, when the browser
  * would send the form by itself: the fields have no `name`, so there is nothing to send, and the
  * send button is off until the script is running, so not even Enter submits it.
+ *
+ * The fields are off for the same time. React resets a controlled field to its state when it
+ * takes over the page, so anything typed before that moment would be erased without notice.
  */
 export function QuoteForm({ lines, deadlines, defaultDeadline, unsure, whatsappNumber, messageLabels, labels }: QuoteFormProps) {
   const ids = { line: useId(), type: useId(), idea: useId(), deadline: useId(), name: useId(), note: useId() };
@@ -108,7 +113,13 @@ export function QuoteForm({ lines, deadlines, defaultDeadline, unsure, whatsappN
           <label htmlFor={ids.line} className={labelClass}>
             1 · {labels.line}
           </label>
-          <select id={ids.line} value={line.id} onChange={(event) => chooseLine(event.target.value)} className={fieldClass}>
+          <select
+            id={ids.line}
+            disabled={!scriptRunning}
+            value={line.id}
+            onChange={(event) => chooseLine(event.target.value)}
+            className={fieldClass}
+          >
             {lines.map((option) => (
               <option key={option.id} value={option.id}>
                 {option.name}
@@ -123,7 +134,7 @@ export function QuoteForm({ lines, deadlines, defaultDeadline, unsure, whatsappN
           </label>
           <select
             id={ids.type}
-           
+            disabled={!scriptRunning}
             value={projectType}
             onChange={(event) => setChosenType(event.target.value)}
             className={fieldClass}
@@ -142,7 +153,7 @@ export function QuoteForm({ lines, deadlines, defaultDeadline, unsure, whatsappN
           </label>
           <textarea
             id={ids.idea}
-           
+            disabled={!scriptRunning}
             rows={5}
             maxLength={QUOTE_LIMITS.description}
             placeholder={labels.ideaPlaceholder}
@@ -156,7 +167,13 @@ export function QuoteForm({ lines, deadlines, defaultDeadline, unsure, whatsappN
           <label htmlFor={ids.deadline} className={labelClass}>
             4 · {labels.deadline}
           </label>
-          <select id={ids.deadline} value={deadline} onChange={(event) => setDeadline(event.target.value)} className={fieldClass}>
+          <select
+            id={ids.deadline}
+            disabled={!scriptRunning}
+            value={deadline}
+            onChange={(event) => setDeadline(event.target.value)}
+            className={fieldClass}
+          >
             {deadlines.map((option) => (
               <option key={option} value={option}>
                 {option}
@@ -171,7 +188,7 @@ export function QuoteForm({ lines, deadlines, defaultDeadline, unsure, whatsappN
           </label>
           <input
             id={ids.name}
-           
+            disabled={!scriptRunning}
             type="text"
             autoComplete="name"
             maxLength={QUOTE_LIMITS.name}
@@ -197,6 +214,10 @@ export function QuoteForm({ lines, deadlines, defaultDeadline, unsure, whatsappN
             {labels.submitNote}
             {whatsappNumber === null ? <span className="mt-1 block type-label">[{labels.pendingNote}]</span> : null}
           </p>
+          {/* Without JavaScript the form stays off: say why. */}
+          <noscript>
+            <p className="basis-full text-sm leading-normal">{labels.noScript}</p>
+          </noscript>
         </div>
       </form>
 

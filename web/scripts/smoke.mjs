@@ -300,11 +300,19 @@ for (const locale of locales) {
   // Before its script runs, the browser could send the form by itself: nothing to send, and no way to send it.
   const formHtml = contact.body.match(/<form\b[\s\S]*?<\/form>/)?.[0] ?? "";
   const namedFields = [...formHtml.matchAll(/<(?:input|select|textarea)\b[^>]*\sname="([^"]*)"/gi)].map((match) => match[1]);
+  const isOff = (tag) => /\sdisabled(=""|[\s>/])/i.test(tag);
+  const controls = [...formHtml.matchAll(/<(?:input|select|textarea)\b[^>]*>/gi)].map((match) => match[0]);
   const submitButton = formHtml.match(/<button\b[^>]*type="submit"[^>]*>/i)?.[0] ?? "";
   check(
     `[${locale}] quote form cannot be sent by the browser alone (no field names, send button off)`,
-    formHtml !== "" && namedFields.length === 0 && /\sdisabled(=""|[\s>])/i.test(submitButton),
+    formHtml !== "" && namedFields.length === 0 && isOff(submitButton),
     namedFields.length > 0 ? `named fields: ${namedFields.join(", ")}` : submitButton || "no form",
+  );
+  // The fields wait for the script too: what is typed before it runs would be erased, and without it the form says why it is off.
+  check(
+    `[${locale}] quote form fields are off until the script runs, with a note for no JavaScript`,
+    controls.length === 5 && controls.every(isOff) && /<noscript>[\s\S]*<\/noscript>/.test(formHtml) && decode(formHtml).includes(text.noScript),
+    `${controls.filter(isOff).length} of ${controls.length} fields off`,
   );
   check(`[${locale}] contact page links to no invented WhatsApp number`, siteConfig.contact.whatsapp.status === "ready" || !contact.body.includes("wa.me/"));
 }

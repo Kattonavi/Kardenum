@@ -135,6 +135,7 @@
     "submit": "Send on WhatsApp",
     "submitNote": "WhatsApp opens with your message ready. This form does not store your data.",
     "pendingNote": "WhatsApp coming soon",
+    "noScript": "The quote form needs JavaScript to build the message.",
     "previewRegion": "Message preview",
     "previewLabel": "This is how the message arrives",
     "previewName": "name",
