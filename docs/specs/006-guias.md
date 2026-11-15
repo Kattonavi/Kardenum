@@ -13,7 +13,7 @@ del lanzamiento): esta spec entrega la plantilla lista, de modo que publicar una
 |---|---|
 | RF-1 | El índice (`/guias`, `/en/guides`) DEBE mostrar: migas (Inicio › Guías), rótulo, título "Guías para entender antes de decidir.", el texto de la maqueta, los filtros por línea (Todas y las cinco líneas, sin JavaScript, como en el portafolio) y una tarjeta por guía: "Guía · línea", fecha de publicación, título, resumen y "Leer guía". |
 | RF-2 | Cada guía DEBE tener su página en `/guias/<slug>` y `/en/guides/<slug>` (slug propio por idioma) con: migas (Inicio › Guías › nombre corto), rótulo "Guía · línea", título, resumen, "Por Kardenum", fecha de publicación y de actualización visibles (`<time datetime>`), minutos de lectura, el índice "En esta guía" con un enlace por sección, las secciones numeradas (00 · Antes de empezar … Siguientes pasos), el bloque "Servicio relacionado" con sus dos botones, "Guías relacionadas" (si hay otras) y el cierre de contacto. |
-| RF-3 | El contenido de una guía DEBE poder usar, además de párrafos, listas, enlaces y énfasis: la lista "Qué necesitas", una captura con su descripción (que también es su texto alternativo), un bloque de código y una nota. Un bloque de código largo NO DEBE ensanchar la página: se desplaza dentro de su caja y se puede enfocar con teclado. |
+| RF-3 | El contenido de una guía DEBE poder usar, además de párrafos, listas, enlaces y énfasis: la lista "Qué necesitas", una captura con su descripción (que también es su texto alternativo), un bloque de código, una nota y tablas. Un bloque de código largo o una tabla ancha NO DEBEN ensanchar la página: se desplazan dentro de su propia caja, que se puede enfocar con teclado y dice qué es. Las tablas llevan el estilo de la identidad (reglas finas, encabezados en la tipografía de rótulo) y respetan la alineación de cada columna. |
 | RF-4 | El bloque "Servicio relacionado" DEBE enlazar a la subpágina o línea de la guía ("Ver el servicio") y a su canal de cotización (Discord en Minecraft y Discord; el cotizador con la línea preseleccionada en las demás), con las mismas reglas de la spec 004 (RF-5). "Ver el servicio" solo se muestra si esa página es pública. |
 | RF-5 | Cada guía DEBE llevar título y descripción únicos por idioma, canonical propio, hreflang (es, en, x-default → inglés) con el slug de cada idioma, `BreadcrumbList` y `Article` (título, autor y editor → la organización, fechas de publicación y actualización, imagen), y los enlaces ES / EN DEBEN llevar a la misma guía en el otro idioma. |
 | RF-6 | MIENTRAS `features.guides` sea `false`, índice y guías DEBEN llevar `noindex` aunque el sitio esté abierto, quedar fuera del sitemap, y ninguna página pública DEBE enlazarlos. CUANDO sea `true`, entran al sitemap, al pie de página y a las páginas de servicio que la maqueta indica. |
@@ -26,19 +26,26 @@ del lanzamiento): esta spec entrega la plantilla lista, de modo que publicar una
 Probado en un clon de descarte con `@next/mdx` 16.4.2 sobre Next 16.4.6 y Turbopack: compila y queda estático; la
 importación dinámica por idioma y slug funciona; el archivo puede exportar sus propios datos; los componentes
 propios llegan por `mdx-components.tsx`; el HTML no trae estilos en línea ni hay violaciones de la política en el
-navegador; no agrega JavaScript al navegador; `pnpm audit --prod` sin avisos. Las tablas de Markdown NO se
-convierten (hace falta otro complemento): las guías no usan tablas.
+navegador; no agrega JavaScript al navegador; `pnpm audit --prod` sin avisos.
+
+**Tablas (decisión del fundador, 2026-11-15):** sí, con `remark-gfm` 4.0.1 (solo compilación; publicado el
+2025-02-10). Probado: compila con Turbopack (el complemento se nombra como texto en `createMDX`), no agrega
+JavaScript y el audit sigue limpio. **Con la configuración por defecto rompe la política de contenido:** una columna
+alineada sale como `style="text-align:…"` (6 violaciones en el navegador y la alineación se pierde). Con
+`tableCellAlignToStyle: false` sale el atributo `align` y no hay violaciones. Los componentes de celda convierten
+esa alineación en una clase y no dejan el atributo obsoleto en el HTML. `remark-gfm` también activa tachado y
+enlaces automáticos. **Sin resaltado de sintaxis** (confirmado por el fundador).
 
 - **Dependencias nuevas** (las nombra el plan: "next-intl y MDX"): `@next/mdx` 16.4.2, `@mdx-js/loader` 3.1.1,
-  `@mdx-js/react` 3.1.1 y `@types/mdx` 2.0.14, fijadas. `@next/mdx` va en 16.4.2 y no en 16.4.6 porque la regla del
+  `@mdx-js/react` 3.1.1, `@types/mdx` 2.0.14 y `remark-gfm` 4.0.1, fijadas. `@next/mdx` va en 16.4.2 y no en 16.4.6 porque la regla del
   Workspace pide más de 30 días de publicada (16.4.2: 2026-10-15); se sube junto con Next. Sin resaltado de sintaxis
-  ni otros complementos.
+  ni más complementos.
 - **Una guía = una carpeta** en `src/content/guides/<id>/`: `meta.ts` (tipado: línea, servicio relacionado, slug,
   nombre corto, título, resumen, fechas, minutos de lectura y títulos de las secciones, todo por idioma) y `es.mdx` +
   `en.mdx` con el cuerpo. Los títulos de las secciones viven solo en `meta.ts`; el cuerpo marca cada sección con un
   componente que recibe su número. `src/content/guides/index.ts` las registra.
 - **Colección** `/guias/[slug]` ↔ `/guides/[slug]`, sobre lo construido en la spec 005.
-- **Componentes de guía** (`mdx-components.tsx`): sección numerada, "Qué necesitas", captura, código y nota, con la
+- **Componentes de guía** (`mdx-components.tsx`): sección numerada, "Qué necesitas", captura, código, nota y tabla, con la
   tipografía de la maqueta. Las capturas usan `next/image` con importación estática y el mismo tope de peso de la 005.
 - **Imagen social:** la del índice de guías (una por guía queda en el backlog).
 
@@ -51,7 +58,7 @@ tienda Tebex para tu servidor de Minecraft" (Minecraft), "Pterodactyl: qué es y
 
 ## Fuera de alcance
 
-- Escribir las guías. Resaltado de sintaxis, tablas, buscador, RSS, imagen social por guía.
+- Escribir las guías. Resaltado de sintaxis, buscador, RSS, imagen social por guía.
 - "Guías" dentro de las páginas de línea y subpáginas (se conecta al publicar la primera guía de cada una).
 
 ## Pruebas

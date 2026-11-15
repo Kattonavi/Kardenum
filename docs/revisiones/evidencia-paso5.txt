@@ -70,3 +70,15 @@ Hallazgo: añadir la plantilla dinámica al registro de rutas fijas rompe los en
   navegador: 0 mensajes de CSP, 0 mensajes de consola; 9 archivos .js, los mismos que /nosotros (MDX no agrega JS al cliente)
   Versiones: @next/mdx 16.4.6 se publicó el 2026-11-09 (menos de 30 días); 16.4.2 es del 2026-10-15 y funciona con Next 16.4.6.
 
+-- L3. Tablas en las guías: remark-gfm 4.0.1 (publicado 2025-02-10) con @next/mdx 16.4.2, Turbopack y la CSP del sitio
+Tabla de prueba con tres columnas alineadas (izquierda, centro, derecha).
+a) createMDX({ options: { remarkPlugins: ["remark-gfm"] } })
+   build exit 0 · la tabla sale como <table> · atributos style en la página: 6
+   <th style="text-align:left"> <th style="text-align:center"> <th style="text-align:right"> (y sus <td>)
+   navegador: 6 mensajes "Applying inline style violates ... 'style-src 'self''"; alineación calculada: center, center, center (perdida)
+b) createMDX({ options: { remarkPlugins: ["remark-gfm"], tableCellAlignToStyle: false } })
+   build exit 0 · atributos style en la página: 0 · <th align="left"> <th align="center"> <th align="right">
+   navegador: 0 mensajes de CSP, 0 mensajes de consola; alineación calculada: left, center, right
+En ambos: pnpm audit --prod sin avisos; 9 archivos .js en el navegador (los mismos que sin MDX); tachado y enlaces automáticos activos;
+la tabla queda dentro de su caja con desplazamiento propio (componente table de mdx-components.tsx).
+

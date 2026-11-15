@@ -134,6 +134,10 @@ Detalle en `docs/handoff/docs/seo-sitio.md`. Nichos primero (Minecraft y Discord
 - **Cotizador con enlace a la política y sin casilla de autorización** (excepción al estándar del Workspace, a
   confirmar con el abogado): el formulario no guarda ni envía datos al sitio.
 - **HSTS sin `includeSubDomains` ni `preload`**, y **`/discord` con 307**: decididos por el fundador.
+- **Umami en instancia propia en Railway** (decisión del fundador, 2026-11-15), al comprar el dominio. No Umami Cloud.
+- **Los enlaces de las líneas en el pie y las migas en Nosotros se quedan** (confirmado por el fundador, 2026-11-15).
+- **Guías: sin resaltado de sintaxis y con tablas** (`remark-gfm`, solo compilación), con su propio desplazamiento
+  horizontal y el estilo de la identidad (spec 006).
 - **`SITE_LAUNCH_CHECK=off` solo en local:** en Railway o en CI ese interruptor hace fallar el build.
 - **Nosotros con migas** (cambio del 2026-11-15): la maqueta no las trae, pero el plan de SEO las pide en toda página
   interna y está por encima de las maquetas en el orden de fuentes. La prueba de humo las exige, con su `BreadcrumbList`.
