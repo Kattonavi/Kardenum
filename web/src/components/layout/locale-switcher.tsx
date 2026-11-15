@@ -1,8 +1,10 @@
 "use client";
 
-import { Link, usePathname } from "@/i18n/navigation";
+import Link from "next/link";
+import { usePathname } from "@/i18n/navigation";
 import { type AppLocale, locales } from "@/i18n/locales";
 import { rememberLanguage } from "@/lib/language-choice";
+import { pathInLocale } from "@/routes";
 
 type LocaleSwitcherProps = {
   locale: AppLocale;
@@ -14,8 +16,9 @@ type LocaleSwitcherProps = {
 };
 
 /**
- * ES / EN. Each option leads to the same page in that language (never to the home page)
- * and the choice is remembered, so the language bar stops offering the other version.
+ * ES / EN. Each option leads to the same page in that language (never to the home page),
+ * at its final address, and the choice is remembered, so the language bar stops offering
+ * the other version.
  */
 export function LocaleSwitcher({ locale, label, names, variant }: LocaleSwitcherProps) {
   const pathname = usePathname();
@@ -28,8 +31,7 @@ export function LocaleSwitcher({ locale, label, names, variant }: LocaleSwitcher
           return (
             <Link
               key={option}
-              href={pathname}
-              locale={option}
+              href={pathInLocale(pathname, option)}
               lang={option}
               hrefLang={option}
               aria-current={current ? "true" : undefined}
@@ -58,8 +60,7 @@ export function LocaleSwitcher({ locale, label, names, variant }: LocaleSwitcher
               </span>
             ) : null}
             <Link
-              href={pathname}
-              locale={option}
+              href={pathInLocale(pathname, option)}
               lang={option}
               hrefLang={option}
               title={names[option]}

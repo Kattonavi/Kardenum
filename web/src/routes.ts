@@ -77,6 +77,19 @@ export function localizedPath(pathname: AppPathname, locale: AppLocale): string 
   }
 }
 
+export function isAppPathname(value: string): value is AppPathname {
+  return Object.hasOwn(routeTable, value);
+}
+
+/**
+ * Address of the page on screen in another language, for the ES / EN links and the language bar.
+ * It is the final address: next-intl's Link would add "/es" when a locale is passed, which only
+ * works through a redirect. A path outside the registry leads to that language's home page.
+ */
+export function pathInLocale(pathname: string, locale: AppLocale): string {
+  return localizedPath(isAppPathname(pathname) ? pathname : "/", locale);
+}
+
 /** Absolute URL on the site's origin (SITE_URL). The root has no trailing slash, like every other page. */
 export function absoluteUrl(path: string, env: Env = process.env): string {
   if (!path.startsWith("/")) throw new Error(`absoluteUrl expects a path starting with "/": ${path}`);

@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { ArrowRightIcon, CloseIcon } from "@/components/ui/icons";
-import { Link, usePathname } from "@/i18n/navigation";
+import { usePathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/locales";
 import { hideLanguageOffer, rememberLanguage } from "@/lib/language-choice";
+import { pathInLocale } from "@/routes";
 import { Container } from "./container";
 
 type LanguageBarProps = {
@@ -36,8 +38,7 @@ export function LanguageBar({ locale, offered, regionLabel, text, action, dismis
         <p className="text-[15px] leading-normal">{text}</p>
         <div className="flex items-center gap-2">
           <Link
-            href={pathname}
-            locale={offered}
+            href={pathInLocale(pathname, offered)}
             hrefLang={offered}
             onClick={() => rememberLanguage(offered)}
             className="inline-flex min-h-11 items-center gap-2 border border-ink px-4 text-xs tracking-[0.12em] type-display transition-colors duration-150 hover:bg-ink hover:text-stone"

@@ -100,3 +100,60 @@ test.describe("browser in Spanish", () => {
     await expect(bar(page)).toBeHidden();
   });
 });
+
+// Inner pages have a different address in each language (translated slugs): the links must go
+// to the final address of the same page, not to the other home page and not through a redirect.
+test.describe("translated addresses", () => {
+  test("ES / EN on an inner page: same page, final address, no redirect", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop", "the header shows ES / EN at every width; one size is enough here");
+    const redirects: string[] = [];
+    page.on("response", (response) => {
+      if (response.status() >= 300 && response.status() < 400) redirects.push(`${response.status()} ${response.url()}`);
+    });
+
+    await page.goto("/servicios/desarrollo");
+    const switcher = page.getByRole("banner").getByRole("group", { name: "Idioma" });
+    await expect(switcher.getByRole("link", { name: "es", exact: true })).toHaveAttribute("href", "/servicios/desarrollo");
+    await expect(switcher.getByRole("link", { name: "en", exact: true })).toHaveAttribute("href", "/en/services/development");
+
+    await switcher.getByRole("link", { name: "en", exact: true }).click();
+    await expect(page).toHaveURL(/\/en\/services\/development$/);
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+
+    const english = page.getByRole("banner").getByRole("group", { name: "Language" });
+    await expect(english.getByRole("link", { name: "es", exact: true })).toHaveAttribute("href", "/servicios/desarrollo");
+    await english.getByRole("link", { name: "es", exact: true }).click();
+    await expect(page).toHaveURL(/\/servicios\/desarrollo$/);
+    await expect(page.locator("html")).toHaveAttribute("lang", "es");
+    expect(redirects).toEqual([]);
+  });
+
+  test("the phone menu offers the same page in the other language", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "mobile", "phone layout only");
+    await page.goto("/en/about");
+    await page.getByRole("button", { name: "Open menu" }).click();
+    const language = page.getByRole("dialog", { name: "Menu" }).getByRole("group", { name: "Language" });
+    await expect(language.getByRole("link", { name: "Español" })).toHaveAttribute("href", "/nosotros");
+    await expect(language.getByRole("link", { name: "English" })).toHaveAttribute("href", "/en/about");
+  });
+
+  test("the language bar offers the same inner page, not the home page", async ({ browser }) => {
+    const englishBrowser = await browser.newContext({ locale: "en-US" });
+    const spanishPage = await englishBrowser.newPage();
+    await spanishPage.goto("/contacto");
+    await expect(bar(spanishPage).getByRole("link", { name: "View in English" })).toHaveAttribute("href", "/en/contact");
+    await bar(spanishPage).getByRole("link", { name: "View in English" }).click();
+    await expect(spanishPage).toHaveURL(/\/en\/contact$/);
+    await englishBrowser.close();
+
+    const spanishBrowser = await browser.newContext({ locale: "es-CO" });
+    const englishPage = await spanishBrowser.newPage();
+    await englishPage.goto("/en/services/minecraft");
+    await expect(bar(englishPage).getByRole("link", { name: "Ver en español" })).toHaveAttribute("href", "/servicios/minecraft");
+    await bar(englishPage).getByRole("link", { name: "Ver en español" }).click();
+    await expect(englishPage).toHaveURL(/\/servicios\/minecraft$/);
+    await expect(englishPage.locator("html")).toHaveAttribute("lang", "es");
+    await spanishBrowser.close();
+  });
+});

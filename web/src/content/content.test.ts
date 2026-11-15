@@ -93,6 +93,20 @@ test("every text exists in both languages and is not left empty", () => {
   for (const text of [...es, ...en]) assert.notEqual(text.trim(), "", "empty text in the content");
 });
 
+test("the interface messages have the same keys in both languages, none empty", () => {
+  const keyPaths = (value: unknown, prefix = ""): string[] =>
+    value && typeof value === "object"
+      ? Object.entries(value).flatMap(([key, child]) => keyPaths(child, prefix ? `${prefix}.${key}` : key))
+      : [prefix];
+  const read = (locale: AppLocale): unknown => JSON.parse(readFileSync(path.join(webDir, "messages", `${locale}.json`), "utf8"));
+
+  // A key missing in one language would show its own name on the page instead of failing the build.
+  assert.deepEqual(keyPaths(read("en")).sort(), keyPaths(read("es")).sort());
+  for (const locale of locales) {
+    for (const text of messages(locale)) assert.notEqual(text.trim(), "", `empty message in ${locale}.json`);
+  }
+});
+
 test("there are five service lines, numbered I to V, each pointing to its own route", () => {
   assert.deepEqual(serviceLines.map((line) => line.numeral), ["I", "II", "III", "IV", "V"]);
   assert.equal(new Set(serviceLines.map((line) => line.pathname)).size, 5);

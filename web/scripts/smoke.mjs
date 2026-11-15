@@ -152,6 +152,19 @@ for (const pathname of publicPathnames()) {
       JSON.stringify(hreflang),
     );
 
+    // ES / EN and the language bar link to the same page at its final address (no /es prefix, no home page).
+    // React writes the attribute as hrefLang: HTML attribute names are case-insensitive.
+    const languageLinks = [...page.body.matchAll(/<a\b[^>]*\bhreflang="(es|en)"[^>]*>/gi)].map(([tag, language]) => ({
+      language,
+      href: decode(tag.match(/\bhref="([^"]*)"/)?.[1] ?? ""),
+    }));
+    const wrongLinks = languageLinks.filter((link) => link.href !== localizedPath(pathname, link.language));
+    check(
+      `${label} language links go to this page in each language, without redirect`,
+      wrongLinks.length === 0 && locales.every((language) => languageLinks.some((link) => link.language === language)),
+      wrongLinks.length > 0 ? wrongLinks.map((link) => `${link.language}: ${link.href}`).join(", ") : `${languageLinks.length} links`,
+    );
+
     check(`${label} og:url is the canonical`, metaTag("property", "og:url") === alternates[locale], metaTag("property", "og:url") ?? "none");
     check(`${label} og:site_name and twitter card`, metaTag("property", "og:site_name") === siteConfig.name && metaTag("name", "twitter:card") === "summary_large_image");
 

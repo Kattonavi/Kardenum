@@ -7,12 +7,17 @@ import { locales } from "@/i18n/locales";
 import {
   absoluteUrl,
   appPathnames,
+  breadcrumbTrail,
+  footerNotices,
   intlPathnames,
+  isAppPathname,
   isListed,
   languageAlternates,
   localizedPath,
+  pathInLocale,
   publicPathnames,
   routeTable,
+  shortLinkRedirects,
 } from "@/routes";
 import { siteConfig } from "@/site.config";
 
@@ -94,4 +99,46 @@ test("the sitemap set is exactly the pages that are built and listed", () => {
   const expected = appPathnames.filter((pathname) => routeTable[pathname].built && routeTable[pathname].listed);
   assert.deepEqual(publicPathnames(), expected);
   assert.ok(publicPathnames().includes("/"));
+});
+
+test("language links go to the final address of the same page, never through a redirect", () => {
+  assert.equal(pathInLocale("/", "es"), "/");
+  assert.equal(pathInLocale("/", "en"), "/en");
+  assert.equal(pathInLocale("/servicios/desarrollo", "es"), "/servicios/desarrollo");
+  assert.equal(pathInLocale("/servicios/desarrollo", "en"), "/en/services/development");
+  assert.equal(pathInLocale("/nosotros", "en"), "/en/about");
+  for (const pathname of appPathnames) {
+    assert.equal(pathInLocale(pathname, "es").startsWith("/es"), false, pathname);
+  }
+  // A path outside the registry (it should never reach the header) leads to that language's home page.
+  for (const unknown of ["/no-existe", "", "constructor", "/en/services"]) {
+    assert.equal(pathInLocale(unknown, "es"), "/");
+    assert.equal(pathInLocale(unknown, "en"), "/en");
+  }
+});
+
+test("breadcrumbs list every parent page that exists; trademark notices follow the section", () => {
+  assert.deepEqual(breadcrumbTrail("/"), ["/"]);
+  assert.deepEqual(breadcrumbTrail("/contacto"), ["/", "/contacto"]);
+  assert.deepEqual(breadcrumbTrail("/servicios/minecraft/tebex"), ["/", "/servicios", "/servicios/minecraft", "/servicios/minecraft/tebex"]);
+  // "/legal" is not a page: the trail skips it.
+  assert.deepEqual(breadcrumbTrail("/legal/privacidad"), ["/", "/legal/privacidad"]);
+
+  assert.deepEqual(footerNotices("/"), ["minecraft"]);
+  assert.deepEqual(footerNotices("/servicios/minecraft"), ["minecraft"]);
+  assert.deepEqual(footerNotices("/servicios/discord"), ["minecraft", "discord"]);
+  assert.deepEqual(footerNotices("/servicios/discord/bots"), ["minecraft", "discord"]);
+  assert.deepEqual(footerNotices("/servicios/discordia"), ["minecraft"]);
+});
+
+test("short links redirect permanently, only to pages that exist", () => {
+  for (const redirect of shortLinkRedirects()) {
+    assert.equal(redirect.permanent, true);
+    assert.ok(isAppPathname(redirect.destination) && routeTable[redirect.destination].built, redirect.destination);
+    assert.equal(isAppPathname(redirect.source), false, `${redirect.source} is already a page`);
+  }
+  assert.deepEqual(
+    shortLinkRedirects().map((redirect) => [redirect.source, redirect.destination]),
+    [["/minecraft", "/servicios/minecraft"]],
+  );
 });
