@@ -23,27 +23,42 @@ export type QuoteLabels = {
   deadline: string;
 };
 
+/**
+ * Half of an emoji (pasted, or left by a field that cut it) is a lone surrogate, and
+ * encodeURIComponent throws on it. With the `u` flag the class matches only unpaired ones.
+ */
+const withoutBrokenCharacters = (value: string): string => value.replace(/[\uD800-\uDFFF]/gu, "");
+
+/** At most `limit` characters, counted as whole characters so the cut never splits one. */
+const truncate = (value: string, limit: number): string => Array.from(value).slice(0, limit).join("");
+
 /** One line, single spaces, no control characters, cut to the limit. */
 export function cleanName(value: string): string {
-  return value
+  const oneLine = withoutBrokenCharacters(value)
     .replace(/[\u0000-\u001f\u007f]/g, " ")
     .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, QUOTE_LIMITS.name)
     .trim();
+  return truncate(oneLine, QUOTE_LIMITS.name).trim();
 }
 
 /** Keeps the paragraphs the person wrote, without control characters or runs of blank lines. */
 export function cleanDescription(value: string): string {
-  return value
+  const paragraphs = withoutBrokenCharacters(value)
     .replace(/\r\n?/g, "\n")
     .replace(/[\u0000-\u0009\u000b-\u001f\u007f]/g, " ")
     .replace(/[^\S\n]+/g, " ")
     .replace(/ ?\n ?/g, "\n")
     .replace(/\n{3,}/g, "\n\n")
-    .trim()
-    .slice(0, QUOTE_LIMITS.description)
     .trim();
+  return truncate(paragraphs, QUOTE_LIMITS.description).trim();
+}
+
+/**
+ * "Soy {name}." with the name in its place. The replacement is a function on purpose: as a
+ * string, "$&" or "$$" typed in a name would be read as patterns and change the message.
+ */
+export function introduce(introduction: string, name: string): string {
+  return introduction.replace("{name}", () => name);
 }
 
 /** The message exactly as it reaches the studio. Without a name there is no "Soy…"; without an idea, no last paragraph. */
@@ -51,7 +66,7 @@ export function buildQuoteMessage(fields: QuoteFields, labels: QuoteLabels): str
   const name = cleanName(fields.name);
   const description = cleanDescription(fields.description);
   const lines = [
-    name ? `${labels.greeting} ${labels.introduction.replace("{name}", name)}` : labels.greeting,
+    name ? `${labels.greeting} ${introduce(labels.introduction, name)}` : labels.greeting,
     `${labels.line}: ${fields.line}`,
     `${labels.project}: ${fields.projectType}`,
     `${labels.deadline}: ${fields.deadline}`,

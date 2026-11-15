@@ -2,6 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, type Page, test } from "@playwright/test";
 import { locales } from "../src/i18n/locales";
 import { localizedPath, publicPathnames } from "../src/routes";
+import { sidewaysOverflow } from "./helpers";
 
 // BRIEF.md → "Accesibilidad (WCAG 2.1 AA)". axe finds roughly half of the problems; the rest
 // (keyboard, focus order) is covered by navigation.spec.ts and language.spec.ts.
@@ -42,9 +43,9 @@ for (const path of PAGES) {
 
   test(`${path} does not scroll sideways, down to 320 px`, async ({ page }) => {
     await page.goto(path);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    expect(await sidewaysOverflow(page), "at the project's width").toBe(0);
     await page.setViewportSize({ width: 320, height: 640 });
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    expect(await sidewaysOverflow(page), "at 320 px").toBe(0);
   });
 
   test(`${path} touch targets are at least 44 px`, async ({ page }) => {

@@ -1,5 +1,6 @@
 import { expect, type Page, test } from "@playwright/test";
 import { siteConfig } from "../src/site.config";
+import { sidewaysOverflow } from "./helpers";
 
 // Contact page and WhatsApp quote form (docs/specs/002-cotizador-whatsapp.md, maqueta B-Contacto).
 
@@ -194,8 +195,26 @@ test("RF-8: a line page sends its line preselected; anything else in the address
 
   for (const value of ["otra", "Minecraft", "%3Cscript%3E", ""]) {
     await page.goto(`/contacto?linea=${value}`);
-    await expect(quoteForm(page).line.locator("option:checked")).toHaveText("Desarrollo");
+    const ignored = quoteForm(page);
+    // "Desarrollo" is also what the server HTML shows: wait until the script has read the address.
+    await expect(ignored.submit).not.toHaveAttribute("disabled", /.*/);
+    await expect(ignored.line.locator("option:checked")).toHaveText("Desarrollo");
+    await expect(ignored.preview).toContainText("Línea: Desarrollo");
   }
+});
+
+test("RF-7: a long word typed by the visitor wraps instead of widening the page", async ({ page }) => {
+  await page.goto("/contacto");
+  const form = quoteForm(page);
+  await form.name.fill("W".repeat(80));
+  await form.idea.fill(`${"M".repeat(400)} https://ejemplo.test/${"a".repeat(300)}`);
+  await expect(form.preview).toContainText("W".repeat(80));
+
+  expect(await sidewaysOverflow(page), "at the project's width").toBe(0);
+  await page.setViewportSize({ width: 320, height: 640 });
+  expect(await sidewaysOverflow(page), "at 320 px").toBe(0);
+  const box = await form.preview.boundingBox();
+  expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(320);
 });
 
 test("the quote form speaks English on the English page", async ({ page }) => {
@@ -231,4 +250,29 @@ test("the form is usable with the keyboard alone", async ({ page }, testInfo) =>
   await page.keyboard.press("Tab");
   await expect(form.submit).toBeFocused();
   await expect(form.preview).toContainText("Una idea");
+});
+
+// Before the page's script runs (slow phone) or without JavaScript, the browser would send the
+// form by itself. Nothing typed may leave the page that way either.
+test.describe("without JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("RF-5: the browser cannot send the form on its own", async ({ page }) => {
+    await page.goto("/contacto");
+    const form = quoteForm(page);
+    await form.name.fill(`Ana ${CANARY}`);
+    await form.idea.fill(`Idea ${CANARY}`);
+
+    // The send button is off until the script is running, so Enter in a field sends nothing.
+    await expect(form.submit).toBeDisabled();
+    await form.name.press("Enter");
+    await page.waitForLoadState("load");
+    expect(page.url()).not.toContain("?");
+
+    // Even a forced native submission carries nothing: the fields have no name.
+    await form.section.locator("form").evaluate((element: HTMLFormElement) => element.submit());
+    await page.waitForLoadState("load");
+    expect(decodeURIComponent(page.url())).not.toContain(CANARY);
+    expect(new URL(page.url()).search.replace("?", "")).toBe("");
+  });
 });

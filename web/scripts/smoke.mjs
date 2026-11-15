@@ -297,6 +297,15 @@ for (const locale of locales) {
   const fields = [text.fieldLine, text.fieldType, text.fieldIdea, text.fieldDeadline, text.fieldName];
   check(`[${locale}] quote form: five labelled fields in the HTML`, count(contact.body, /<label[\s>]/g) === 5 && fields.every((field) => html.includes(field)), `${count(contact.body, /<label[\s>]/g)} labels`);
   check(`[${locale}] quote form says it does not store the data`, html.includes(text.submitNote));
+  // Before its script runs, the browser could send the form by itself: nothing to send, and no way to send it.
+  const formHtml = contact.body.match(/<form\b[\s\S]*?<\/form>/)?.[0] ?? "";
+  const namedFields = [...formHtml.matchAll(/<(?:input|select|textarea)\b[^>]*\sname="([^"]*)"/gi)].map((match) => match[1]);
+  const submitButton = formHtml.match(/<button\b[^>]*type="submit"[^>]*>/i)?.[0] ?? "";
+  check(
+    `[${locale}] quote form cannot be sent by the browser alone (no field names, send button off)`,
+    formHtml !== "" && namedFields.length === 0 && /\sdisabled(=""|[\s>])/i.test(submitButton),
+    namedFields.length > 0 ? `named fields: ${namedFields.join(", ")}` : submitButton || "no form",
+  );
   check(`[${locale}] contact page links to no invented WhatsApp number`, siteConfig.contact.whatsapp.status === "ready" || !contact.body.includes("wa.me/"));
 }
 

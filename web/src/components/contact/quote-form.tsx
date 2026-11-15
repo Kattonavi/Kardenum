@@ -3,7 +3,16 @@
 import { type FormEvent, useId, useState, useSyncExternalStore } from "react";
 import { buttonClass } from "@/components/ui/button";
 import { ArrowRightIcon } from "@/components/ui/icons";
-import { QUOTE_LIMITS, type QuoteLabels, buildQuoteMessage, buildWhatsAppUrl, cleanDescription, cleanName, parseLineParam } from "@/lib/quote";
+import {
+  QUOTE_LIMITS,
+  type QuoteLabels,
+  buildQuoteMessage,
+  buildWhatsAppUrl,
+  cleanDescription,
+  cleanName,
+  introduce,
+  parseLineParam,
+} from "@/lib/quote";
 
 export type QuoteLine = { id: string; name: string; projectTypes: string[] };
 
@@ -44,9 +53,19 @@ const subscribeToNothing = () => () => {};
 /**
  * WhatsApp quote form (docs/specs/002-cotizador-whatsapp.md). It only builds a message and
  * opens the chat: nothing typed here is stored or sent anywhere else.
+ *
+ * RF-5 also holds before this script runs (slow phone) and without JavaScript, when the browser
+ * would send the form by itself: the fields have no `name`, so there is nothing to send, and the
+ * send button is off until the script is running, so not even Enter submits it.
  */
 export function QuoteForm({ lines, deadlines, defaultDeadline, unsure, whatsappNumber, messageLabels, labels }: QuoteFormProps) {
   const ids = { line: useId(), type: useId(), idea: useId(), deadline: useId(), name: useId(), note: useId() };
+  // False in the server HTML and until React takes over the page.
+  const scriptRunning = useSyncExternalStore(
+    subscribeToNothing,
+    () => true,
+    () => false,
+  );
 
   // RF-8: `?linea=<id>` preselects a line. Read in the browser so the page stays static;
   // the server render uses the first line.
@@ -89,7 +108,7 @@ export function QuoteForm({ lines, deadlines, defaultDeadline, unsure, whatsappN
           <label htmlFor={ids.line} className={labelClass}>
             1 · {labels.line}
           </label>
-          <select id={ids.line} name="linea" value={line.id} onChange={(event) => chooseLine(event.target.value)} className={fieldClass}>
+          <select id={ids.line} value={line.id} onChange={(event) => chooseLine(event.target.value)} className={fieldClass}>
             {lines.map((option) => (
               <option key={option.id} value={option.id}>
                 {option.name}
@@ -104,7 +123,7 @@ export function QuoteForm({ lines, deadlines, defaultDeadline, unsure, whatsappN
           </label>
           <select
             id={ids.type}
-            name="tipo"
+           
             value={projectType}
             onChange={(event) => setChosenType(event.target.value)}
             className={fieldClass}
@@ -123,7 +142,7 @@ export function QuoteForm({ lines, deadlines, defaultDeadline, unsure, whatsappN
           </label>
           <textarea
             id={ids.idea}
-            name="descripcion"
+           
             rows={5}
             maxLength={QUOTE_LIMITS.description}
             placeholder={labels.ideaPlaceholder}
@@ -137,7 +156,7 @@ export function QuoteForm({ lines, deadlines, defaultDeadline, unsure, whatsappN
           <label htmlFor={ids.deadline} className={labelClass}>
             4 · {labels.deadline}
           </label>
-          <select id={ids.deadline} name="plazo" value={deadline} onChange={(event) => setDeadline(event.target.value)} className={fieldClass}>
+          <select id={ids.deadline} value={deadline} onChange={(event) => setDeadline(event.target.value)} className={fieldClass}>
             {deadlines.map((option) => (
               <option key={option} value={option}>
                 {option}
@@ -152,7 +171,7 @@ export function QuoteForm({ lines, deadlines, defaultDeadline, unsure, whatsappN
           </label>
           <input
             id={ids.name}
-            name="nombre"
+           
             type="text"
             autoComplete="name"
             maxLength={QUOTE_LIMITS.name}
@@ -166,7 +185,8 @@ export function QuoteForm({ lines, deadlines, defaultDeadline, unsure, whatsappN
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3 pt-2">
           <button
             type="submit"
-            aria-disabled={whatsappNumber === null ? "true" : undefined}
+            disabled={!scriptRunning}
+            aria-disabled={scriptRunning && whatsappNumber === null ? "true" : undefined}
             aria-describedby={ids.note}
             className={`${buttonClass.dark} gap-2.5 ${whatsappNumber === null ? "cursor-not-allowed" : "cursor-pointer"}`}
           >
@@ -182,9 +202,10 @@ export function QuoteForm({ lines, deadlines, defaultDeadline, unsure, whatsappN
 
       <aside aria-label={labels.previewRegion} className="flex min-w-0 flex-[2_1_20rem] flex-col gap-3">
         <p className="type-label text-(--muted-text)">{labels.previewLabel}</p>
-        <div className="flex flex-col gap-2.5 p-7 font-mono text-[13px] leading-[1.7] surface-ink">
+        {/* What the person types has no limit on word length: it wraps anywhere instead of widening the page. */}
+        <div className="flex min-w-0 flex-col gap-2.5 p-7 font-mono text-[13px] leading-[1.7] wrap-anywhere surface-ink">
           <span>
-            {messageLabels.greeting} {messageLabels.introduction.replace("{name}", cleanedName || `[${labels.previewName}]`)}
+            {messageLabels.greeting} {introduce(messageLabels.introduction, cleanedName || `[${labels.previewName}]`)}
           </span>
           <span>
             <span className="text-(--muted-text)">{messageLabels.line}:</span> {line.name}
@@ -195,7 +216,7 @@ export function QuoteForm({ lines, deadlines, defaultDeadline, unsure, whatsappN
           <span>
             <span className="text-(--muted-text)">{messageLabels.deadline}:</span> {deadline}
           </span>
-          <span className={`border-t border-line pt-2 break-words whitespace-pre-wrap ${cleanedDescription ? "" : "text-(--muted-text)"}`}>
+          <span className={`border-t border-line pt-2 whitespace-pre-wrap ${cleanedDescription ? "" : "text-(--muted-text)"}`}>
             {cleanedDescription || `[${labels.previewIdea}]`}
           </span>
         </div>
