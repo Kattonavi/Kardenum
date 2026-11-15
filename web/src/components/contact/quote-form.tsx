@@ -47,7 +47,7 @@ type QuoteFormProps = {
 
 // Fields are off for an instant while the script loads: they keep their look instead of flashing grey.
 const fieldClass = "w-full min-h-12 rounded-none border border-graphite bg-white px-3.5 text-base text-ink disabled:opacity-100";
-const labelClass = "text-[13px] leading-[1.4] tracking-[0.1em] type-display";
+const labelClass = "text-[0.8125rem] leading-[1.4] tracking-[0.1em] type-display";
 
 // The address never changes while the form is on screen: nothing to subscribe to.
 const subscribeToNothing = () => () => {};
@@ -224,7 +224,7 @@ export function QuoteForm({ lines, deadlines, defaultDeadline, unsure, whatsappN
       <aside aria-label={labels.previewRegion} className="flex min-w-0 flex-[2_1_20rem] flex-col gap-3">
         <p className="type-label text-(--muted-text)">{labels.previewLabel}</p>
         {/* What the person types has no limit on word length: it wraps anywhere instead of widening the page. */}
-        <div className="flex min-w-0 flex-col gap-2.5 p-7 font-mono text-[13px] leading-[1.7] wrap-anywhere surface-ink">
+        <div className="flex min-w-0 flex-col gap-2.5 p-7 font-mono text-[0.8125rem] leading-[1.7] wrap-anywhere surface-ink">
           <span>
             {messageLabels.greeting} {introduce(messageLabels.introduction, cleanedName || `[${labels.previewName}]`)}
           </span>
@@ -241,7 +241,7 @@ export function QuoteForm({ lines, deadlines, defaultDeadline, unsure, whatsappN
             {cleanedDescription || `[${labels.previewIdea}]`}
           </span>
         </div>
-        <p className="text-[15px] leading-normal text-(--muted-text)">{labels.previewNote}</p>
+        <p className="text-[0.9375rem] leading-normal text-(--muted-text)">{labels.previewNote}</p>
       </aside>
     </div>
   );

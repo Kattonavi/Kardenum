@@ -66,12 +66,12 @@ export default async function ServicesPage({ params }: PageProps<"/[locale]/serv
                 const subpages = line.subpages.filter((subpage) => isListed(subpage.pathname));
                 return (
                   <li key={line.id} className="flex flex-wrap items-start gap-x-10 gap-y-4 border-b border-(--rule) py-10">
-                    <span aria-hidden="true" className="w-12 shrink-0 font-mono text-[13px] tracking-[0.1em] text-(--muted-text)">
+                    <span aria-hidden="true" className="w-12 shrink-0 font-mono text-[0.8125rem] tracking-[0.1em] text-(--muted-text)">
                       {line.numeral}
                     </span>
                     <div className="flex min-w-0 flex-[1_1_26rem] flex-col gap-3.5">
                       <h2 className="text-[clamp(1.375rem,2.6vw,2rem)] leading-[1.15] tracking-[0.04em] type-display">{line.name[locale]}</h2>
-                      <p className="max-w-[40rem] text-[17px] leading-[1.6] text-(--muted-text)">{line.summary[locale]}</p>
+                      <p className="max-w-[40rem] text-[1.0625rem] leading-[1.6] text-(--muted-text)">{line.summary[locale]}</p>
                       {subpages.length > 0 ? (
                         <ul className="flex flex-wrap gap-2">
                           {subpages.map((subpage) => (
@@ -106,7 +106,7 @@ export default async function ServicesPage({ params }: PageProps<"/[locale]/serv
               <h2 id="guidance-title" className="text-[clamp(1.5rem,2.8vw,2.25rem)] leading-[1.15] tracking-[0.01em] type-display">
                 {t("guidanceTitle")}
               </h2>
-              <p className="max-w-[36rem] text-[17px] leading-[1.6] text-(--muted-text)">{t("guidanceText")}</p>
+              <p className="max-w-[36rem] text-[1.0625rem] leading-[1.6] text-(--muted-text)">{t("guidanceText")}</p>
             </div>
             <AppLink href="/contacto" className={buttonClass.dark}>
               {t("guidanceAction")}

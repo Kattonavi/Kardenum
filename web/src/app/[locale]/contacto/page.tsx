@@ -57,7 +57,7 @@ export default async function ContactPage({ params }: PageProps<"/[locale]/conta
         after={
           <section aria-label={t("channelsLabel")} className="grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-6 pb-24">
             <div className={cardClass}>
-              <span aria-hidden="true" className="font-mono text-[11px] tracking-[0.14em] text-(--muted-text)">
+              <span aria-hidden="true" className="font-mono text-[0.6875rem] tracking-[0.14em] text-(--muted-text)">
                 01
               </span>
               <h2 className="text-xl leading-[1.3] tracking-[0.08em] type-display">{channels("whatsapp")}</h2>
@@ -69,7 +69,7 @@ export default async function ContactPage({ params }: PageProps<"/[locale]/conta
               </div>
             </div>
             <div className={cardClass}>
-              <span aria-hidden="true" className="font-mono text-[11px] tracking-[0.14em] text-(--muted-text)">
+              <span aria-hidden="true" className="font-mono text-[0.6875rem] tracking-[0.14em] text-(--muted-text)">
                 02
               </span>
               <h2 className="text-xl leading-[1.3] tracking-[0.08em] type-display">{channels("discord")}</h2>
@@ -81,13 +81,13 @@ export default async function ContactPage({ params }: PageProps<"/[locale]/conta
               </div>
             </div>
             <div className={cardClass}>
-              <span aria-hidden="true" className="font-mono text-[11px] tracking-[0.14em] text-(--muted-text)">
+              <span aria-hidden="true" className="font-mono text-[0.6875rem] tracking-[0.14em] text-(--muted-text)">
                 03
               </span>
               <h2 className="text-xl leading-[1.3] tracking-[0.08em] type-display">{channels("email")}</h2>
               <p className="leading-[1.55] text-(--muted-text)">{t("emailText")}</p>
               {/* The address, or its bracketed placeholder while it is not defined (site.config.ts). */}
-              <span className="font-mono text-[13px] tracking-[0.04em] break-all">{email.status === "ready" ? email.value : email.placeholder}</span>
+              <span className="font-mono text-[0.8125rem] tracking-[0.04em] break-all">{email.status === "ready" ? email.value : email.placeholder}</span>
               <div className="mt-auto pt-2">
                 <ChannelLink channel="email" className={buttonClass.secondary}>
                   {t("emailAction")}
@@ -103,7 +103,7 @@ export default async function ContactPage({ params }: PageProps<"/[locale]/conta
           <section id={t("quoteId")} aria-labelledby="quote-title" className="flex flex-col gap-10 py-22">
             <div className="flex flex-col gap-4">
               <SectionHeader label={t("quoteLabel")} title={t("quoteTitle")} titleId="quote-title" />
-              <p className="max-w-[40rem] text-[17px] leading-[1.6] text-(--muted-text)">{t("quoteText")}</p>
+              <p className="max-w-[40rem] text-[1.0625rem] leading-[1.6] text-(--muted-text)">{t("quoteText")}</p>
             </div>
             <QuoteForm
               lines={serviceLines.map((line) => ({
@@ -153,7 +153,7 @@ export default async function ContactPage({ params }: PageProps<"/[locale]/conta
                   </span>
                   <span aria-hidden="true" className="h-0.5 w-8 bg-bronze" />
                   <h3 className="leading-[1.4] tracking-[0.1em] type-display">{step.title}</h3>
-                  <p className="text-[15px] leading-normal text-(--muted-text)">{step.text}</p>
+                  <p className="text-[0.9375rem] leading-normal text-(--muted-text)">{step.text}</p>
                 </li>
               ))}
             </ol>

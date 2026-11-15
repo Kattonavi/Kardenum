@@ -16,7 +16,8 @@ cd web
 pnpm install --frozen-lockfile
 pnpm build                                     # eslint + tsc + next build (falla = no se hace push)
 pnpm start                                     # servidor standalone en PORT (3000 por defecto)
-pnpm smoke http://localhost:3000               # prueba de humo; también contra la URL de Railway
+pnpm smoke http://localhost:3000               # prueba de humo
+pnpm smoke https://web-production-f1d7c246.up.railway.app --site-url=self   # contra Railway (compilado con su propia URL)
 ```
 
 ## Indexación

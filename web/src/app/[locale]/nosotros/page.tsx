@@ -54,7 +54,7 @@ export default async function AboutPage({ params }: PageProps<"/[locale]/nosotro
                   </span>
                   <span aria-hidden="true" className="h-0.5 w-8 bg-bronze" />
                   <h3 className="leading-[1.4] tracking-[0.1em] type-display">{principle.title}</h3>
-                  <p className="text-[15px] leading-normal text-(--muted-text)">{principle.text}</p>
+                  <p className="text-[0.9375rem] leading-normal text-(--muted-text)">{principle.text}</p>
                 </li>
               ))}
             </ol>

@@ -48,6 +48,59 @@ for (const path of PAGES) {
     expect(await sidewaysOverflow(page), "at 320 px").toBe(0);
   });
 
+  // WCAG 1.4.4: with the text at twice its size (the root font size, not the browser zoom) nothing
+  // is lost. The header is where it used to break: its menu button ended up off screen.
+  test(`${path} keeps its header usable with text at 200 %`, async ({ page }) => {
+    await page.goto(path);
+    await page.addStyleTag({ content: "html { font-size: 200% }" });
+    const width = page.viewportSize()?.width ?? 0;
+    const banner = page.getByRole("banner");
+
+    // All the text really grows: type set in px would pass every other check without changing.
+    // The smallest type of the site is 11 px at the default size.
+    const smallestText = await page.locator("body *").evaluateAll((elements) =>
+      Math.min(
+        ...elements
+          .filter((element) => element.getClientRects().length > 0 && [...element.childNodes].some((node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim()))
+          .map((element) => parseFloat(getComputedStyle(element).fontSize)),
+      ),
+    );
+    expect(smallestText, "smallest text on the page, in px").toBeGreaterThanOrEqual(22);
+
+    expect(await sidewaysOverflow(page), "sideways overflow").toBe(0);
+    const offScreen = await banner.locator("a, button").evaluateAll(
+      (elements, viewportWidth) =>
+        elements
+          .filter((element) => {
+            const box = element.getBoundingClientRect();
+            // Not rendered (closed panels) or hidden until focused (skip link).
+            if (box.width <= 1 || box.height <= 1) return false;
+            return box.left < 0 || box.right > viewportWidth + 0.5;
+          })
+          .map((element) => (element.textContent ?? "").trim() || element.getAttribute("aria-label") || element.tagName),
+      width,
+    );
+    expect(offScreen, "header controls off screen").toEqual([]);
+
+    const openMenu = banner.getByRole("button", { name: /^(Abrir menú|Open menu)$/ });
+    if (path === "/pagina-que-no-existe") {
+      // The 404 has a static header: its quote link is the way on.
+      await expect(banner.getByRole("link", { name: "Cotizar" })).toBeVisible();
+      return;
+    }
+    // At this text size every width shows the compact header: the menu opens and can be closed.
+    await expect(openMenu).toBeVisible();
+    await openMenu.click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    await expect(dialog.locator('a[href$="/contacto"], a[href$="/en/contact"]').first()).toBeVisible();
+    const close = dialog.getByRole("button", { name: /^(Cerrar menú|Close menu)$/ });
+    const closeBox = await close.boundingBox();
+    expect((closeBox?.x ?? -1) >= 0 && (closeBox?.x ?? 0) + (closeBox?.width ?? 0) <= width + 0.5, "close button on screen").toBe(true);
+    await close.click();
+    await expect(dialog).toBeHidden();
+  });
+
   test(`${path} touch targets are at least 44 px`, async ({ page }) => {
     await page.goto(path);
     const small = await page.evaluate(() => {

@@ -35,8 +35,8 @@ export function LanguageBar({ locale, offered, regionLabel, text, action, dismis
   return (
     <div role="region" aria-label={regionLabel} lang={offered} className="hidden surface-stone lang-offer:block">
       <Container className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 py-2">
-        <p className="text-[15px] leading-normal">{text}</p>
-        <div className="flex items-center gap-2">
+        <p className="text-[0.9375rem] leading-normal">{text}</p>
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
           <Link
             href={pathInLocale(pathname, offered)}
             hrefLang={offered}

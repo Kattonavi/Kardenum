@@ -62,7 +62,7 @@ export function ServicesMenu({ label, lines, allServicesLabel, unsureLabel }: Se
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((value) => !value)}
-        className={`inline-flex min-h-11 cursor-pointer items-center gap-2 border-b-2 text-[15px] transition-colors duration-150 hover:text-(--accent-text) ${
+        className={`inline-flex min-h-11 cursor-pointer items-center gap-2 border-b-2 text-[0.9375rem] transition-colors duration-150 hover:text-(--accent-text) ${
           open || inSection ? "border-bronze" : "border-transparent"
         }`}
       >
@@ -74,7 +74,7 @@ export function ServicesMenu({ label, lines, allServicesLabel, unsureLabel }: Se
         <ul className="grid grid-cols-5">
           {lines.map((line) => (
             <li key={line.href} className="flex flex-col gap-2.5 border-r border-mist p-6 last:border-r-0">
-              <span className="font-mono text-[11px] tracking-[0.1em] text-(--muted-text)">{line.numeral}</span>
+              <span className="font-mono text-[0.6875rem] tracking-[0.1em] text-(--muted-text)">{line.numeral}</span>
               <AppLink
                 href={line.href}
                 onClick={close}
@@ -113,7 +113,7 @@ export function ServicesMenu({ label, lines, allServicesLabel, unsureLabel }: Se
           <AppLink
             href="/contacto"
             onClick={close}
-            className="inline-flex min-h-11 items-center text-[15px] transition-colors duration-150 hover:text-(--accent-text)"
+            className="inline-flex min-h-11 items-center text-[0.9375rem] transition-colors duration-150 hover:text-(--accent-text)"
           >
             {unsureLabel}
           </AppLink>

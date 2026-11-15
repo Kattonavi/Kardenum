@@ -4,7 +4,7 @@
  * They are class names, so the same look serves links, buttons and inert placeholders.
  */
 const base =
-  "inline-flex min-h-12 items-center justify-center px-7 text-[13px] tracking-[0.14em] type-display transition-colors duration-150";
+  "inline-flex min-h-12 items-center justify-center px-7 text-[0.8125rem] tracking-[0.14em] type-display transition-colors duration-150";
 
 export const buttonClass = {
   /** Bronze with ink text: the single accent of a screen. */

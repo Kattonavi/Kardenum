@@ -163,6 +163,23 @@
     @apply surface-ink font-sans antialiased;
   }
 
+  /* Very large text on a narrow screen (WCAG 1.4.4): when the page is narrower than 18rem, a word
+     that does not fit its column breaks instead of widening the page. It is measured with a
+     container query because a media query does not notice the root font size. At the default
+     text size the narrowest supported screen is 20rem wide, so nothing changes there: a long
+     word in a title keeps its natural, unbroken form. */
+  header,
+  main,
+  footer {
+    container-type: inline-size;
+  }
+
+  @container (max-width: 18rem) {
+    :where(header, main, footer) > * {
+      overflow-wrap: anywhere;
+    }
+  }
+
   ::selection {
     background-color: var(--color-bronze);
     color: var(--color-ink);

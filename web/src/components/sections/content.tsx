@@ -115,11 +115,11 @@ export function ChooserGrid({ options }: { options: readonly ChooserCard[] }) {
     <ul className="grid grid-cols-[repeat(auto-fit,minmax(min(250px,100%),1fr))] border-t border-l border-t-(--rule) border-l-mist">
       {options.map((option) => (
         <li key={option.need} className="flex flex-col gap-3 border-r border-b border-mist p-7">
-          <span className="font-mono text-[11px] tracking-[0.14em] text-(--muted-text) uppercase">{option.condition}</span>
+          <span className="font-mono text-[0.6875rem] tracking-[0.14em] text-(--muted-text) uppercase">{option.condition}</span>
           <h3 className="leading-[1.4] tracking-[0.1em] type-display">{option.need}</h3>
           <span aria-hidden="true" className="h-0.5 w-8 bg-bronze" />
           <p className="text-lg leading-[1.4] font-semibold">{option.answer}</p>
-          <p className="text-[15px] leading-normal text-(--muted-text)">{option.text}</p>
+          <p className="text-[0.9375rem] leading-normal text-(--muted-text)">{option.text}</p>
         </li>
       ))}
     </ul>
@@ -172,7 +172,7 @@ export function StepsSection({ label, titleId, steps, variant }: StepsSectionPro
             </span>
             <span aria-hidden="true" className="h-0.5 w-8 bg-bronze" />
             <h3 className="leading-[1.4] tracking-[0.1em] type-display">{step.title}</h3>
-            <p className="text-[15px] leading-normal text-(--muted-text)">{step.text}</p>
+            <p className="text-[0.9375rem] leading-normal text-(--muted-text)">{step.text}</p>
           </li>
         ))}
       </ol>

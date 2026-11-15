@@ -12,7 +12,7 @@ export function FooterNotices({ texts }: { texts: Record<FooterNotice, string> }
   const pathname = usePathname();
 
   return (
-    <div className="flex flex-col gap-1 font-mono text-[11px] leading-[1.6] tracking-[0.08em] text-(--muted-text) uppercase">
+    <div className="flex flex-col gap-1 font-mono text-[0.6875rem] leading-[1.6] tracking-[0.08em] text-(--muted-text) uppercase">
       {footerNotices(pathname).map((notice) => (
         <p key={notice}>{texts[notice]}</p>
       ))}

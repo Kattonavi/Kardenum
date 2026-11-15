@@ -110,6 +110,10 @@ Detalle en `docs/handoff/docs/seo-sitio.md`. Nichos primero (Minecraft y Discord
   eligió. Especificación en `docs/specs/002-cotizador-whatsapp.md`.
 - **Enlaces de idioma directos:** ES / EN y la barra de idioma enlazan a la dirección final de la misma página en el
   otro idioma (`pathInLocale`), no a `/es/…` ni al inicio.
+- **Texto al 200 % (WCAG 1.4.4, decisión del fundador del 2026-11-15):** toda la tipografía va en rem (prueba unitaria
+  `type-scale.test.ts`); la cabecera pasa a su forma compacta por *container query* sobre su ancho en rem, no por el
+  ancho de la ventana (una *media query* no ve el tamaño de fuente de la raíz); y cuando la página mide menos de
+  18rem, una palabra que no cabe en su columna se parte en vez de ensanchar la página. A tamaño normal no cambia nada.
 - **Nosotros sin migas:** la maqueta no las trae; por eso tampoco lleva `BreadcrumbList` (la prueba de humo exige
   que las migas visibles y los datos estructurados coincidan).
 - Los textos en inglés del sitio son provisionales hasta escribir el inglés con las palabras clave validadas.

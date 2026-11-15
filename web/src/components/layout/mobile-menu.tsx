@@ -46,6 +46,7 @@ const itemClass =
 export function MobileMenu({ locale, lines, showPortfolio, channels, languageNames, labels }: MobileMenuProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const openRef = useRef<HTMLButtonElement>(null);
   const [servicesOpen, setServicesOpen] = useState(true);
   const servicesId = useId();
 
@@ -55,19 +56,21 @@ export function MobileMenu({ locale, lines, showPortfolio, channels, languageNam
   }
   const close = () => dialogRef.current?.close();
 
-  // The menu belongs to small screens: if the window grows to the desktop layout, close it.
+  // The menu belongs to the compact header: if the layout switches to the full one (the button
+  // that opens it is no longer rendered), close it. The switch is a container query, so the
+  // button itself is asked instead of repeating the breakpoint here.
   useEffect(() => {
-    const desktop = window.matchMedia("(min-width: 64rem)");
-    const onChange = () => {
-      if (desktop.matches) dialogRef.current?.close();
+    const onResize = () => {
+      if (openRef.current?.offsetParent === null) dialogRef.current?.close();
     };
-    desktop.addEventListener("change", onChange);
-    return () => desktop.removeEventListener("change", onChange);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
   return (
     <>
       <button
+        ref={openRef}
         type="button"
         aria-haspopup="dialog"
         aria-label={labels.open}
@@ -85,8 +88,8 @@ export function MobileMenu({ locale, lines, showPortfolio, channels, languageNam
         <div className="flex min-h-full flex-col px-5 pb-7">
           <div className="flex items-center justify-between border-b border-line py-4">
             <AppLink href="/" onClick={close} aria-label={labels.home} className="inline-flex min-h-11 items-center gap-2.5">
-              <KardenumSymbol size={22} variant="negative" />
-              <span className="text-[15px] tracking-[0.16em] type-display">Kardenum</span>
+              <KardenumSymbol size={22} variant="negative" className="size-[1.375rem]" />
+              <span className="text-[0.9375rem] tracking-[0.16em] whitespace-nowrap type-display @max-[15rem]:hidden">Kardenum</span>
             </AppLink>
             <button
               ref={closeRef}
@@ -122,7 +125,7 @@ export function MobileMenu({ locale, lines, showPortfolio, channels, languageNam
                           className="flex min-h-11 items-center justify-between pl-4 transition-colors duration-150 hover:text-(--accent-text)"
                         >
                           {line.name}
-                          <span className="font-mono text-[11px] text-(--muted-text)">{line.numeral}</span>
+                          <span className="font-mono text-[0.6875rem] text-(--muted-text)">{line.numeral}</span>
                         </AppLink>
                       </li>
                     ))}
@@ -161,7 +164,7 @@ export function MobileMenu({ locale, lines, showPortfolio, channels, languageNam
             <AppLink href="/contacto" onClick={close} className={`${buttonClass.primary} min-h-13 w-full`}>
               {labels.quote}
             </AppLink>
-            <ul aria-label={labels.channels} className="flex justify-between gap-2">
+            <ul aria-label={labels.channels} className="flex flex-wrap justify-between gap-x-2">
               {channels.map(({ channel, label, href }) => (
                 <li key={channel}>
                   {href ? (

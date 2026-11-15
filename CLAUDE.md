@@ -11,7 +11,8 @@ Este archivo solo agrega o endurece; nunca relaja.
    Si algo no está resuelto ahí, se pregunta; no se inventa.
 2. **Ningún push con el build en rojo:** `cd web && pnpm build` (ESLint sin avisos + `tsc` + `next build`).
 3. **`/` responde 200 en español, sin redirección, y el sitio no se indexa hasta el lanzamiento:**
-   `pnpm --dir web smoke <url> --expect=noindex` contra local y contra Railway después de cada despliegue.
+   `pnpm --dir web smoke <url> --expect=noindex` contra local y, después de cada despliegue, contra Railway con
+   `--site-url=self` (el servicio se compila con `SITE_URL` = su propia dirección hasta tener el dominio).
 4. **Todo estático:** la tabla de rutas de `next build` solo muestra `○` y `●`; `ƒ` únicamente en `Proxy (Middleware)`.
    Las rutas desconocidas no deben coincidir con ninguna ruta (`dynamicParams = false`, sin catch-all): así Next sirve
    `global-not-found.tsx` con HTML completo. Una página que llama `notFound()` al renderizar entrega un shell vacío
@@ -27,7 +28,7 @@ Este archivo solo agrega o endurece; nunca relaja.
 |---|---|
 | Build (puerta) | `pnpm build` |
 | Arrancar el build | `pnpm start` (puerto `PORT`, 3000 por defecto) |
-| Prueba de humo | `pnpm smoke http://localhost:3000` · `pnpm smoke https://web-production-f1d7c246.up.railway.app` |
+| Prueba de humo | `pnpm smoke http://localhost:3000` · `pnpm smoke https://web-production-f1d7c246.up.railway.app --site-url=self` |
 | Unitarias | `pnpm test` (`node --test`; también corren dentro de `pnpm build`) |
 | Navegador (e2e + axe) | `E2E_BASE_URL=http://127.0.0.1:3000 pnpm test:e2e` (o la URL de Railway) |
 | Tipos / Lint | `pnpm typecheck` · `pnpm lint` |

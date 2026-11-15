@@ -50,7 +50,7 @@ const legalLinks = (
   ] satisfies { pathname: AppPathname; name: string }[]
 ).filter((link) => available(link.pathname));
 
-const navLinkClass = "inline-flex min-h-11 min-w-11 items-center justify-center text-[15px] transition-colors duration-150 hover:text-(--accent-text)";
+const navLinkClass = "inline-flex min-h-11 min-w-11 items-center justify-center text-[0.9375rem] transition-colors duration-150 hover:text-(--accent-text)";
 
 export default function GlobalNotFound() {
   return (
@@ -63,26 +63,27 @@ export default function GlobalNotFound() {
           {es.Layout.skipToContent}
         </a>
 
+        {/* Same switch as the site header: by the header's width in rem, so large text gets the compact form. */}
         <header>
           <Container>
-            <nav aria-label={es.Nav.label} className="flex items-center justify-between gap-x-3 border-b border-line py-4 lg:gap-x-8 lg:py-6">
-              <Link href="/" aria-label={es.Layout.homeLink} className="inline-flex min-h-11 items-center gap-2.5 lg:gap-3">
-                <KardenumSymbol size={26} variant="negative" className="size-[22px] lg:size-[26px]" />
-                <span className="text-[15px] tracking-[0.16em] type-display lg:text-lg">Kardenum</span>
+            <nav aria-label={es.Nav.label} className="flex items-center justify-between gap-x-3 border-b border-line py-4 @5xl:gap-x-8 @5xl:py-6">
+              <Link href="/" aria-label={es.Layout.homeLink} className="inline-flex min-h-11 items-center gap-2.5 @5xl:gap-3">
+                <KardenumSymbol size={26} variant="negative" className="size-[1.375rem] @5xl:size-[1.625rem]" />
+                <span className="text-[0.9375rem] tracking-[0.16em] type-display whitespace-nowrap @5xl:text-lg @max-[15rem]:hidden">Kardenum</span>
               </Link>
-              <div className="flex items-center gap-2 lg:gap-7">
+              <div className="flex items-center gap-2 @5xl:gap-7">
                 {available("/servicios") ? (
-                  <Link href={href("/servicios")} className={`${navLinkClass} max-lg:hidden`}>
+                  <Link href={href("/servicios")} className={`${navLinkClass} @max-5xl:hidden`}>
                     {es.Nav.services}
                   </Link>
                 ) : null}
                 {available("/nosotros") ? (
-                  <Link href={href("/nosotros")} className={`${navLinkClass} max-lg:hidden`}>
+                  <Link href={href("/nosotros")} className={`${navLinkClass} @max-5xl:hidden`}>
                     {es.Nav.about}
                   </Link>
                 ) : null}
                 {/* This page is in Spanish; the English option leads to the English home page. */}
-                <div role="group" aria-label={es.Language.label} className="flex items-center font-mono text-xs tracking-[0.1em] uppercase max-lg:hidden">
+                <div role="group" aria-label={es.Language.label} className="flex items-center font-mono text-xs tracking-[0.1em] uppercase @max-5xl:hidden">
                   <span lang="es" title={es.Language.es} aria-current="true" className="inline-flex min-h-11 min-w-11 items-center justify-end pr-2">
                     es
                   </span>
@@ -138,7 +139,7 @@ export default function GlobalNotFound() {
                   <li key={destination.pathname}>
                     <Link
                       href={href(destination.pathname)}
-                      className="flex min-h-16 items-center justify-between gap-4 border border-line px-5 text-[13px] tracking-[0.12em] type-display transition-colors duration-150 hover:border-stone"
+                      className="flex min-h-16 items-center justify-between gap-4 border border-line px-5 text-[0.8125rem] tracking-[0.12em] type-display transition-colors duration-150 hover:border-stone"
                     >
                       {destination.name}
                       <ArrowRightIcon size={16} />
@@ -188,7 +189,7 @@ export default function GlobalNotFound() {
                   <span>© {YEAR} Kardenum</span>
                 </div>
               </div>
-              <p className="font-mono text-[11px] leading-[1.6] tracking-[0.08em] text-(--muted-text) uppercase">{es.Footer.minecraftNotice}</p>
+              <p className="font-mono text-[0.6875rem] leading-[1.6] tracking-[0.08em] text-(--muted-text) uppercase">{es.Footer.minecraftNotice}</p>
             </div>
           </Container>
         </footer>
