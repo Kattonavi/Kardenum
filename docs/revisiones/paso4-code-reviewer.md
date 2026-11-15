@@ -24,5 +24,6 @@ escucha · el freno cuenta los pendientes de forma independiente.
 
 ## Re-verificación del delta
 
-No se pidió otra pasada: el fundador indicó aplicar lo Crítico y Alto y cerrar. El arreglo del Alto queda cubierto
-por la prueba con barras reales, que reproduce el defecto en el build anterior y pasa en el nuevo.
+El arreglo del Alto queda cubierto por la prueba con barras reales, que reproduce el defecto en el build anterior y
+pasa en el nuevo. La re-verificación del delta (`1ed1944..44a4e8c`, 30 archivos) se pidió el 2026-11-15 al mismo
+revisor; su resultado se anota aquí debajo.

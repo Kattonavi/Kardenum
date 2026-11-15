@@ -73,7 +73,7 @@ Lo que no aplique a la superficie real del proyecto se saca a **No aplica** con 
 
 ## legal-colombia
 - [ ] **Política de Tratamiento de Datos Personales** publicada y enlazada en el footer y junto a cada formulario. · **resp:** hilo principal (textos: abogado o cliente) · **evidencia:** pendiente
-- [ ] **Autorización previa, expresa e informada**: checkbox **no pre-marcado** + enlace a la política en cada formulario. · **resp:** hilo principal (textos: abogado o cliente) · **evidencia:** pendiente
+- [ ] **Autorización previa, expresa e informada**: checkbox **no pre-marcado** + enlace a la política en cada formulario. · **resp:** hilo principal (textos: abogado o cliente) · **evidencia:** enlace a la política junto al cotizador (`e2e/contact.spec.ts`). **Sin casilla, por decisión del fundador (2026-11-15):** el formulario no guarda ni envía datos al sitio. Excepción a confirmar con el abogado (backlog 32); el ítem sigue abierto hasta entonces
 - [ ] Aviso de privacidad con: responsable (razón social, NIT, contacto), finalidades, derechos del titular, canal para ejercerlos. · **resp:** hilo principal (textos: abogado o cliente) · **evidencia:** pendiente
 - [ ] Canal para consultas y reclamos (correo o formulario). Plazos de respuesta: consultas 10 días hábiles, reclamos 15. · **resp:** hilo principal (textos: abogado o cliente) · **evidencia:** pendiente
 - [ ] Cookies no esenciales (analítica con cookies, píxeles de ads) **solo tras consentimiento**. Analítica sin cookies (Umami/Plausible) no requiere banner. · **resp:** hilo principal (textos: abogado o cliente) · **evidencia:** pendiente
