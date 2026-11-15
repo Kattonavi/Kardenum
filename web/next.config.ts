@@ -2,6 +2,10 @@ import path from "node:path";
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import { isSiteIndexable, NOINDEX_DIRECTIVE } from "./src/lib/indexing";
+import { assertLaunchReady } from "./src/lib/launch";
+
+// The site cannot become indexable while site.config.ts still has placeholder contact data.
+assertLaunchReady();
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 

@@ -1,20 +1,20 @@
 import { defineRouting } from "next-intl/routing";
+import { intlPathnames } from "../routes";
+import { defaultLocale, locales } from "./locales";
 
 export const routing = defineRouting({
-  locales: ["es", "en"],
+  locales,
   // Spanish is the main language and lives at the root; English lives under /en.
-  defaultLocale: "es",
+  defaultLocale,
   localePrefix: "as-needed",
   // No redirect by browser language or cookie (Google's recommendation): "/" always answers in Spanish.
-  // A language bar offers the other version and remembers the choice (built with the navigation).
+  // The language bar offers the other version and remembers the choice (src/components/layout/language-bar.tsx).
   localeDetection: false,
   localeCookie: false,
   // hreflang is emitted from page metadata, because x-default must point to English.
   alternateLinks: false,
-  // Translated routes are added here as pages are built (e.g. "/servicios": { es: "/servicios", en: "/services" }).
-  pathnames: {
-    "/": "/",
-  },
+  // Translated slugs come from the route registry (src/routes.ts): /servicios <-> /en/services.
+  pathnames: intlPathnames,
 });
 
-export type AppLocale = (typeof routing.locales)[number];
+export type { AppLocale } from "./locales";

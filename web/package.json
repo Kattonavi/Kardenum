@@ -6,9 +6,10 @@
     "dev": "next dev",
     "lint": "eslint --max-warnings=0",
     "typecheck": "next typegen && tsc --noEmit",
-    "build": "eslint --max-warnings=0 && next typegen && tsc --noEmit && next build && node scripts/copy-standalone-assets.mjs",
+    "test": "node --import ./scripts/test-register.mjs --test \"src/**/*.test.ts\"",
+    "build": "eslint --max-warnings=0 && next typegen && tsc --noEmit && node --import ./scripts/test-register.mjs --test \"src/**/*.test.ts\" && next build && node scripts/copy-standalone-assets.mjs",
     "start": "node scripts/start.mjs",
-    "smoke": "node scripts/smoke.mjs"
+    "smoke": "node --import ./scripts/test-register.mjs scripts/smoke.mjs"
   },
   "dependencies": {
     "next": "16.4.6",
@@ -18,7 +19,7 @@
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "4.3.3",
-    "@types/node": "^20",
+    "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",

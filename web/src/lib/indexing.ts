@@ -11,7 +11,9 @@
  * It is read at build time: changing the variable requires a new build (on Railway, a new
  * deployment after the variable change). After flipping it, check `/robots.txt` in production.
  */
-export function isSiteIndexable(env: NodeJS.ProcessEnv = process.env): boolean {
+export type Env = Readonly<Record<string, string | undefined>>;
+
+export function isSiteIndexable(env: Env = process.env): boolean {
   return env.SITE_INDEXABLE === "true";
 }
 
