@@ -1,12 +1,44 @@
 EVIDENCIA DEL LOTE: paso 3 del brief (paginas con contenido)
-Commit verificado: 0def2aab2820b90b316740484e368bfa380b5895 2026-11-15T13:59:11-05:00 feat(web): designed 404 page with static header and footer
-Generado: 2026-11-15T19:05Z. Los revisores reutilizan esta salida si el arbol no cambio.
+Commit verificado: e3937f005b5153fe3fb06e42a2c967a7d6452f60 2026-11-15T14:33:07-05:00 fix(web): quote form fields wait for the script; design review recorded
+Generado: 2026-11-15T19:43Z. Reemplaza la version del commit 0def2aa (antes de las revisiones).
+
+== 0. Matriz de completitud del lote (qué prometía el paso 3 y dónde está probado)
+
+Paginas (cada una en es y en; "humo" = scripts/smoke.mjs, "e2e" = web/e2e/*.spec.ts, ambos contra produccion)
+
+  Pagina                      | Construida | Humo (200, metadatos, OG, hreflang, migas) | e2e (axe, h1, 44 px, 320 px) | Maqueta comparada
+  /servicios                  | si         | si                                         | si                           | B-Servicios (hilo + diseno)
+  /servicios/desarrollo       | si         | si + Service                               | si                           | B-Linea-Desarrollo (hilo)
+  /servicios/diseno           | si         | si + Service                               | si                           | HTML de la maqueta (diseno)
+  /servicios/video            | si         | si + Service                               | si                           | B-Linea-Video (diseno)
+  /servicios/minecraft        | si         | si + Service                               | si                           | B-Linea-Minecraft (hilo + QA)
+  /servicios/discord          | si         | si + Service + aviso de Discord            | si                           | HTML de la maqueta (diseno)
+  /nosotros                   | si         | si (sin migas, como la maqueta)            | si                           | B-Nosotros (hilo + diseno)
+  /contacto                   | si         | si + cotizador en el HTML                  | si + contact.spec.ts         | B-Contacto (hilo + diseno)
+  404                         | si         | estado 404, HTML completo, sin enlaces rotos | si                         | B-404 (hilo + diseno)
+  /minecraft (enlace corto)   | si         | 308 a /servicios/minecraft                 | -                            | -
+
+Cotizador de WhatsApp (docs/specs/002-cotizador-whatsapp.md)
+
+  RF   | Requisito (resumen)                                   | Implementado            | Prueba unitaria        | Probado en la UI (e2e)
+  RF-1 | cinco campos en orden, ninguno obligatorio            | quote-form.tsx          | -                      | contact.spec "RF-1, RF-9"
+  RF-2 | tipos segun la linea; vuelve a "no lo tengo claro"    | quote-form.tsx          | -                      | contact.spec "RF-2"
+  RF-3 | vista previa en vivo con marcadores entre corchetes   | quote-form.tsx          | -                      | contact.spec "RF-3"
+  RF-4 | abre wa.me con el mensaje codificado                  | quote.ts, quote-form    | quote.test "RF-4" x4   | contact.spec "RF-4, RF-6" (rama numero listo: seccion 4)
+  RF-5 | nada se guarda ni se envia, tampoco sin script        | quote-form.tsx          | -                      | contact.spec "RF-5" x2 + "before its script runs" + humo
+  RF-6 | envio inerte con nota mientras falta el numero        | quote-form.tsx          | -                      | contact.spec "RF-4, RF-6" (rama pendiente, en produccion)
+  RF-7 | limites 80 y 1000, normaliza, palabra larga no desborda | quote.ts              | quote.test "RF-7" x3   | contact.spec "RF-7" x2
+  RF-8 | ?linea= preselecciona; lo demas se ignora             | quote.ts, quote-form    | quote.test "RF-8"      | contact.spec "RF-8" + ingles
+  RF-9 | etiquetas asociadas, 48 px, teclado                   | quote-form.tsx          | -                      | contact.spec "RF-1, RF-9" + "keyboard alone" + axe
+
+Sin RF pendientes. Lo que promete el plan y NO entra en este lote (detras de flags o por datos pendientes):
+subpaginas, portafolio, casos, guias, legales, reel y secciones Trabajos y Guias (docs/BACKLOG.md 9, 17 y 18).
 
 == 1. Puerta de clon limpio (git clone -> pnpm install --frozen-lockfile -> pnpm build -> pnpm start -> smoke -> e2e)
 pnpm build = eslint --max-warnings=0 && next typegen && tsc --noEmit && node --test && next build
-# tests 63
+# tests 65
 # suites 0
-# pass 63
+# pass 65
 # fail 0
 # cancelled 0
 # skipped 0
@@ -54,27 +86,36 @@ Route (app)
 ●  (SSG)     prerendered as static HTML (uses generateStaticParams)
 -- smoke (local, clon limpio)
 Site origin expected in canonical, hreflang, sitemap and JSON-LD: https://kardenum.com
-OK: all 408 checks passed (noindex) on http://127.0.0.1:4710
+OK: all 412 checks passed (noindex) on http://127.0.0.1:4710
 -- e2e (local, clon limpio)
   14 skipped
-  258 passed (36.0s)
+  264 passed (32.1s)
 
-== 2. Produccion (Railway, despliegue b6a806df SUCCESS con commitHash 0def2aa)
+== 2. Produccion (Railway, despliegue 81bce183 SUCCESS con commitHash e3937f0)
 $ pnpm smoke https://web-production-f1d7c246.up.railway.app --expect=noindex
 Site origin expected in canonical, hreflang, sitemap and JSON-LD: https://kardenum.com
-OK: all 408 checks passed (noindex) on https://web-production-f1d7c246.up.railway.app
+OK: all 412 checks passed (noindex) on https://web-production-f1d7c246.up.railway.app
 $ E2E_BASE_URL=https://web-production-f1d7c246.up.railway.app pnpm test:e2e
   14 skipped
-  258 passed (1.7m)
+  264 passed (1.7m)
 
-== 3. Lighthouse 13.6.0, celular, build local con SITE_INDEXABLE=true y SITE_LAUNCH_CHECK=off (mismo commit)
-== s3-contacto-es-mobile.json | http://127.0.0.1:4712/contacto | lighthouse 13.6.0
+== 3. Lighthouse 13.6.0, celular, build local con SITE_INDEXABLE=true y SITE_LAUNCH_CHECK=off
+-- Contacto, en el commit final e3937f0
+== final-contact-en-mobile.json | http://127.0.0.1:4712/en/contact | lighthouse 13.6.0
   scores: {'performance': 100, 'accessibility': 100, 'best-practices': 100, 'seo': 100, 'agentic-browsing': 100}
   first-contentful-paint: 0.8 s
   largest-contentful-paint: 0.8 s
-  total-blocking-time: 30 ms
+  total-blocking-time: 20 ms
   cumulative-layout-shift: 0
   speed-index: 0.8 s
+== final-contacto-es-mobile.json | http://127.0.0.1:4712/contacto | lighthouse 13.6.0
+  scores: {'performance': 100, 'accessibility': 100, 'best-practices': 100, 'seo': 100, 'agentic-browsing': 100}
+  first-contentful-paint: 0.8 s
+  largest-contentful-paint: 0.8 s
+  total-blocking-time: 50 ms
+  cumulative-layout-shift: 0
+  speed-index: 0.8 s
+-- Linea, Minecraft (en), Servicios y Nosotros, medidos en 0def2aa (esas paginas no cambiaron despues)
 == s3-linea-es-mobile.json | http://127.0.0.1:4712/servicios/desarrollo | lighthouse 13.6.0
   scores: {'performance': 100, 'accessibility': 100, 'best-practices': 100, 'seo': 100, 'agentic-browsing': 100}
   first-contentful-paint: 0.8 s
@@ -89,13 +130,6 @@ $ E2E_BASE_URL=https://web-production-f1d7c246.up.railway.app pnpm test:e2e
   total-blocking-time: 30 ms
   cumulative-layout-shift: 0
   speed-index: 0.8 s
-== s3-nosotros-es-mobile.json | http://127.0.0.1:4712/nosotros | lighthouse 13.6.0
-  scores: {'performance': 100, 'accessibility': 100, 'best-practices': 100, 'seo': 100, 'agentic-browsing': 100}
-  first-contentful-paint: 0.8 s
-  largest-contentful-paint: 0.8 s
-  total-blocking-time: 30 ms
-  cumulative-layout-shift: 0
-  speed-index: 0.8 s
 == s3-servicios-es-mobile.json | http://127.0.0.1:4712/servicios | lighthouse 13.6.0
   scores: {'performance': 100, 'accessibility': 100, 'best-practices': 100, 'seo': 100, 'agentic-browsing': 100}
   first-contentful-paint: 0.8 s
@@ -103,16 +137,39 @@ $ E2E_BASE_URL=https://web-production-f1d7c246.up.railway.app pnpm test:e2e
   total-blocking-time: 30 ms
   cumulative-layout-shift: 0
   speed-index: 0.8 s
+== s3-nosotros-es-mobile.json | http://127.0.0.1:4712/nosotros | lighthouse 13.6.0
+  scores: {'performance': 100, 'accessibility': 100, 'best-practices': 100, 'seo': 100, 'agentic-browsing': 100}
+  first-contentful-paint: 0.8 s
+  largest-contentful-paint: 0.8 s
+  total-blocking-time: 30 ms
+  cumulative-layout-shift: 0
+  speed-index: 0.8 s
 
-== 4. RF-4 del cotizador en navegador, con numero listo
-Clon de descarte del commit a0298ba con whatsapp = { status: 'ready', value: '+00 000 000 0000' } (ficticio, nunca versionado).
-$ playwright test e2e/contact.spec.ts e2e/home.spec.ts e2e/navigation.spec.ts   (wa.me interceptado)
-  ok  7 [desktop] › e2e\contact.spec.ts:141:5 › RF-4, RF-6: sending opens WhatsApp with the message, or stays inert while the number is pending (1.5s)
-  ok 33 [mobile] › e2e\contact.spec.ts:141:5 › RF-4, RF-6: sending opens WhatsApp with the message, or stays inert while the number is pending (2.1s)
+== 4. RF-4 del cotizador en navegador, con numero listo, sobre el commit final e3937f0
+Clon de descarte con whatsapp = { status: 'ready', value: '+00 000 000 0000' } (ficticio, nunca versionado; clon revertido).
+$ playwright test e2e/contact.spec.ts e2e/home.spec.ts e2e/navigation.spec.ts   (wa.me interceptado, nada sale de la maquina)
+  ok  8 [desktop] › e2e\contact.spec.ts:142:5 › RF-4, RF-6: sending opens WhatsApp with the message, or stays inert while the number is pending (1.4s)
+  ok 35 [mobile] › e2e\contact.spec.ts:142:5 › RF-4, RF-6: sending opens WhatsApp with the message, or stays inert while the number is pending (1.8s)
   11 skipped
-  37 passed (10.0s)
+  43 passed (9.3s)
 
-== 5. Smoke completo en produccion (cada comprobacion)
+== 5. Las pruebas nuevas fallan contra el build que tenia el defecto (produccion en 0def2aa, antes del arreglo)
+contact.spec 'RF-5: the browser cannot send the form on its own': la URL quedaba /contacto?linea=...&descripcion=Idea+canario...&nombre=Ana+canario...
+contact.spec 'a long word typed by the visitor wraps': desborde de 157 px (escritorio) y 290 px (celular)
+contact.spec 'what is typed before the script runs': el campo quedaba vacio al hidratar (build local 50c58e4)
+
+== 6. Exposicion del defecto de RF-5 en produccion (c48dfb7 desplegado 18:49Z -> arreglo 50c58e4 desplegado 19:26Z)
+Registros HTTP de Railway para /contacto entre 18:45Z y 19:40Z (get-logs, tipo http, limite 500):
+scope: service | status: SUCCESS | entries: 501
+first: 2026-11-15T18:52:26.640588172Z | last: 2026-11-15T19:39:59.097180285Z
+entries whose field contains '?': {}
+entries carrying form field names: 0
+  of which contain the test canary: 0 | without the canary: 0
+paths: [('/contacto', 501)]
+user agents: [('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', 493), ('node', 8)]
+Lectura: el registro guarda la ruta sin la cadena de consulta (ninguna entrada tiene '?', tampoco las del canario de prueba).
+
+== 7. Smoke completo en produccion (cada comprobacion)
 PASS  GET / -> 200  (status 200)
 PASS  GET / has no Location header
 PASS  GET / is <html lang="es">
@@ -501,9 +558,13 @@ PASS  GET /en/contacto redirects permanently (308) to /en/contact  (status 308 -
 PASS  GET /minecraft redirects permanently (308) to /servicios/minecraft  (status 308 -> /servicios/minecraft)
 PASS  [es] quote form: five labelled fields in the HTML  (5 labels)
 PASS  [es] quote form says it does not store the data
+PASS  [es] quote form cannot be sent by the browser alone (no field names, send button off)  (<button type="submit" disabled="" aria-describedby="_R_4tbsnqivbH5_" class="inline-flex min-h-12 items-center justify-center px-7 text-[13px] tracking-[0.14em] type-display transition-colors duration-150 bg-ink text-stone hover:bg-bronze-deep gap-2.5 cursor-not-allowed">)
+PASS  [es] quote form fields are off until the script runs, with a note for no JavaScript  (5 of 5 fields off)
 PASS  [es] contact page links to no invented WhatsApp number
 PASS  [en] quote form: five labelled fields in the HTML  (5 labels)
 PASS  [en] quote form says it does not store the data
+PASS  [en] quote form cannot be sent by the browser alone (no field names, send button off)  (<button type="submit" disabled="" aria-describedby="_R_4tbsnqivbH5_" class="inline-flex min-h-12 items-center justify-center px-7 text-[13px] tracking-[0.14em] type-display transition-colors duration-150 bg-ink text-stone hover:bg-bronze-deep gap-2.5 cursor-not-allowed">)
+PASS  [en] quote form fields are off until the script runs, with a note for no JavaScript  (5 of 5 fields off)
 PASS  [en] contact page links to no invented WhatsApp number
 PASS  GET /robots.txt -> 200  (status 200)
 PASS  robots.txt disallows everything  (User-Agent: * | Disallow: /)
@@ -523,4 +584,4 @@ PASS  GET /_next/static/media/9a321a2c78eff0b5-s.p.1bkzbscqrt8rl.woff2 -> 200  (
 PASS  static asset X-Robots-Tag has noindex
 
 Site origin expected in canonical, hreflang, sitemap and JSON-LD: https://kardenum.com
-OK: all 408 checks passed (noindex) on https://web-production-f1d7c246.up.railway.app
+OK: all 412 checks passed (noindex) on https://web-production-f1d7c246.up.railway.app

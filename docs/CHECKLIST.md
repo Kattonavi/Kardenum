@@ -17,46 +17,46 @@ Lo que no aplique a la superficie real del proyecto se saca a **No aplica** con 
 - [ ] Plazos de remediación definidos: crítica ≤7 d, alta ≤30 d, media ≤90 d (ASVS 15.1.1). · **resp:** security-engineer · **evidencia:** pendiente
 
 ## seo
-- [ ] `<title>` único (≤60 car.) y `meta description` (≤155) por página — Metadata API de Next. · **resp:** skill seo · **evidencia:** pendiente
-- [ ] Un solo `<h1>` por página; jerarquía de encabezados lógica; HTML semántico. · **resp:** skill seo · **evidencia:** pendiente
-- [ ] `lang` correcto en `<html>` (`es-CO` si el público es Colombia). · **resp:** skill seo · **evidencia:** pendiente
-- [ ] URL canónica (`alternates.canonical`) en cada página. Sin contenido duplicado con/sin barra final. · **resp:** skill seo · **evidencia:** pendiente
-- [ ] `robots.txt` y `sitemap.xml` generados por Next (`app/robots.ts`, `app/sitemap.ts`). · **resp:** skill seo · **evidencia:** pendiente
-- [ ] Open Graph + Twitter Card con imagen 1200×630 (`opengraph-image`). · **resp:** skill seo · **evidencia:** pendiente
-- [ ] Favicon, `apple-icon`, `manifest`. · **resp:** skill seo · **evidencia:** pendiente
+- [x] `<title>` único (≤60 car.) y `meta description` (≤155) por página — Metadata API de Next. · **resp:** skill seo · **evidencia:** `pnpm smoke` (412/412 en producción, `docs/revisiones/evidencia-paso3.txt`): título y descripción propios y únicos en las 18 URL; longitudes en `content.test.ts`
+- [x] Un solo `<h1>` por página; jerarquía de encabezados lógica; HTML semántico. · **resp:** skill seo · **evidencia:** `pnpm smoke` (412/412 en producción, `docs/revisiones/evidencia-paso3.txt`) y `pnpm test:e2e` (264 en producción, `evidencia-paso3.txt`) (`accessibility.spec.ts`: un h1 y esquema sin saltos en las 18 URL y el 404)
+- [x] `lang` correcto en `<html>` (`es-CO` si el público es Colombia). · **resp:** skill seo · **evidencia:** `pnpm smoke` (412/412 en producción, `docs/revisiones/evidencia-paso3.txt`): `es` y `en` (sin región: el sitio no menciona el país)
+- [x] URL canónica (`alternates.canonical`) en cada página. Sin contenido duplicado con/sin barra final. · **resp:** skill seo · **evidencia:** `pnpm smoke` (412/412 en producción, `docs/revisiones/evidencia-paso3.txt`): un canonical por página, apuntando a sí misma; `/es` y los slugs del otro idioma redirigen con 308
+- [x] `robots.txt` y `sitemap.xml` generados por Next (`app/robots.ts`, `app/sitemap.ts`). · **resp:** skill seo · **evidencia:** `pnpm smoke` (412/412 en producción, `docs/revisiones/evidencia-paso3.txt`): cerrado, `Disallow: /` y sitemap 404; abierto, sitemap con alternativas (build local con el guardia abierto)
+- [x] Open Graph + Twitter Card con imagen 1200×630 (`opengraph-image`). · **resp:** skill seo · **evidencia:** `pnpm smoke` (412/412 en producción, `docs/revisiones/evidencia-paso3.txt`): `og:image` propia por página e idioma, 200 `image/png`
+- [x] Favicon, `apple-icon`, `manifest`. · **resp:** skill seo · **evidencia:** `pnpm smoke` (412/412 en producción, `docs/revisiones/evidencia-paso3.txt`): manifest y `theme-color`; `icon.svg` y `apple-icon.png` en el build
 - [ ] Imágenes con `next/image`, `alt` descriptivo, AVIF/WebP, dimensiones fijas (sin CLS). · **resp:** skill seo · **evidencia:** pendiente
-- [ ] Schema JSON-LD: `Organization` + `WebSite` (el hook valida el JSON-LD al editar). · **resp:** skill seo · **evidencia:** pendiente
-- [ ] Contenido indexable en el HTML del servidor (no depender de JS del cliente para el texto principal). · **resp:** skill seo · **evidencia:** pendiente
+- [x] Schema JSON-LD: `Organization` + `WebSite` (el hook valida el JSON-LD al editar). · **resp:** skill seo · **evidencia:** `pnpm smoke` (412/412 en producción, `docs/revisiones/evidencia-paso3.txt`): un documento válido en el inicio, sin datos entre corchetes
+- [x] Contenido indexable en el HTML del servidor (no depender de JS del cliente para el texto principal). · **resp:** skill seo · **evidencia:** `pnpm smoke` (412/412 en producción, `docs/revisiones/evidencia-paso3.txt`): líneas, preguntas, migas, avisos y el cotizador se leen en el HTML sin scripts
 - [ ] Core Web Vitals en verde (ver rendimiento.md). · **resp:** skill seo · **evidencia:** pendiente
-- [ ] Página 404 útil (con navegación), sin soft-404. · **resp:** skill seo · **evidencia:** pendiente
+- [x] Página 404 útil (con navegación), sin soft-404. · **resp:** skill seo · **evidencia:** `pnpm smoke` (412/412 en producción, `docs/revisiones/evidencia-paso3.txt`): estado 404 real, cabecera, pie y enlaces solo a páginas que existen
 - [ ] Alta en **Google Search Console** + **Bing Webmaster**, sitemap enviado. · **resp:** skill seo · **evidencia:** pendiente
-- [ ] `BreadcrumbList` en páginas internas; enlazado interno lógico. · **resp:** skill seo · **evidencia:** pendiente
+- [x] `BreadcrumbList` en páginas internas; enlazado interno lógico. · **resp:** skill seo · **evidencia:** `pnpm smoke` (412/412 en producción, `docs/revisiones/evidencia-paso3.txt`): migas visibles y `BreadcrumbList` coinciden en cada página (Nosotros no lleva migas, como su maqueta)
 - [ ] Una página por servicio/producto/ciudad relevante (no todo en una). · **resp:** skill seo · **evidencia:** pendiente
 - [ ] Contenido con E-E-A-T: quiénes somos, contacto real, dirección, políticas. · **resp:** skill seo · **evidencia:** pendiente
-- [ ] Si hay varios idiomas: `hreflang` correcto (`seo-hreflang`). · **resp:** skill seo · **evidencia:** pendiente
+- [x] Si hay varios idiomas: `hreflang` correcto (`seo-hreflang`). · **resp:** skill seo · **evidencia:** `pnpm smoke` (412/412 en producción, `docs/revisiones/evidencia-paso3.txt`): es, en y x-default (inglés) en las 18 URL; enlaces de idioma a la dirección final
 - [ ] Preparado para buscadores con IA (AI Overviews): respuestas claras, datos estructurados, `llms.txt` opcional (`seo-geo`). · **resp:** skill seo · **evidencia:** pendiente
 
 ## diseno-ux
 - [ ] `PRODUCT.md` (qué es, para quién, tono) antes de diseñar; `DESIGN.md` registrado al terminar (impeccable-documenter). · **resp:** ui-qa + impeccable · **evidencia:** pendiente
 - [ ] Responsive real: 360 px, 768 px, 1280 px, 1920 px. Sin scroll horizontal. Probado en móvil (`mobile-native`). · **resp:** ui-qa + impeccable · **evidencia:** pendiente
-- [ ] **WCAG 2.2 AA**: contraste ≥4.5:1 texto (3:1 grande/UI), foco visible, navegable con teclado, `alt`, labels, `prefers-reduced-motion`. · **resp:** ui-qa + impeccable · **evidencia:** pendiente
-- [ ] Objetivos táctiles ≥ 24×24 px (44 px recomendado) (2.5.8). · **resp:** ui-qa + impeccable · **evidencia:** pendiente
+- [x] **WCAG 2.2 AA**: contraste ≥4.5:1 texto (3:1 grande/UI), foco visible, navegable con teclado, `alt`, labels, `prefers-reduced-motion`. · **resp:** ui-qa + impeccable · **evidencia:** `pnpm test:e2e` (264 en producción, `evidencia-paso3.txt`) (axe, foco visible, teclado) y `docs/revisiones/paso3-ui-qa.md` (`prefers-reduced-motion`, orden de foco). Sin pasada con lector de pantalla
+- [x] Objetivos táctiles ≥ 24×24 px (44 px recomendado) (2.5.8). · **resp:** ui-qa + impeccable · **evidencia:** `pnpm test:e2e` (264 en producción, `evidencia-paso3.txt`): todos los enlaces y botones ≥ 44 px en las 18 URL y el 404
 - [ ] Criterios nuevos de WCAG 2.2: foco no tapado por header fijo, banner de cookies ni botón de WhatsApp (2.4.11); toda acción de arrastre tiene alternativa de un toque (2.5.7); no se pide dos veces el mismo dato (3.3.7); login sin pruebas cognitivas, permite pegar y gestor de contraseñas (3.3.8); la ayuda/contacto está en el mismo lugar en todas las páginas (3.2.6). · **resp:** ui-qa + impeccable · **evidencia:** pendiente
-- [ ] Reflujo sin scroll horizontal a 320 px y con zoom 200 %. · **resp:** ui-qa + impeccable · **evidencia:** pendiente
-- [ ] axe-core cubre ≈ 57 % de los problemas: `@axe-core/playwright` en las rutas clave (0 `serious`/`critical`) más recorrido manual con teclado; informe en `.impeccable/review/`. · **resp:** ui-qa + impeccable · **evidencia:** pendiente
+- [x] Reflujo sin scroll horizontal a 320 px y con zoom 200 %. · **resp:** ui-qa + impeccable · **evidencia:** `pnpm test:e2e` (264 en producción, `evidencia-paso3.txt`): sin desborde a 390, 1280 y 320 px contra el ancho configurado; zoom de navegador al 200 % sin desborde (`docs/revisiones/paso3-ui-qa.md`). Pendiente: escalado solo de fuente al 200 % (backlog 22)
+- [x] axe-core cubre ≈ 57 % de los problemas: `@axe-core/playwright` en las rutas clave (0 `serious`/`critical`) más recorrido manual con teclado; informe en `.impeccable/review/`. · **resp:** ui-qa + impeccable · **evidencia:** `pnpm test:e2e` (264 en producción, `evidencia-paso3.txt`): axe sin violaciones (WCAG 2.1 A/AA y buenas prácticas) en las 18 URL, el 404, los menús abiertos y la barra de idioma; recorrido de teclado en `docs/revisiones/paso3-ui-qa.md`
 - [ ] El criterio contractual de contraste es el ratio WCAG 2.x; APCA es solo apoyo informativo (texto fino en oscuro) y no cumple por sí solo. · **resp:** ui-qa + impeccable · **evidencia:** pendiente
-- [ ] Copy real (no lorem ipsum) en español de Colombia salvo otro público; CTA claro por sección. · **resp:** ui-qa + impeccable · **evidencia:** pendiente
+- [x] Copy real (no lorem ipsum) en español de Colombia salvo otro público; CTA claro por sección. · **resp:** ui-qa + impeccable · **evidencia:** textos aprobados de las maquetas en `web/src/content/` y `messages/es.json`; `content.test.ts` impide corchetes y palabras vetadas
 - [ ] Fotos reales o assets propios; nada de stock genérico ni "AI slop" (detector de Impeccable sin hallazgos críticos). · **resp:** ui-qa + impeccable · **evidencia:** pendiente
 - [ ] Botón/enlace de **WhatsApp** si el negocio atiende por ahí (muy común en CO), sin tapar contenido en móvil. · **resp:** ui-qa + impeccable · **evidencia:** pendiente
-- [ ] Tipografía con `next/font` (sin saltos de layout). · **resp:** ui-qa + impeccable · **evidencia:** pendiente
+- [x] Tipografía con `next/font` (sin saltos de layout). · **resp:** ui-qa + impeccable · **evidencia:** `pnpm test:e2e` (264 en producción, `evidencia-paso3.txt`) (`fonts.spec.ts`: CLS con las fuentes retenidas)
 - [ ] Estados: cargando, vacío, error, éxito en toda vista con datos. En Next: `loading.tsx`/Suspense con skeleton, `error.tsx` con `retry`, `not-found.tsx`, `global-error.tsx`. · **resp:** ui-qa + impeccable · **evidencia:** pendiente
 - [ ] Tiempos de respuesta: < 0,1 s sin feedback; > 1 s indicador; > 10 s progreso con opción de cancelar. Nunca "sin resultados" mientras carga. · **resp:** ui-qa + impeccable · **evidencia:** pendiente
 - [ ] Vacío con acción: explica la función y ofrece el botón o enlace que lo llena. · **resp:** ui-qa + impeccable · **evidencia:** pendiente
-- [ ] Formularios: etiqueta visible y persistente (nunca solo placeholder), `autocomplete`, validación inline, no borrar lo escrito al fallar. · **resp:** ui-qa + impeccable · **evidencia:** pendiente
+- [x] Formularios: etiqueta visible y persistente (nunca solo placeholder), `autocomplete`, validación inline, no borrar lo escrito al fallar. · **resp:** ui-qa + impeccable · **evidencia:** `pnpm test:e2e` (264 en producción, `evidencia-paso3.txt`) (`contact.spec.ts`): cinco etiquetas visibles y asociadas, `autocomplete="name"`, y lo escrito no se borra (los campos esperan al script). Sin validación: ningún campo es obligatorio (spec 002)
 - [ ] Errores: dicen qué pasó y cómo arreglarlo; mismo texto en el resumen y en el campo; sin "inválido", "oops" ni códigos técnicos (ver `referencias/ux-writing.md`). · **resp:** ui-qa + impeccable · **evidencia:** pendiente
 - [ ] Páginas 404 y 500 diseñadas. · **resp:** ui-qa + impeccable · **evidencia:** pendiente
-- [ ] Más de un idioma: `app/[lang]`, `<html lang>`, formatos con `Intl`, textos fuera del JSX, probado con cadenas largas (`next-intl`). · **resp:** ui-qa + impeccable · **evidencia:** pendiente
-- [ ] `break-ui` sin roturas (nombres largos, sin imagen, 0 ítems, 1000 ítems). · **resp:** ui-qa + impeccable · **evidencia:** pendiente
+- [x] Más de un idioma: `app/[lang]`, `<html lang>`, formatos con `Intl`, textos fuera del JSX, probado con cadenas largas (`next-intl`). · **resp:** ui-qa + impeccable · **evidencia:** `pnpm smoke` (412/412 en producción, `docs/revisiones/evidencia-paso3.txt`) y `pnpm test:e2e` (264 en producción, `evidencia-paso3.txt`): `[locale]`, `<html lang>`, slugs traducidos, textos en `messages/*.json` con paridad de claves; títulos largos en inglés sin cortes (`docs/revisiones/paso3-ui-qa.md`)
+- [x] `break-ui` sin roturas (nombres largos, sin imagen, 0 ítems, 1000 ítems). · **resp:** ui-qa + impeccable · **evidencia:** `docs/revisiones/paso3-ui-qa.md`: datos extremos en el cotizador; el único desborde (palabra de 80 caracteres) quedó corregido y con prueba e2e
 - [ ] 3–5 necesidades escritas ("Necesito… para que…") y el flujo principal; la tarea principal se completa en ≤ 3 pasos desde la entrada. · **resp:** ui-qa + impeccable · **evidencia:** pendiente
 - [ ] matriz pantalla × estado (vacío, carga, error, éxito, sin permiso) con cada celda diseñada y capturada. · **resp:** ui-qa + impeccable · **evidencia:** pendiente
 
