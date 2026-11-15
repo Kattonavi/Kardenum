@@ -1,7 +1,7 @@
 import { type AppLocale, locales, xDefaultLocale } from "./i18n/locales";
 import type { Env } from "./lib/indexing";
 import { getSiteUrl } from "./lib/site-url";
-import { siteConfig } from "./site.config";
+import { type SiteConfig, siteConfig } from "./site.config";
 
 /**
  * Single registry of the site's routes. It feeds next-intl's translated pathnames, the menus,
@@ -119,13 +119,37 @@ export function footerNotices(pathname: string): FooterNotice[] {
   return pathname === discord || pathname.startsWith(`${discord}/`) ? ["minecraft", "discord"] : ["minecraft"];
 }
 
-/** Short addresses that redirect (308) to a page, once that page is built. */
+/** Short addresses that lead to a page of the site. */
 const shortLinks: Readonly<Record<string, AppPathname>> = { "/minecraft": "/servicios/minecraft" };
 
-export function shortLinkRedirects(): { source: string; destination: string; permanent: true }[] {
-  return Object.entries(shortLinks)
+export type ShortLinkRedirect = { readonly source: string; readonly destination: string; readonly permanent: boolean };
+
+/** An address outside the site that a redirect may point to: https only. Anything else is a mistake in site.config.ts. */
+function externalHttpsUrl(value: string): string {
+  let url: URL | null = null;
+  try {
+    url = new URL(value);
+  } catch {
+    // reported below
+  }
+  if (!url || url.protocol !== "https:") throw new Error(`A short link can only lead to an https address, got "${value}".`);
+  return url.href;
+}
+
+/**
+ * Short addresses that redirect (seo-sitio.md §2.1):
+ * - /minecraft → its page, permanently (308), once that page is built;
+ * - /discord → the invitation to the studio's Discord server, once it exists in site.config.ts.
+ *   Temporary (307): an invitation can be replaced, and browsers keep a permanent redirect for good.
+ *   Until then /discord is not an address of the site. It never goes in the sitemap.
+ */
+export function shortLinkRedirects(config: SiteConfig = siteConfig): ShortLinkRedirect[] {
+  const pages: ShortLinkRedirect[] = Object.entries(shortLinks)
     .filter(([, target]) => isBuilt(target))
     .map(([source, destination]) => ({ source, destination, permanent: true }));
+  const { discordInvite } = config.contact;
+  if (discordInvite.status !== "ready") return pages;
+  return [...pages, { source: "/discord", destination: externalHttpsUrl(discordInvite.value), permanent: false }];
 }
 
 export type LanguageAlternates = Record<AppLocale | "x-default", string>;

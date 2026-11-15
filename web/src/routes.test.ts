@@ -19,7 +19,7 @@ import {
   routeTable,
   shortLinkRedirects,
 } from "@/routes";
-import { siteConfig } from "@/site.config";
+import { type SiteConfig, siteConfig } from "@/site.config";
 
 // These tests describe the production origin: ignore the SITE_URL of the machine running them.
 delete process.env.SITE_URL;
@@ -131,14 +131,38 @@ test("breadcrumbs list every parent page that exists; trademark notices follow t
   assert.deepEqual(footerNotices("/servicios/discordia"), ["minecraft"]);
 });
 
-test("short links redirect permanently, only to pages that exist", () => {
-  for (const redirect of shortLinkRedirects()) {
+const withDiscord = (invite: string): SiteConfig => ({
+  ...siteConfig,
+  contact: { ...siteConfig.contact, discordInvite: { status: "ready", value: invite } },
+});
+const withoutDiscord: SiteConfig = {
+  ...siteConfig,
+  contact: { ...siteConfig.contact, discordInvite: { status: "pending", placeholder: "[Discord]" } },
+};
+
+test("short links to pages are permanent and only lead to pages that exist", () => {
+  const pages = shortLinkRedirects(withoutDiscord);
+  for (const redirect of pages) {
     assert.equal(redirect.permanent, true);
     assert.ok(isAppPathname(redirect.destination) && routeTable[redirect.destination].built, redirect.destination);
     assert.equal(isAppPathname(redirect.source), false, `${redirect.source} is already a page`);
   }
   assert.deepEqual(
-    shortLinkRedirects().map((redirect) => [redirect.source, redirect.destination]),
+    pages.map((redirect) => [redirect.source, redirect.destination]),
     [["/minecraft", "/servicios/minecraft"]],
   );
+});
+
+test("/discord leads to the invitation once it exists, with a temporary redirect", () => {
+  assert.equal(shortLinkRedirects(withoutDiscord).some((redirect) => redirect.source === "/discord"), false);
+  const discord = shortLinkRedirects(withDiscord("https://discord.gg/ejemplo")).find((redirect) => redirect.source === "/discord");
+  assert.deepEqual(discord, { source: "/discord", destination: "https://discord.gg/ejemplo", permanent: false });
+  // /discord is never a page of the site, so it cannot reach the sitemap.
+  assert.equal(isAppPathname("/discord"), false);
+});
+
+test("a short link never leads to anything but an https address", () => {
+  for (const wrong of ["http://discord.gg/ejemplo", "javascript:alert(1)", "//discord.gg/ejemplo", "discord.gg/ejemplo", ""]) {
+    assert.throws(() => shortLinkRedirects(withDiscord(wrong)), /https address/, wrong);
+  }
 });

@@ -281,13 +281,17 @@ for (const pathname of publicPathnames().filter((candidate) => candidate !== "/"
   }
 }
 
-for (const { source, destination } of shortLinkRedirects()) {
+for (const { source, destination, permanent } of shortLinkRedirects()) {
   const short = await get(source);
-  check(
-    `GET ${source} redirects permanently (308) to ${destination}`,
-    short.res.status === 308 && new URL(short.res.headers.get("location") ?? "x:", base).pathname === destination,
-    `status ${short.res.status} -> ${short.res.headers.get("location")}`,
-  );
+  const location = short.res.headers.get("location") ?? "";
+  // To a page of the site (permanent) or to an address outside it, such as the Discord invitation (temporary).
+  const arrives = destination.startsWith("/") ? new URL(location || "x:", base).pathname === destination : location === destination;
+  const status = permanent ? 308 : 307;
+  check(`GET ${source} redirects (${status}) to ${destination}`, short.res.status === status && arrives, `status ${short.res.status} -> ${location}`);
+}
+if (siteConfig.contact.discordInvite.status === "pending") {
+  const discord = await get("/discord");
+  check("GET /discord -> 404 until the invitation exists (it never redirects to an invented address)", discord.res.status === 404, `status ${discord.res.status}`);
 }
 
 // The quote form is in the server HTML with its five fields and says, literally, that it stores nothing.

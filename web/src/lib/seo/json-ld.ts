@@ -65,13 +65,15 @@ export function breadcrumbJsonLd(locale: AppLocale, crumbs: readonly Crumb[]): J
 export function serviceJsonLd(
   locale: AppLocale,
   service: { readonly name: string; readonly description: string; readonly pathname: AppPathname },
+  config: SiteConfig = siteConfig,
 ): JsonLdNode {
   return {
     "@type": "Service",
     name: service.name,
     description: service.description,
     url: absoluteUrl(localizedPath(service.pathname, locale)),
-    provider: { "@id": organizationId() },
+    // Named here too: the full Organization node lives on the home page, and each page is read on its own.
+    provider: { "@type": "Organization", "@id": organizationId(), name: config.name, url: absoluteUrl("/") },
     availableLanguage: locales.map((language) => LANGUAGE_NAME[language]),
   };
 }

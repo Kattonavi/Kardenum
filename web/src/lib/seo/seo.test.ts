@@ -128,7 +128,7 @@ test("BreadcrumbList numbers the path and uses the URLs of the page's language",
 test("Service points to the organization as provider", () => {
   const service = serviceJsonLd("es", { name: "Plugins de Minecraft", description: "Desarrollo de plugins.", pathname: "/servicios/minecraft/plugins" });
   assert.equal(service.url, "https://kardenum.com/servicios/minecraft/plugins");
-  assert.deepEqual(service.provider, { "@id": "https://kardenum.com/#organization" });
+  assert.deepEqual(service.provider, { "@type": "Organization", "@id": "https://kardenum.com/#organization", name: "Kardenum", url: "https://kardenum.com" });
 });
 
 test("serialized JSON-LD is valid JSON and cannot close its script tag", () => {
