@@ -1,6 +1,8 @@
-// Test-only module resolution for `node --test` (Node strips TypeScript types natively):
+// Module resolution for plain Node runs of the project's TypeScript (unit tests and the smoke test).
+// Node strips TypeScript types natively; this only adds what the bundler does on top:
 // - "@/x" resolves to "src/x" (same alias as tsconfig),
-// - extensionless relative imports resolve to .ts files, as the bundler does.
+// - extensionless relative imports resolve to .ts files,
+// - .ts files are ES modules (package.json has no "type", so Node would otherwise guess).
 import { registerHooks } from "node:module";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -16,14 +18,20 @@ registerHooks({
       return nextResolve(target, context);
     } catch (error) {
       if (!isPath) throw error;
-      for (const ext of EXTENSIONS) {
+      for (const extension of EXTENSIONS) {
         try {
-          return nextResolve(target + ext, context);
+          return nextResolve(target + extension, context);
         } catch {
           // try the next extension
         }
       }
       throw error;
     }
+  },
+  load(url, context, nextLoad) {
+    if (url.endsWith(".ts") && !url.includes("/node_modules/")) {
+      return nextLoad(url, { ...context, format: "module-typescript" });
+    }
+    return nextLoad(url, context);
   },
 });

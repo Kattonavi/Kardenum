@@ -75,8 +75,10 @@ export function localizedPath(pathname: AppPathname, locale: AppLocale): string 
   }
 }
 
+/** Absolute URL on the production origin. The root has no trailing slash, like every other page. */
 export function absoluteUrl(path: string): string {
-  return new URL(path, siteConfig.url).href;
+  if (!path.startsWith("/")) throw new Error(`absoluteUrl expects a path starting with "/": ${path}`);
+  return path === "/" ? siteConfig.url : `${siteConfig.url}${path}`;
 }
 
 export type LanguageAlternates = Record<AppLocale | "x-default", string>;

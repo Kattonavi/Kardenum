@@ -62,7 +62,7 @@ test("next-intl receives one translated pathname per route and language", () => 
 
 test("hreflang: each language points to itself and x-default points to English", () => {
   assert.deepEqual(languageAlternates("/"), {
-    es: "https://kardenum.com/",
+    es: "https://kardenum.com",
     en: "https://kardenum.com/en",
     "x-default": "https://kardenum.com/en",
   });

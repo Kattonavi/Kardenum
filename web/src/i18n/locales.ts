@@ -13,3 +13,7 @@ export type Localized<T> = Readonly<Record<AppLocale, T>>;
 export function otherLocale(locale: AppLocale): AppLocale {
   return locale === "es" ? "en" : "es";
 }
+
+export function isAppLocale(value: string): value is AppLocale {
+  return (locales as readonly string[]).includes(value);
+}

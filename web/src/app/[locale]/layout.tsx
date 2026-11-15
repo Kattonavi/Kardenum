@@ -1,11 +1,12 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
-import { getTranslations } from "next-intl/server";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { MAIN_CONTENT_ID, SiteHeader } from "@/components/layout/site-header";
 import { routing } from "@/i18n/routing";
+import { brand } from "@/lib/brand";
 import { isSiteIndexable } from "@/lib/indexing";
+import { siteConfig } from "@/site.config";
 import { archivo, jetbrainsMono } from "../fonts";
 import "../globals.css";
 
@@ -19,17 +20,17 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
-export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Promise<Metadata> {
-  const { locale } = await params;
-  // generateMetadata runs alongside the layout: validate here too (e.g. "/sitemap.xml" lands in [locale]).
-  if (!hasLocale(routing.locales, locale)) notFound();
-  const t = await getTranslations({ locale, namespace: "Metadata" });
-  return {
-    title: t("title"),
-    description: t("description"),
-    robots: isSiteIndexable() ? undefined : { index: false, follow: false },
-  };
-}
+export const viewport: Viewport = { themeColor: brand.ink };
+
+// Site-wide defaults only. Title, description, canonical, hreflang and social image are set by
+// each page with buildPageMetadata (src/lib/seo/metadata.ts): a canonical here would be inherited
+// by every page.
+export const metadata: Metadata = {
+  metadataBase: new URL(siteConfig.url),
+  applicationName: siteConfig.name,
+  title: siteConfig.name,
+  robots: isSiteIndexable() ? undefined : { index: false, follow: false },
+};
 
 export default async function LocaleLayout({ children, params }: LayoutProps<"/[locale]">) {
   const { locale } = await params;

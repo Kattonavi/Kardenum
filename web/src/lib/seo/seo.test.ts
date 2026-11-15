@@ -1,0 +1,133 @@
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import {
+  breadcrumbJsonLd,
+  organizationJsonLd,
+  serializeJsonLd,
+  serviceJsonLd,
+  websiteJsonLd,
+} from "@/lib/seo/json-ld";
+import { buildPageMetadata, ogImageName, ogImagePath } from "@/lib/seo/metadata";
+import { buildSitemapEntries } from "@/lib/seo/sitemap";
+import { publicPathnames } from "@/routes";
+import { type SiteConfig, siteConfig } from "@/site.config";
+
+const closed = { SITE_INDEXABLE: "false" };
+const open = { SITE_INDEXABLE: "true" };
+
+test("each language version has its own canonical and the same hreflang set (x-default is English)", () => {
+  const es = buildPageMetadata("/", "es", closed);
+  const en = buildPageMetadata("/", "en", closed);
+  const languages = { es: "https://kardenum.com", en: "https://kardenum.com/en", "x-default": "https://kardenum.com/en" };
+
+  assert.equal(es.alternates?.canonical, "https://kardenum.com");
+  assert.equal(en.alternates?.canonical, "https://kardenum.com/en");
+  assert.deepEqual(es.alternates?.languages, languages);
+  assert.deepEqual(en.alternates?.languages, languages);
+});
+
+test("title and description differ between languages", () => {
+  const es = buildPageMetadata("/", "es", closed);
+  const en = buildPageMetadata("/", "en", closed);
+  assert.notEqual(es.title, en.title);
+  assert.notEqual(es.description, en.description);
+  assert.equal(es.title, "Kardenum — estudio de desarrollo, diseño y video");
+});
+
+test("pages are noindex until the site is indexable", () => {
+  assert.deepEqual(buildPageMetadata("/", "es", closed).robots, { index: false, follow: false });
+  assert.deepEqual(buildPageMetadata("/", "es", {}).robots, { index: false, follow: false });
+  assert.equal(buildPageMetadata("/", "es", open).robots, undefined);
+});
+
+test("the social image is per page and language, on the production origin", () => {
+  const es = buildPageMetadata("/", "es", closed);
+  const en = buildPageMetadata("/", "en", closed);
+  assert.deepEqual(es.openGraph?.images, [{ url: "https://kardenum.com/og/es/inicio.png", width: 1200, height: 630, alt: es.title }]);
+  assert.deepEqual(en.openGraph?.images, [{ url: "https://kardenum.com/og/en/home.png", width: 1200, height: 630, alt: en.title }]);
+  assert.equal(ogImageName("/servicios/desarrollo", "es"), "servicios-desarrollo.png");
+  assert.equal(ogImageName("/servicios/desarrollo", "en"), "services-development.png");
+  assert.equal(ogImagePath("/servicios/minecraft/tebex", "en"), "/og/en/services-minecraft-tebex.png");
+});
+
+test("a page without texts cannot get metadata by accident", () => {
+  assert.throws(() => buildPageMetadata("/nosotros", "es", closed), /No page meta/);
+});
+
+test("the sitemap lists every public page in both languages with its alternatives", () => {
+  const entries = buildSitemapEntries();
+  assert.equal(entries.length, publicPathnames().length * 2);
+  const home = entries.find((entry) => entry.url === "https://kardenum.com");
+  assert.ok(home);
+  assert.deepEqual(home.alternates?.languages, {
+    es: "https://kardenum.com",
+    en: "https://kardenum.com/en",
+    "x-default": "https://kardenum.com/en",
+  });
+  assert.ok(entries.some((entry) => entry.url === "https://kardenum.com/en"));
+  for (const entry of entries) {
+    assert.doesNotMatch(entry.url, /portafolio|\/work|guias|guides/, "hidden sections are not in the sitemap");
+  }
+});
+
+test("Organization leaves pending data out instead of publishing placeholders", () => {
+  const organization = organizationJsonLd("es");
+  assert.equal(organization["@type"], "Organization");
+  assert.equal(organization.name, "Kardenum");
+  assert.equal(organization.url, "https://kardenum.com");
+  assert.equal(organization.logo, "https://kardenum.com/logo.png");
+  assert.equal("contactPoint" in organization, false);
+  assert.equal("sameAs" in organization, false);
+  // No bracketed placeholder ("[correo@kardenum.com]") inside any string of the document.
+  assert.doesNotMatch(serializeJsonLd([organization, websiteJsonLd("es")]), /"\[[^"]*\]"|correo@|pending/);
+});
+
+test("Organization includes e-mail and profiles once they exist", () => {
+  const ready: SiteConfig = {
+    ...siteConfig,
+    profiles: ["https://github.com/example"],
+    contact: { ...siteConfig.contact, email: { status: "ready", value: "hola@example.com" } },
+  };
+  const organization = organizationJsonLd("en", ready);
+  assert.deepEqual(organization.sameAs, ["https://github.com/example"]);
+  assert.deepEqual(organization.contactPoint, {
+    "@type": "ContactPoint",
+    contactType: "sales",
+    email: "hola@example.com",
+    availableLanguage: ["Spanish", "English"],
+  });
+});
+
+test("WebSite declares the site name and the language of each version", () => {
+  assert.equal(websiteJsonLd("es").inLanguage, "es");
+  assert.equal(websiteJsonLd("es").url, "https://kardenum.com");
+  assert.equal(websiteJsonLd("en").url, "https://kardenum.com/en");
+  assert.deepEqual(websiteJsonLd("en").publisher, { "@id": "https://kardenum.com/#organization" });
+});
+
+test("BreadcrumbList numbers the path and uses the URLs of the page's language", () => {
+  const crumbs = breadcrumbJsonLd("en", [
+    { name: "Home", pathname: "/" },
+    { name: "Services", pathname: "/servicios" },
+    { name: "Minecraft", pathname: "/servicios/minecraft" },
+  ]);
+  assert.deepEqual(crumbs.itemListElement, [
+    { "@type": "ListItem", position: 1, name: "Home", item: "https://kardenum.com/en" },
+    { "@type": "ListItem", position: 2, name: "Services", item: "https://kardenum.com/en/services" },
+    { "@type": "ListItem", position: 3, name: "Minecraft", item: "https://kardenum.com/en/services/minecraft" },
+  ]);
+});
+
+test("Service points to the organization as provider", () => {
+  const service = serviceJsonLd("es", { name: "Plugins de Minecraft", description: "Desarrollo de plugins.", pathname: "/servicios/minecraft/plugins" });
+  assert.equal(service.url, "https://kardenum.com/servicios/minecraft/plugins");
+  assert.deepEqual(service.provider, { "@id": "https://kardenum.com/#organization" });
+});
+
+test("serialized JSON-LD is valid JSON and cannot close its script tag", () => {
+  const json = serializeJsonLd([{ "@type": "Thing", name: "</script><script>alert(1)</script>" }]);
+  assert.doesNotMatch(json, /</);
+  const parsed = JSON.parse(json);
+  assert.equal(parsed["@context"], "https://schema.org");
+  assert.equal(parsed["@graph"][0].name, "</script><script>alert(1)</script>");
+});
