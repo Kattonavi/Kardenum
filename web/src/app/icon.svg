@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Kardenum, ícono del sitio">
+<title>Kardenum, ícono del sitio</title>
+<rect id="fondo" width="512" height="512" rx="96" fill="#111110"/>
+<g id="simbolo">
+<path id="simbolo-corchete" fill="#F4F4F1" d="M112 112 L184 112 L184 148 L148 148 L148 364 L184 364 L184 400 L112 400 Z"/>
+<path id="simbolo-angulo" fill="#F4F4F1" d="M349.09 112 L400 112 L256 256 L400 400 L349.09 400 L205.09 256 Z"/>
+<path id="simbolo-cuadro" fill="#B8923A" d="M299.2 234.4 L342.4 234.4 L342.4 277.6 L299.2 277.6 Z"/>
+</g>
+</svg>
