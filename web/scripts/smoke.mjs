@@ -8,6 +8,7 @@ import { homeFaqs } from "@/content/home";
 import { getPageMeta, getPageName } from "@/content/pages";
 import { serviceLines } from "@/content/service-lines";
 import { locales } from "@/i18n/locales";
+import { securityHeaders } from "@/lib/security-headers";
 import { ogImagePath } from "@/lib/seo/metadata";
 import { getSiteUrl } from "@/lib/site-url";
 import { absoluteUrl, breadcrumbTrail, footerNotices, languageAlternates, localizedPath, publicPathnames, routeTable, shortLinkRedirects } from "@/routes";
@@ -382,6 +383,25 @@ if (assetPath) {
   const asset = await get(assetPath);
   check(`GET ${assetPath} -> 200`, asset.res.status === 200, `status ${asset.res.status}`);
   check(`static asset X-Robots-Tag ${noindex ? "has" : "lacks"} noindex`, robotsHeaderOk(asset.res));
+}
+
+// ---------------------------------------------------------------------------------------------
+// 7. Security headers on every kind of response, whatever the indexing state (seo-sitio.md §2.7).
+// ---------------------------------------------------------------------------------------------
+const expectedHeaders = securityHeaders();
+const responses = [
+  ["page /", home.res],
+  ["page /en/services/minecraft", (await get("/en/services/minecraft")).res],
+  ["404", notFoundPage.res],
+  ["redirect /es", esPrefixed.res],
+  ["robots.txt", robots.res],
+  ["social image", await fetch(new URL(ogImagePath("/", "es"), base))],
+  ...(assetPath ? [["static asset", (await get(assetPath)).res]] : []),
+];
+for (const [label, res] of responses) {
+  const wrong = expectedHeaders.filter((header) => res.headers.get(header.key) !== header.value).map((header) => `${header.key}: ${res.headers.get(header.key) ?? "missing"}`);
+  check(`${label}: security headers (${expectedHeaders.length})`, wrong.length === 0, wrong.join(" | "));
+  check(`${label}: does not say what it is built with`, !res.headers.has("x-powered-by"), res.headers.get("x-powered-by") ?? "");
 }
 
 console.log(`\nSite origin expected in canonical, hreflang, sitemap and JSON-LD: ${getSiteUrl()}`);

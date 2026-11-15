@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import { isSiteIndexable, NOINDEX_DIRECTIVE } from "./src/lib/indexing";
 import { assertLaunchReady } from "./src/lib/launch";
+import { securityHeaders } from "./src/lib/security-headers";
 import { getSiteUrl } from "./src/lib/site-url";
 import { shortLinkRedirects } from "./src/routes";
 
@@ -21,6 +22,8 @@ const projectRoot = path.resolve(__dirname);
 const nextConfig: NextConfig = {
   output: "standalone",
   outputFileTracingRoot: projectRoot,
+  // No "X-Powered-By: Next.js": the stack is nobody's business.
+  poweredByHeader: false,
   experimental: {
     // 404 for URLs that match no route (src/app/global-not-found.tsx): the root layout
     // lives in [locale], so a regular app/not-found.tsx has no layout to render in.
@@ -39,14 +42,12 @@ const nextConfig: NextConfig = {
   async redirects() {
     return shortLinkRedirects();
   },
+  // Every response carries the security headers, indexable or not; the noindex one is added
+  // only while the site is closed to search engines.
   async headers() {
-    if (isSiteIndexable()) return [];
-    return [
-      {
-        source: "/:path*",
-        headers: [{ key: "X-Robots-Tag", value: NOINDEX_DIRECTIVE }],
-      },
-    ];
+    const headers = [...securityHeaders()];
+    if (!isSiteIndexable()) headers.push({ key: "X-Robots-Tag", value: NOINDEX_DIRECTIVE });
+    return [{ source: "/:path*", headers }];
   },
 };
 
