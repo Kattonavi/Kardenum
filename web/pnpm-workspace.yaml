@@ -1,3 +1,6 @@
 allowBuilds:
+  # next-intl's message extractor only (not used: messages are JSON files). Prebuilt binaries suffice.
+  '@parcel/watcher': false
+  '@swc/core': false
   sharp: false
   unrs-resolver: false

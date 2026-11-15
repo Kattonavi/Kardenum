@@ -1,0 +1,17 @@
+{
+  "Metadata": {
+    "title": "Kardenum — estudio de desarrollo, diseño y video",
+    "description": "Un estudio para llevar tu proyecto de la idea a algo que puedas mostrar con orgullo. Escuchamos, proponemos y construimos contigo cada parte."
+  },
+  "Home": {
+    "descriptor": "Estudio de desarrollo, diseño y video.",
+    "status": "Sitio en construcción"
+  },
+  "NotFound": {
+    "metaTitle": "Página no encontrada — Kardenum",
+    "label": "Error 404",
+    "title": "Esta página no existe.",
+    "body": "Puede que el enlace esté mal escrito o que la página se haya movido.",
+    "home": "Ir al inicio"
+  }
+}

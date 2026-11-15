@@ -12,7 +12,10 @@ Este archivo solo agrega o endurece; nunca relaja.
 2. **Ningún push con el build en rojo:** `cd web && pnpm build` (ESLint sin avisos + `tsc` + `next build`).
 3. **`/` responde 200 en español, sin redirección, y el sitio no se indexa hasta el lanzamiento:**
    `pnpm --dir web smoke <url> --expect=noindex` contra local y contra Railway después de cada despliegue.
-4. **Todo estático:** la tabla de rutas de `next build` no muestra `ƒ` (salvo que una ruta lo justifique por escrito).
+4. **Todo estático:** la tabla de rutas de `next build` solo muestra `○` y `●`; `ƒ` únicamente en `Proxy (Middleware)`.
+   Las rutas desconocidas no deben coincidir con ninguna ruta (`dynamicParams = false`, sin catch-all): así Next sirve
+   `global-not-found.tsx` con HTML completo. Una página que llama `notFound()` al renderizar entrega un shell vacío
+   (comprobado en Next 16.4.6). Por eso Cache Components queda apagado: no admite `dynamicParams`.
 5. **TS strict sin `any`** sin comentario que lo justifique: `pnpm --dir web typecheck`.
 6. **Datos que no existen** (correo, WhatsApp, Discord, perfiles, legales) solo en `site.config.ts` como reemplazos.
 7. **Textos:** nunca "plan" ni "mensualidad", no se menciona el país, ni testimonios ni clientes inventados.

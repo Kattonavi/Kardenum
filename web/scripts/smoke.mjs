@@ -50,6 +50,22 @@ check(`GET / meta robots ${noindex ? "has" : "lacks"} noindex`, metaNoindex === 
 const homeEn = await get("/", { "accept-language": "en-US,en;q=0.9" });
 check("GET / (Accept-Language: en) -> 200 without redirect", homeEn.res.status === 200 && !homeEn.res.headers.has("location"), `status ${homeEn.res.status}`);
 
+// 2b. Neither a stale locale cookie redirects, nor does "/" set cookies (no cookie banner needed).
+const homeCookie = await get("/", { cookie: "NEXT_LOCALE=en" });
+check("GET / (cookie NEXT_LOCALE=en) -> 200 without redirect", homeCookie.res.status === 200 && !homeCookie.res.headers.has("location"), `status ${homeCookie.res.status}`);
+check("GET / sets no cookie", !home.res.headers.has("set-cookie"), home.res.headers.get("set-cookie") ?? "");
+
+// 2c. English lives under /en; the Spanish prefix is not a second URL for the same page.
+const en = await get("/en");
+check("GET /en -> 200", en.res.status === 200, `status ${en.res.status}`);
+check('GET /en is <html lang="en">', /<html[^>]*\blang="en"/.test(en.body));
+const esPrefixed = await get("/es");
+check(
+  "GET /es redirects to /",
+  [301, 307, 308].includes(esPrefixed.res.status) && new URL(esPrefixed.res.headers.get("location") ?? "x:", base).pathname === "/",
+  `status ${esPrefixed.res.status} -> ${esPrefixed.res.headers.get("location")}`,
+);
+
 // 3. robots.txt
 const robots = await get("/robots.txt");
 check("GET /robots.txt -> 200", robots.res.status === 200, `status ${robots.res.status}`);
@@ -66,10 +82,16 @@ if (noindex) {
   check("GET /sitemap.xml -> 404 while not indexable", sitemap.res.status === 404, `status ${sitemap.res.status}`);
 }
 
-// 5. Unknown route: real 404, also covered by the header.
-const missing = await get("/ruta-que-no-existe-smoke");
-check("GET unknown route -> 404", missing.res.status === 404, `status ${missing.res.status}`);
-check(`unknown route X-Robots-Tag ${noindex ? "has" : "lacks"} noindex`, robotsHeaderOk(missing.res));
+// 5. Unknown routes: real 404 status AND the brand 404 page in the server HTML
+//    (not Next's empty "__next_error__" shell that only renders with JavaScript).
+const brand404 = (body) => !body.includes("__next_error__") && body.includes("Esta página no existe");
+for (const pathname of ["/ruta-que-no-existe-smoke", "/en/ruta-que-no-existe-smoke", "/en/a/b", "/de", "/no-existe-smoke.txt"]) {
+  const missing = await get(pathname);
+  check(`GET ${pathname} -> 404 with the brand page in HTML`, missing.res.status === 404 && brand404(missing.body), `status ${missing.res.status}`);
+  if (pathname === "/ruta-que-no-existe-smoke") {
+    check(`unknown route X-Robots-Tag ${noindex ? "has" : "lacks"} noindex`, robotsHeaderOk(missing.res));
+  }
+}
 
 // 6. A static asset referenced by the home page is served (standalone copy worked) with the header.
 const assetPath = home.body.match(/\/_next\/static\/[^"'\s)]+/)?.[0];

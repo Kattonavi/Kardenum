@@ -39,7 +39,9 @@ re-negociar. El lanzamiento (paso 8) depende de datos del fundador, no del códi
 - **Rebanada 0:** `/` responde 200 en español en Railway con el guardia activo, y la base (marca, idiomas, fuentes,
   layout) lista para montar componentes.
 - **Riesgos top 3:**
-  1. next-intl con Cache Components: las páginas deben seguir estáticas (la tabla de `next build` sin `ƒ`).
+  1. ~~next-intl con Cache Components~~ Resuelto el 2026-11-15: todo sale `○`/`●`. Para que el 404 llegue con HTML
+     completo, las rutas desconocidas no coinciden con nada (`dynamicParams = false`, sin catch-all) y responde
+     `global-not-found.tsx` (experimental). Cache Components queda apagado porque no admite `dynamicParams`.
   2. Push directo a `main` sin CI: un build verde pero roto en ejecución llega a producción. Mitigación: `pnpm smoke`
      contra la URL de Railway tras cada despliegue; CI en el paso 7.
   3. Datos pendientes (correo, WhatsApp, Discord, legales) frenan el lanzamiento: van en `site.config.ts` como
@@ -74,6 +76,11 @@ Detalle en `docs/handoff/docs/seo-sitio.md`. Nichos primero (Minecraft y Discord
 - Node 22 (`engines.node: 22.x`), igual al de la máquina donde se verifica el build.
 - La guardia se lee en el build (fail-closed: solo `"true"` abre). Al lanzar, comprobar `/robots.txt` tras el cambio.
 - Favicon y `apple-icon` desde el paquete del logo (`kardenum-favicon.svg`, `-180.png`).
+- next-intl fijado en 4.14.9 (la 4.15 tiene menos de 30 días); `localeDetection`, `localeCookie` y `alternateLinks`
+  apagados: `/` siempre en español, sin cookies, y hreflang desde los metadatos (x-default → inglés) en el paso 4.
+- El 404 es uno solo y bilingüe (español primero, línea en inglés hacia `/en`): `global-not-found` no recibe el
+  idioma. Se aparta de la maqueta B-404, que solo existe en español.
+- Los textos en inglés del sitio son provisionales hasta escribir el inglés con las palabras clave validadas.
 
 ## Pendientes
 Ver `docs/handoff/docs/checklist-pre-desarrollo.md`, sección 2 (correo, WhatsApp, Discord, datos legales, frase del

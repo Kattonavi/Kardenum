@@ -1,6 +1,9 @@
 import path from "node:path";
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
 import { isSiteIndexable, NOINDEX_DIRECTIVE } from "./src/lib/indexing";
+
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 // Pin both roots to /web: Railway only sees this folder, and an unrelated lockfile
 // higher up must never change where `.next/standalone/server.js` ends up.
@@ -9,8 +12,11 @@ const projectRoot = path.resolve(__dirname);
 const nextConfig: NextConfig = {
   output: "standalone",
   outputFileTracingRoot: projectRoot,
-  cacheComponents: true,
-  partialPrefetching: true,
+  experimental: {
+    // 404 for URLs that match no route (src/app/global-not-found.tsx): the root layout
+    // lives in [locale], so a regular app/not-found.tsx has no layout to render in.
+    globalNotFound: true,
+  },
   turbopack: {
     root: projectRoot,
     rules: {
@@ -31,4 +37,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);
