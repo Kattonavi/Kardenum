@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "pnpm --dir web --silent typecheck 1>&2 || exit 2" }
+        ]
+      }
+    ]
+  }
+}
