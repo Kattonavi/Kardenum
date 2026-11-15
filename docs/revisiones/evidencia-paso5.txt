@@ -42,3 +42,31 @@ C. flag encendido, sitio abierto: indexables y en el sitemap
   93 pruebas habían pasado. El mismo commit ya había compilado tres veces en el clon de descarte y compiló en Railway.
   Repetido con el servidor detenido: build_exit=0. Desde ahora el push sale de un guion que detiene los servidores,
   compila y solo sube si el build pasó.
+
+== Laboratorios antes de las specs 005 y 006 (clon de descarte, nada versionado) · 2026-11-15
+
+-- L1. Segmento dinámico estático: [locale]/portafolio/[caso] con dynamicParams = false (Next 16.4.6, next-intl 4.14.9)
+Con un caso por idioma:
+  build: ● /es/portafolio/caso-de-prueba · ● /en/portafolio/test-case · ƒ solo en Proxy (Middleware)
+  GET /portafolio/caso-de-prueba -> 200 · GET /en/work/test-case -> 200 (dirección traducida, slug por idioma)
+  GET /portafolio/no-existe -> 404, página 404 de marca completa (24 909 bytes, con pie) y cabecera CSP
+  GET /en/work/caso-de-prueba -> 404 (el slug de un idioma no vale bajo el otro prefijo: no hay URL duplicadas)
+  GET /en/portafolio/test-case -> 308 a /en/work/test-case · GET /es/portafolio/caso-de-prueba -> 308 a /portafolio/caso-de-prueba
+  Ganchos en esa página (HTML del servidor): next-intl usePathname() = "/portafolio/[caso]" en español y
+  "/portafolio/test-case" en inglés; next/navigation usePathname() = ruta interna ("/es/portafolio/caso-de-prueba");
+  useParams().caso = el slug correcto en ambos. Por eso los enlaces ES / EN de una entrada usan useParams.
+Con cero casos (generateStaticParams devuelve []):
+  build exit 0, ● /[locale]/portafolio/[caso], sin ƒ; toda dirección de caso -> 404 de marca con cabeceras.
+Hallazgo: añadir la plantilla dinámica al registro de rutas fijas rompe los enlaces tipados (error TS2322 en app-link.tsx).
+  Las plantillas van solo en pathnames de next-intl.
+
+-- L2. MDX: @next/mdx 16.4.2 + @mdx-js/loader 3.1.1 + @mdx-js/react 3.1.1 + @types/mdx 2.0.14 sobre Next 16.4.6 y Turbopack
+  pnpm audit --prod: No known vulnerabilities found · lockfile: +1053 líneas (cadena de unified/remark, solo en compilación)
+  typegen + tsc + next build: exit 0 · ● /es/guias/guia-de-prueba · ● /en/guias/test-guide
+  GET /guias/guia-de-prueba -> 200 · GET /en/guides/test-guide -> 200 · datos exportados por el archivo leídos (título y fechas)
+  atributos style en la página: 0 · componente h2 propio y <Note>: aplicados · bloque de código: <pre><code class="language-yaml">
+  tablas de Markdown: NO se convierten (quedan como texto con barras): las guías no usan tablas
+  GET /guias/no-existe -> 404 · GET /en/guides/guia-de-prueba -> 404
+  navegador: 0 mensajes de CSP, 0 mensajes de consola; 9 archivos .js, los mismos que /nosotros (MDX no agrega JS al cliente)
+  Versiones: @next/mdx 16.4.6 se publicó el 2026-11-09 (menos de 30 días); 16.4.2 es del 2026-10-15 y funciona con Next 16.4.6.
+
