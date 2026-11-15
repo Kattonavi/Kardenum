@@ -10,5 +10,5 @@ Lo que no bloquea el paso actual. Severidad: Crítico · Alto · Medio · Bajo �
 | 4 | Subir next-intl a 4.15.x cuando cumpla 30 días (trae "Prefer static internal pathnames over overlapping dynamic ones", útil con las rutas traducidas). | Bajo | Desde el 2026-12-12 |
 | 5 | `web/.env.example` con `SITE_INDEXABLE=false` y `NEXT_TELEMETRY_DISABLED=1`: una regla de permisos impide crearlo desde Claude. Mientras, las variables están documentadas en `web/README.md`. | Bajo | Lo crea el fundador |
 | 6 | Hook `Stop` del proyecto (typecheck): bloqueado por el sello de evaluación del Workspace. Comando listo: `pnpm --dir web --silent typecheck 1>&2 \|\| exit 2` (pnpm 12 no acepta `-s`). | Info | Lo crea el fundador |
-| 7 | `global-not-found` es experimental en Next 16.4. Revisar en cada actualización de Next si pasa a estable o cambia. | Info | Cada actualización de Next |
+| 7 | `global-not-found` es experimental en Next 16.4, y el motivo de no usar `notFound()` en páginas es el fallo abierto [vercel/next.js#99287](https://github.com/vercel/next.js/issues/99287). Cuando se cierre, reconsiderar el catch-all y Cache Components. | Info | Cada actualización de Next |
 | 8 | Push protection / `gitleaks` en el repo y Dependabot con actualizaciones agrupadas. | Medio | Paso 7 (CI) |

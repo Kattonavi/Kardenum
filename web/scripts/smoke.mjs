@@ -59,12 +59,14 @@ check("GET / sets no cookie", !home.res.headers.has("set-cookie"), home.res.head
 const en = await get("/en");
 check("GET /en -> 200", en.res.status === 200, `status ${en.res.status}`);
 check('GET /en is <html lang="en">', /<html[^>]*\blang="en"/.test(en.body));
+check(`GET /en X-Robots-Tag ${noindex ? "has" : "lacks"} noindex`, robotsHeaderOk(en.res));
 const esPrefixed = await get("/es");
 check(
   "GET /es redirects to /",
   [301, 307, 308].includes(esPrefixed.res.status) && new URL(esPrefixed.res.headers.get("location") ?? "x:", base).pathname === "/",
   `status ${esPrefixed.res.status} -> ${esPrefixed.res.headers.get("location")}`,
 );
+check(`GET /es redirect X-Robots-Tag ${noindex ? "has" : "lacks"} noindex`, robotsHeaderOk(esPrefixed.res));
 
 // 2d. Page structure required by the brief: one <header>, one <main>, one <footer> and a single <h1>.
 for (const [label, page] of [["/", home], ["/en", en]]) {
