@@ -13,3 +13,6 @@ Thumbs.db
 # Claude Code local state
 .claude/settings.local.json
 .claude/worktrees/
+
+# Review captures (ui-qa): evidence stays local, the report is versioned in docs/revisiones
+.impeccable/review/
