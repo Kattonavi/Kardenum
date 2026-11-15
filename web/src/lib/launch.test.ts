@@ -15,7 +15,10 @@ function fillPending(value: unknown): unknown {
 }
 
 // A fixture built from the real configuration; the cast is only for the test.
-const readyConfig = fillPending(siteConfig) as SiteConfig;
+// The contact and legal data, all ready. The portfolio is off here whatever the real flag says:
+// its own readiness has its own tests below, and opening it must not change what these ones check.
+const filledConfig = fillPending(siteConfig) as SiteConfig;
+const readyConfig: SiteConfig = { ...filledConfig, features: { ...filledConfig.features, portfolio: false } };
 
 /** `readyConfig` with one value put back to pending, by its path. */
 function withPending(path: string): SiteConfig {
