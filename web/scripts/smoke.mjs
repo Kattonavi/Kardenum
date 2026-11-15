@@ -8,6 +8,7 @@ import { getPageMeta } from "@/content/pages";
 import { serviceLines } from "@/content/service-lines";
 import { locales } from "@/i18n/locales";
 import { ogImagePath } from "@/lib/seo/metadata";
+import { getSiteUrl } from "@/lib/site-url";
 import { absoluteUrl, languageAlternates, localizedPath, publicPathnames } from "@/routes";
 import { siteConfig } from "@/site.config";
 
@@ -15,10 +16,19 @@ const args = process.argv.slice(2);
 const baseArg = args.find((a) => !a.startsWith("--"));
 const expectArg = args.find((a) => a.startsWith("--expect="));
 const expectMode = expectArg ? expectArg.split("=")[1] : "noindex";
+const siteUrlArg = args.find((a) => a.startsWith("--site-url="));
 
 if (!baseArg || !["noindex", "indexable"].includes(expectMode)) {
-  console.error("Usage: pnpm smoke <baseUrl> [--expect=noindex|indexable]");
+  console.error("Usage: pnpm smoke <baseUrl> [--expect=noindex|indexable] [--site-url=<origin>|self]");
   process.exit(2);
+}
+
+// The origin the server under test was built with (its SITE_URL). Canonical, hreflang, og:image,
+// sitemap and JSON-LD are expected on it. "self" means the address being tested; without the
+// flag it is this shell's SITE_URL or the production domain.
+if (siteUrlArg) {
+  const value = siteUrlArg.slice("--site-url=".length);
+  process.env.SITE_URL = value === "self" ? new URL(baseArg).origin : value;
 }
 
 const base = new URL(baseArg);
@@ -82,8 +92,8 @@ check("GET / sets no cookie", !home.res.headers.has("set-cookie"), home.res.head
 // The Spanish prefix is not a second URL for the same page.
 const esPrefixed = await get("/es");
 check(
-  "GET /es redirects to /",
-  [301, 307, 308].includes(esPrefixed.res.status) && new URL(esPrefixed.res.headers.get("location") ?? "x:", base).pathname === "/",
+  "GET /es redirects permanently (308) to /",
+  esPrefixed.res.status === 308 && new URL(esPrefixed.res.headers.get("location") ?? "x:", base).pathname === "/",
   `status ${esPrefixed.res.status} -> ${esPrefixed.res.headers.get("location")}`,
 );
 check(`GET /es redirect X-Robots-Tag ${noindex ? "has" : "lacks"} noindex`, robotsHeaderOk(esPrefixed.res));
@@ -236,9 +246,10 @@ if (assetPath) {
   check(`static asset X-Robots-Tag ${noindex ? "has" : "lacks"} noindex`, robotsHeaderOk(asset.res));
 }
 
+console.log(`\nSite origin expected in canonical, hreflang, sitemap and JSON-LD: ${getSiteUrl()}`);
 console.log(
   failures === 0
-    ? `\nOK: all ${passes} checks passed (${expectMode}) on ${base.origin}`
-    : `\n${failures} of ${passes + failures} checks failed on ${base.origin}`,
+    ? `OK: all ${passes} checks passed (${expectMode}) on ${base.origin}`
+    : `${failures} of ${passes + failures} checks failed on ${base.origin}`,
 );
 process.exit(failures === 0 ? 0 : 1);

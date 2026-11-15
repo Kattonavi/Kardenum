@@ -5,7 +5,8 @@ import { expect, test } from "@playwright/test";
 
 test("the hero says what the studio is and leads to the quote", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(/Software, diseño\s*y video\.\s*Un solo estudio\./);
+  // textContent ignores <br>: the words must still be separated ("diseño y", never "diseñoy").
+  expect(await page.getByRole("heading", { level: 1 }).evaluate((h1) => h1.textContent)).toBe("Software, diseño y video. Un solo estudio.");
 
   await page.getByRole("main").getByRole("link", { name: "Cotizar proyecto" }).click();
   await expect(page).toHaveURL(/#contacto$/);

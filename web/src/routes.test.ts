@@ -16,6 +16,9 @@ import {
 } from "@/routes";
 import { siteConfig } from "@/site.config";
 
+// These tests describe the production origin: ignore the SITE_URL of the machine running them.
+delete process.env.SITE_URL;
+
 const appDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "app", "[locale]");
 
 // seo-sitio.md §2.1: lowercase, hyphens, no accents, no trailing slash.

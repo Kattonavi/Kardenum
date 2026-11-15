@@ -34,9 +34,9 @@ export function buildPageMetadata(pathname: AppPathname, locale: AppLocale, env:
   const meta = getPageMeta(pathname);
   const title = meta.title[locale];
   const description = meta.description[locale];
-  const alternates = languageAlternates(pathname);
+  const alternates = languageAlternates(pathname, env);
   const canonical = alternates[locale];
-  const image = absoluteUrl(ogImagePath(pathname, locale));
+  const image = absoluteUrl(ogImagePath(pathname, locale), env);
   const indexable = isSiteIndexable(env) && isListed(pathname);
 
   return {

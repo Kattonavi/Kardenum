@@ -76,8 +76,9 @@ Detalle en `docs/handoff/docs/seo-sitio.md`. Nichos primero (Minecraft y Discord
 
 ## Decisiones tomadas por defecto
 - El paquete del handoff vive en `docs/handoff/` (lo sugería su `LEEME.md`).
-- **Una sola fuente del dominio:** `https://kardenum.com` en `site.config.ts`. Canonical, hreflang, sitemap, JSON-LD
-  e imágenes OG salen de ahí también antes del lanzamiento (en la URL de Railway apuntan al dominio final).
+- **Dominio por variable (decisión del fundador, 2026-11-15):** canonical, hreflang, `og:image`, sitemap y JSON-LD
+  usan `SITE_URL`; sin definir vale `https://kardenum.com`. En Railway se pone la URL de Railway hasta comprar el
+  dominio. Con `SITE_INDEXABLE=true`, el build falla si `SITE_URL` no es `https://kardenum.com`.
 - **Raíz sin barra final:** `https://kardenum.com`, como la escribe Next, en canonical, hreflang, sitemap y JSON-LD.
 - **Pie con el aviso de Minecraft en todo el sitio** (plan-sitio-web.md §6 y pedido del fundador); el de Discord se
   suma en sus páginas.
@@ -87,8 +88,10 @@ Detalle en `docs/handoff/docs/seo-sitio.md`. Nichos primero (Minecraft y Discord
   (`docs/specs/001-barra-de-idioma.md`).
 - **Fuentes de respaldo medidas** (Arial y Roboto ajustadas a Archivo) para que el cambio de fuente no mueva la página.
 - **Inglés provisional:** traducción fiel de los textos aprobados; se reescribe con las palabras clave validadas.
-- **Diseño:** se implementan las maquetas tal cual. Choque anotado: Impeccable prohíbe las etiquetas pequeñas sobre
-  los títulos y las maquetas aprobadas las llevan; decide el fundador en la revisión del lote.
+- **Diseño:** se implementan las maquetas tal cual. Las etiquetas pequeñas sobre los títulos se quedan como en las
+  maquetas (decisión del fundador, 2026-11-15), aunque Impeccable las prohíba.
+- **El freno de lanzamiento se queda** (decisión del fundador): `SITE_LAUNCH_CHECK=off` solo en local.
+- **Una URL por página:** `/es` y los slugs del otro idioma redirigen con 308 (permanente).
 - Node 22 (`engines.node: 22.x`), igual al de la máquina donde se verifica el build.
 - La guardia se lee en el build (fail-closed: solo `"true"` abre). Al lanzar, comprobar `/robots.txt` tras el cambio.
 - Favicon y `apple-icon` desde el paquete del logo (`kardenum-favicon.svg`, `-180.png`).

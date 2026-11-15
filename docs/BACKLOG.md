@@ -17,5 +17,5 @@ Lo que no bloquea el paso actual. Severidad: Crítico · Alto · Medio · Bajo �
 | 11 | Respaldo de fuentes en Android (Roboto): los valores están calculados, no medidos en un dispositivo. Medir CLS en un Android real o en BrowserStack. | Bajo | Antes del lanzamiento |
 | 12 | Redirecciones cortas: `/minecraft` → `/servicios/minecraft` (308) al construir esa página; `/discord` → invitación cuando exista el dato. | Medio | Paso 3 y lanzamiento |
 | 13 | Movimiento: hoy solo hay transiciones de color. La pasada de motion (motion-engineer) va en el lote de pulido. | Bajo | Lote de pulido |
-| 14 | Redirecciones de next-intl (`/es` → `/`, slug del otro idioma) responden 307; para SEO convendría 308. Revisar opciones de next-intl o reglas en Cloudflare. | Bajo | Paso 8 |
+| 14 | ~~Redirecciones de next-intl en 307~~ Hecho el 2026-11-15: `src/proxy.ts` las vuelve 308. | — | Cerrado |
 | 15 | Impeccable 4.9.1 disponible (instalada 4.8.0): `npx impeccable update` en otra sesión. | Info | Cuando el fundador quiera |

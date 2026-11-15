@@ -20,10 +20,9 @@ export function Hero({ contactId, servicesId }: HeroProps) {
           {t("heroLabel")}
         </p>
         <h1 className="text-[clamp(1.875rem,4.6vw,3.625rem)] leading-[1.05] tracking-[0.01em] type-display">
-          {t("heroTitleLine1")}
-          <br />
-          {t("heroTitleLine2")}
-          <br />
+          {/* A space before each <br>: readers that ignore the break still get separate words. */}
+          {t("heroTitleLine1")} <br />
+          {t("heroTitleLine2")} <br />
           <span className="text-bronze">{t("heroTitleAccent")}</span>
         </h1>
         <p className="max-w-[34rem] text-lg leading-[1.6] text-(--muted-text)">{t("heroText")}</p>

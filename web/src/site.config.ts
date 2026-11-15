@@ -17,7 +17,10 @@ function pending(placeholder: string): Pending {
 
 export type SiteConfig = {
   readonly name: string;
-  /** Production origin. Canonical URLs, hreflang, sitemap, JSON-LD and OG images are built from it. */
+  /**
+   * Production origin: the default of SITE_URL and the only origin an indexable build accepts.
+   * Absolute URLs are built with getSiteUrl() (src/lib/site-url.ts), never from this field directly.
+   */
   readonly url: string;
   /** What the studio is, for titles and SEO. */
   readonly descriptor: Localized<string>;

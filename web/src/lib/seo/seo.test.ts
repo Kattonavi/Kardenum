@@ -12,6 +12,9 @@ import { buildSitemapEntries } from "@/lib/seo/sitemap";
 import { publicPathnames } from "@/routes";
 import { type SiteConfig, siteConfig } from "@/site.config";
 
+// These tests describe the production origin: ignore the SITE_URL of the machine running them.
+delete process.env.SITE_URL;
+
 const closed = { SITE_INDEXABLE: "false" };
 const open = { SITE_INDEXABLE: "true" };
 

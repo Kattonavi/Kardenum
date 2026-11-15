@@ -8,14 +8,15 @@ import { type SiteConfig, siteConfig } from "../../site.config";
  */
 export type JsonLdNode = { readonly "@type": string } & Readonly<Record<string, unknown>>;
 
-const ORGANIZATION_ID = absoluteUrl("/#organization");
+// Computed on each call: the origin comes from SITE_URL.
+const organizationId = () => absoluteUrl("/#organization");
 const LANGUAGE_NAME: Record<AppLocale, string> = { es: "Spanish", en: "English" };
 
 export function organizationJsonLd(locale: AppLocale, config: SiteConfig = siteConfig): JsonLdNode {
   const { email } = config.contact;
   return {
     "@type": "Organization",
-    "@id": ORGANIZATION_ID,
+    "@id": organizationId(),
     name: config.name,
     url: absoluteUrl("/"),
     logo: absoluteUrl("/logo.png"),
@@ -42,7 +43,7 @@ export function websiteJsonLd(locale: AppLocale, config: SiteConfig = siteConfig
     name: config.name,
     url: absoluteUrl(localizedPath("/", locale)),
     inLanguage: locale,
-    publisher: { "@id": ORGANIZATION_ID },
+    publisher: { "@id": organizationId() },
   };
 }
 
@@ -70,7 +71,7 @@ export function serviceJsonLd(
     name: service.name,
     description: service.description,
     url: absoluteUrl(localizedPath(service.pathname, locale)),
-    provider: { "@id": ORGANIZATION_ID },
+    provider: { "@id": organizationId() },
     availableLanguage: locales.map((language) => LANGUAGE_NAME[language]),
   };
 }

@@ -44,3 +44,5 @@ Este archivo solo agrega o endurece; nunca relaja.
   hreflang, a las imágenes OG y a la prueba de humo.
 - Los componentes de cliente reciben sus textos como props: el provider no envía mensajes al navegador.
 - Código con barras invertidas (regex) se escribe con Write/Edit, nunca con heredoc de Bash.
+- Las URL absolutas salen de `absoluteUrl()` / `getSiteUrl()` (variable `SITE_URL`), nunca de `siteConfig.url`.
+- En los títulos con `<br>` va un espacio antes de cada salto, para que el texto no quede pegado sin él.

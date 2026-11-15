@@ -7,7 +7,7 @@ Sitio de Kardenum. Next.js 16 (App Router, `output: "standalone"`), TypeScript s
 | `pnpm build` | ESLint (sin avisos) → `next typegen` → `tsc --noEmit` → pruebas unitarias → `next build` → copia `public/` y `.next/static/` al standalone |
 | `pnpm start` | Arranca `.next/standalone/server.js` en `0.0.0.0:$PORT` (lo usa Railway) |
 | `pnpm test` | Pruebas unitarias con `node --test` (reglas de URLs, hreflang, sitemap, JSON-LD, textos prohibidos, barra de idioma) |
-| `pnpm smoke <url> [--expect=noindex\|indexable]` | Prueba de humo contra un servidor: recorre el registro de rutas y revisa cada página en los dos idiomas |
+| `pnpm smoke <url> [--expect=noindex\|indexable] [--site-url=<origen>\|self]` | Prueba de humo contra un servidor: recorre el registro de rutas y revisa cada página en los dos idiomas. `--site-url` es el `SITE_URL` con que se compiló ese servidor (`self` = la misma dirección que se prueba) |
 | `pnpm test:e2e` | Playwright + axe a 1280 y 390 px contra `E2E_BASE_URL` (por defecto `http://127.0.0.1:3000`) |
 | `pnpm lint` · `pnpm typecheck` | Por separado |
 
@@ -30,6 +30,7 @@ hreflang, a las imágenes para redes y a la prueba de humo.
 
 | Variable | Valor hoy | Para qué |
 |---|---|---|
-| `SITE_INDEXABLE` | `false` | Solo el valor exacto `true` deja indexar el sitio. Se lee en el build: cambiarla exige un despliegue nuevo. Guardia en `src/lib/indexing.ts`. Con `true`, el build falla mientras `site.config.ts` tenga datos de contacto pendientes. |
+| `SITE_INDEXABLE` | `false` | Solo el valor exacto `true` deja indexar el sitio. Se lee en el build: cambiarla exige un despliegue nuevo. Guardia en `src/lib/indexing.ts`. Con `true`, el build falla mientras `site.config.ts` tenga datos de contacto pendientes o `SITE_URL` no sea `https://kardenum.com` (`src/lib/launch.ts`). |
+| `SITE_URL` | sin definir = `https://kardenum.com` | Origen de todas las URL absolutas: canonical, hreflang, `og:image`, sitemap y JSON-LD. Antes de tener el dominio se pone la dirección de Railway. Solo el origen, sin ruta. Se lee en el build. |
 | `NEXT_TELEMETRY_DISABLED` | `1` | Sin telemetría de Next.js. |
 | `SITE_LAUNCH_CHECK` | sin definir | Solo para pruebas locales: `off` permite compilar con `SITE_INDEXABLE=true` aunque falten datos. No se define en Railway. |

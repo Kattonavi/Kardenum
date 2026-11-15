@@ -1,4 +1,6 @@
 import { type AppLocale, locales, xDefaultLocale } from "./i18n/locales";
+import type { Env } from "./lib/indexing";
+import { getSiteUrl } from "./lib/site-url";
 import { siteConfig } from "./site.config";
 
 /**
@@ -75,18 +77,19 @@ export function localizedPath(pathname: AppPathname, locale: AppLocale): string 
   }
 }
 
-/** Absolute URL on the production origin. The root has no trailing slash, like every other page. */
-export function absoluteUrl(path: string): string {
+/** Absolute URL on the site's origin (SITE_URL). The root has no trailing slash, like every other page. */
+export function absoluteUrl(path: string, env: Env = process.env): string {
   if (!path.startsWith("/")) throw new Error(`absoluteUrl expects a path starting with "/": ${path}`);
-  return path === "/" ? siteConfig.url : `${siteConfig.url}${path}`;
+  const origin = getSiteUrl(env);
+  return path === "/" ? origin : `${origin}${path}`;
 }
 
 export type LanguageAlternates = Record<AppLocale | "x-default", string>;
 
 /** hreflang set of a route: one URL per language plus x-default. The same on every language version. */
-export function languageAlternates(pathname: AppPathname): LanguageAlternates {
+export function languageAlternates(pathname: AppPathname, env: Env = process.env): LanguageAlternates {
   const byLocale = Object.fromEntries(
-    locales.map((locale) => [locale, absoluteUrl(localizedPath(pathname, locale))]),
+    locales.map((locale) => [locale, absoluteUrl(localizedPath(pathname, locale), env)]),
   ) as Record<AppLocale, string>;
   return { ...byLocale, "x-default": byLocale[xDefaultLocale] };
 }

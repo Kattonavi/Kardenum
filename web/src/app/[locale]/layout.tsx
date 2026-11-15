@@ -7,6 +7,7 @@ import { routing } from "@/i18n/routing";
 import { brand } from "@/lib/brand";
 import { isSiteIndexable } from "@/lib/indexing";
 import { languageOfferScript } from "@/lib/language-choice";
+import { getSiteUrl } from "@/lib/site-url";
 import { siteConfig } from "@/site.config";
 import { archivo, jetbrainsMono } from "../fonts";
 import "../globals.css";
@@ -27,7 +28,7 @@ export const viewport: Viewport = { themeColor: brand.ink };
 // each page with buildPageMetadata (src/lib/seo/metadata.ts): a canonical here would be inherited
 // by every page.
 export const metadata: Metadata = {
-  metadataBase: new URL(siteConfig.url),
+  metadataBase: new URL(getSiteUrl()),
   applicationName: siteConfig.name,
   title: siteConfig.name,
   robots: isSiteIndexable() ? undefined : { index: false, follow: false },

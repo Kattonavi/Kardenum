@@ -3,8 +3,12 @@ import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import { isSiteIndexable, NOINDEX_DIRECTIVE } from "./src/lib/indexing";
 import { assertLaunchReady } from "./src/lib/launch";
+import { getSiteUrl } from "./src/lib/site-url";
 
-// The site cannot become indexable while site.config.ts still has placeholder contact data.
+// Fail at once on a malformed SITE_URL: every absolute URL of the site is built from it.
+getSiteUrl();
+
+// The site cannot become indexable with placeholder contact data or outside the production domain.
 assertLaunchReady();
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
