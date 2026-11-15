@@ -89,18 +89,19 @@ test("absolute URLs use the single production origin", () => {
   assert.equal(siteConfig.url.endsWith("/"), false);
 });
 
-test("portfolio, guides and service sub-pages stay unlisted while their feature is off", () => {
-  assert.equal(siteConfig.features.portfolio, false);
-  assert.equal(isListed("/portafolio"), false);
-  assert.equal(isListed("/guias"), false);
-  assert.equal(isListed("/servicios/minecraft/plugins"), false);
+test("portfolio, guides and service sub-pages are listed only with their feature on", () => {
+  // Opening a section of the site is one line in site.config.ts: no test pins a feature to off.
+  const { portfolio, guides, serviceSubpages } = siteConfig.features;
+  assert.equal(isListed("/portafolio"), portfolio);
+  assert.equal(isListed("/guias"), guides);
+  assert.equal(isListed("/servicios/minecraft/plugins"), serviceSubpages);
+  assert.equal(isListed("/servicios/discord/bots"), serviceSubpages);
   assert.equal(isListed("/servicios/minecraft"), true);
 });
 
 test("a built page behind a feature that is off is hidden: it exists, and it is not public", () => {
   const hidden = hiddenPathnames();
-  assert.ok(hidden.includes("/servicios/minecraft/plugins"));
-  assert.equal(hidden.length, 6, "the six service sub-pages");
+  assert.equal(hidden.includes("/servicios/minecraft/plugins"), !siteConfig.features.serviceSubpages);
   for (const pathname of hidden) {
     assert.ok(builtPathnames().includes(pathname));
     assert.ok(!publicPathnames().includes(pathname), `${pathname} is in the sitemap`);
