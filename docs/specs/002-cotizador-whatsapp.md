@@ -30,6 +30,10 @@ en el navegador: no hay backend y no guarda nada.
   (`/contacto?linea=<id>#cotizador`). El parámetro se lee en el navegador, así la página sigue siendo estática.
 - El idioma del mensaje es el de la página (español o inglés).
 
+- **Política de privacidad y autorización (decisión del fundador, 2026-11-15).** Junto a la nota "Este formulario no
+  guarda tus datos" va un enlace a la política de privacidad. No hay casilla de autorización: el formulario no envía
+  ni guarda datos en el sitio. Es una excepción al estándar del Workspace y queda por confirmar con el abogado.
+
 ## Fuera de alcance
 
 - Guardar cotizaciones o enviarlas por correo (v2, con backend).

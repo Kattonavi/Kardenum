@@ -123,8 +123,18 @@ Detalle en `docs/handoff/docs/seo-sitio.md`. Nichos primero (Minecraft y Discord
   escribe los datos de cada página en scripts en línea y el nonce exigiría render dinámico (Constitución, regla 4).
   Medido en laboratorio: con `script-src 'self'` ninguna página hidrata, con o sin `experimental.sri`. Los estilos
   sí van estrictos. HSTS sin `includeSubDomains` ni `preload` hasta el lanzamiento (backlog 29).
-- **Nosotros sin migas:** la maqueta no las trae; por eso tampoco lleva `BreadcrumbList` (la prueba de humo exige
-  que las migas visibles y los datos estructurados coincidan).
+- **Cabecera que funciona antes de su script (decisión del fundador, 2026-11-15):** "Servicios" llega del servidor
+  como enlace a `/servicios` y el control del menú como enlace a una navegación del pie (Servicios, Nosotros,
+  Contacto), que solo se muestra cuando se llega por ese enlace; el script los convierte en desplegable y menú. Las
+  cinco líneas del pie son enlaces (en celular el pie mide 56 px más: cada una tiene 44 px de área táctil).
+- **Umami por variables:** con `UMAMI_SRC` y `UMAMI_WEBSITE_ID` se carga el script y la CSP admite ese origen en
+  `script-src` y `connect-src`; con una sola o ninguna, no se carga nada. Aún no se construyen eventos.
+- **Cotizador con enlace a la política y sin casilla de autorización** (excepción al estándar del Workspace, a
+  confirmar con el abogado): el formulario no guarda ni envía datos al sitio.
+- **HSTS sin `includeSubDomains` ni `preload`**, y **`/discord` con 307**: decididos por el fundador.
+- **`SITE_LAUNCH_CHECK=off` solo en local:** en Railway o en CI ese interruptor hace fallar el build.
+- **Nosotros con migas** (cambio del 2026-11-15): la maqueta no las trae, pero el plan de SEO las pide en toda página
+  interna y está por encima de las maquetas en el orden de fuentes. La prueba de humo las exige, con su `BreadcrumbList`.
 - Los textos en inglés del sitio son provisionales hasta escribir el inglés con las palabras clave validadas.
 
 ## Pendientes

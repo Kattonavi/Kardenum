@@ -51,3 +51,16 @@ Resultado: **0 Crítico, 0 Alto, 2 Medio, 7 Bajo.** El SEO técnico del build ab
 3. Pasar el JSON-LD por el validador de schema.org y la Prueba de resultados enriquecidos en el build abierto; corregir `@id`/descripción por idioma y `availableLanguage` si el validador lo marca (hallazgos 3, 4).
 4. Medir Lighthouse móvil (2.6) en producción.
 Lo demás (Bajo) es opcional.
+
+## Resolución (2026-11-15, hilo principal, commit 44a4e8c)
+
+| # | Sev. | Qué se hizo |
+|---|---|---|
+| 1 | Medio | **Corregido.** Nosotros lleva migas y `BreadcrumbList`: el plan de SEO pide migas en toda página interna y está por encima de las maquetas en el orden de fuentes. La prueba de humo ahora las exige en toda página interna. |
+| 2 | Medio (condicional) | Backlog 2 (regla de caché del HTML al poner el CDN, en el lanzamiento). |
+| 3 | Bajo | **Corregido.** Un solo nodo `WebSite` (mismo `@id` en los dos idiomas, `inLanguage` con ambos) y `Organization` sin descripción que cambie por idioma. |
+| 4 | Bajo | **Corregido** y verificado en schema.org: los idiomas del servicio van en `availableChannel` (`ServiceChannel`). |
+| 7 | Bajo | **Corregido** (decisión del fundador): `favicon.ico` generado desde el ícono del paquete de marca (`scripts/make-favicon.mjs`). |
+| 5, 6, 8, 9 | Bajo | Backlog 35. |
+
+Lighthouse móvil, que la auditoría no midió: 100 en las cuatro categorías (`evidencia-paso4.txt`, sección 3).
