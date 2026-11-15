@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./helpers";
 
 // The brand fonts are self-hosted and loaded with display: swap. While they load, a system
 // font resized to Archivo's measures holds the same lines, so nothing moves when they arrive.

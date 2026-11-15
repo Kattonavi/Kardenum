@@ -118,6 +118,11 @@ Detalle en `docs/handoff/docs/seo-sitio.md`. Nichos primero (Minecraft y Discord
   `type-scale.test.ts`); la cabecera pasa a su forma compacta por *container query* sobre su ancho en rem, no por el
   ancho de la ventana (una *media query* no ve el tamaño de fuente de la raíz); y cuando la página mide menos de
   18rem, una palabra que no cabe en su columna se parte en vez de ensanchar la página. A tamaño normal no cambia nada.
+- **Cabeceras de seguridad estáticas (paso 4):** se fijan una vez en `next.config.ts` y van en todas las respuestas.
+  La CSP solo deja cargar desde el propio sitio; la única concesión es `'unsafe-inline'` en `script-src`, porque Next
+  escribe los datos de cada página en scripts en línea y el nonce exigiría render dinámico (Constitución, regla 4).
+  Medido en laboratorio: con `script-src 'self'` ninguna página hidrata, con o sin `experimental.sri`. Los estilos
+  sí van estrictos. HSTS sin `includeSubDomains` ni `preload` hasta el lanzamiento (backlog 29).
 - **Nosotros sin migas:** la maqueta no las trae; por eso tampoco lleva `BreadcrumbList` (la prueba de humo exige
   que las migas visibles y los datos estructurados coincidan).
 - Los textos en inglés del sitio son provisionales hasta escribir el inglés con las palabras clave validadas.

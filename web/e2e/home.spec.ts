@@ -1,5 +1,5 @@
-import { expect, test } from "@playwright/test";
 import { siteConfig } from "../src/site.config";
+import { expect, test } from "./helpers";
 
 // Home page (maqueta B-Gremio-inicio-v2). One goal: understand in seconds what the studio does
 // and ask for a quote.

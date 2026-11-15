@@ -1,6 +1,6 @@
-import { expect, type Page, test } from "@playwright/test";
+import { type Page } from "@playwright/test";
 import { siteConfig } from "../src/site.config";
-import { sidewaysOverflow } from "./helpers";
+import { expect, sidewaysOverflow, test } from "./helpers";
 
 // Contact page and WhatsApp quote form (docs/specs/002-cotizador-whatsapp.md, maqueta B-Contacto).
 

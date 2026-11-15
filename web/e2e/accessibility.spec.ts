@@ -1,8 +1,8 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, type Page, test } from "@playwright/test";
+import { type Page } from "@playwright/test";
 import { locales } from "../src/i18n/locales";
 import { localizedPath, publicPathnames } from "../src/routes";
-import { sidewaysOverflow } from "./helpers";
+import { doubleTextSize, expect, sidewaysOverflow, test } from "./helpers";
 
 // BRIEF.md → "Accesibilidad (WCAG 2.1 AA)". axe finds roughly half of the problems; the rest
 // (keyboard, focus order) is covered by navigation.spec.ts and language.spec.ts.
@@ -52,7 +52,7 @@ for (const path of PAGES) {
   // is lost. The header is where it used to break: its menu button ended up off screen.
   test(`${path} keeps its header usable with text at 200 %`, async ({ page }) => {
     await page.goto(path);
-    await page.addStyleTag({ content: "html { font-size: 200% }" });
+    await doubleTextSize(page);
     const width = page.viewportSize()?.width ?? 0;
     const banner = page.getByRole("banner");
 

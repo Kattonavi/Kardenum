@@ -1,4 +1,5 @@
-import { expect, type Page, test } from "@playwright/test";
+import { type Page } from "@playwright/test";
+import { expect, test } from "./helpers";
 
 // docs/specs/001-barra-de-idioma.md. The site never redirects by language: a bar offers the
 // other version and the choice is remembered.

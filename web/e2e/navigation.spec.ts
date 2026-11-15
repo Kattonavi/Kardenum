@@ -1,5 +1,5 @@
-import { expect, test } from "@playwright/test";
 import { siteConfig } from "../src/site.config";
+import { expect, test } from "./helpers";
 
 // BRIEF.md: the menu and the dropdown work completely with the keyboard.
 

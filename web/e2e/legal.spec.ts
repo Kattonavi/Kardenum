@@ -1,5 +1,5 @@
-import { expect, test } from "@playwright/test";
 import { siteConfig } from "../src/site.config";
+import { expect, test } from "./helpers";
 
 // Legal pages (docs/specs/003-paginas-legales.md, maquetas B-Legal-privacidad and B-Legal-terminos).
 
