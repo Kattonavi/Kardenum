@@ -52,7 +52,7 @@ re-negociar. El lanzamiento (paso 8) depende de datos del fundador, no del códi
 ## Avance
 | Rebanada | Hecho | Falta | Horas usadas / apetito |
 |---|---|---|---|
-| 0 | Next 16.4.6 en `/web`, guardia `SITE_INDEXABLE`, standalone para Railway, prueba de humo, repo privado `Kattonavi/Kardenum` (6ea6a3e) | Tokens de marca, next-intl, fuentes, layout; conectar el repo a Railway (fundador) | ~1,5 h / 4 h |
+| 0 | Paso 1 completo en `main` (6ea6a3e → 8a64095): Next 16.4.6, guardia `SITE_INDEXABLE`, standalone para Railway, marca en `@theme`, Archivo + JetBrains Mono, next-intl (es raíz, en `/en`), 404 global, esqueleto `header`/`main`/`footer`, jsx-a11y completo. Prueba de humo de 26 comprobaciones en verde desde un clon limpio | Conectar el repo a Railway (fundador) y correr `pnpm smoke` contra la URL de Railway | ~2 h / 4 h |
 
 ## Stack
 | Capa | Elección | Por qué / desviación |
