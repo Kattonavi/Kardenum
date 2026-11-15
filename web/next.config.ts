@@ -5,7 +5,6 @@ import { isSiteIndexable, NOINDEX_DIRECTIVE } from "./src/lib/indexing";
 import { assertLaunchReady } from "./src/lib/launch";
 import { securityHeaders } from "./src/lib/security-headers";
 import { getSiteUrl } from "./src/lib/site-url";
-import { shortLinkRedirects } from "./src/routes";
 
 // Fail at once on a malformed SITE_URL: every absolute URL of the site is built from it.
 getSiteUrl();
@@ -38,12 +37,9 @@ const nextConfig: NextConfig = {
       },
     },
   },
-  // Short addresses such as /minecraft, permanent (308), once their page exists.
-  async redirects() {
-    return shortLinkRedirects();
-  },
   // Every response carries the security headers, indexable or not; the noindex one is added
-  // only while the site is closed to search engines.
+  // only while the site is closed to search engines. Redirects are made in src/proxy.ts for the
+  // same reason: one made with `redirects` here would leave without these headers.
   async headers() {
     const headers = [...securityHeaders()];
     if (!isSiteIndexable()) headers.push({ key: "X-Robots-Tag", value: NOINDEX_DIRECTIVE });

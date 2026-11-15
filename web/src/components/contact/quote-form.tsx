@@ -13,6 +13,7 @@ import {
   introduce,
   parseLineParam,
 } from "@/lib/quote";
+import { useHydrated } from "@/lib/use-hydrated";
 
 export type QuoteLine = { id: string; name: string; projectTypes: string[] };
 
@@ -65,12 +66,7 @@ const subscribeToNothing = () => () => {};
  */
 export function QuoteForm({ lines, deadlines, defaultDeadline, unsure, whatsappNumber, messageLabels, labels }: QuoteFormProps) {
   const ids = { line: useId(), type: useId(), idea: useId(), deadline: useId(), name: useId(), note: useId() };
-  // False in the server HTML and until React takes over the page.
-  const scriptRunning = useSyncExternalStore(
-    subscribeToNothing,
-    () => true,
-    () => false,
-  );
+  const scriptRunning = useHydrated();
 
   // RF-8: `?linea=<id>` preselects a line. Read in the browser so the page stays static;
   // the server render uses the first line.

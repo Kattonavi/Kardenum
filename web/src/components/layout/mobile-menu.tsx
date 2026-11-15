@@ -8,6 +8,7 @@ import { buttonClass } from "@/components/ui/button";
 import { ChevronDownIcon, CloseIcon, MenuIcon } from "@/components/ui/icons";
 import type { AppLocale } from "@/i18n/locales";
 import type { ContactChannel } from "@/lib/contact";
+import { useHydrated } from "@/lib/use-hydrated";
 import { LocaleSwitcher } from "./locale-switcher";
 import type { NavLine } from "./nav-data";
 
@@ -49,6 +50,7 @@ export function MobileMenu({ locale, lines, showPortfolio, channels, languageNam
   const openRef = useRef<HTMLButtonElement>(null);
   const [servicesOpen, setServicesOpen] = useState(true);
   const servicesId = useId();
+  const hydrated = useHydrated();
 
   function open() {
     dialogRef.current?.showModal();
@@ -72,6 +74,8 @@ export function MobileMenu({ locale, lines, showPortfolio, channels, languageNam
       <button
         ref={openRef}
         type="button"
+        // The menu opens through its script: until it runs the button says so instead of ignoring the tap.
+        disabled={!hydrated}
         aria-haspopup="dialog"
         aria-label={labels.open}
         onClick={open}

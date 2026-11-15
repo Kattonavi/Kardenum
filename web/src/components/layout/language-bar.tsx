@@ -5,6 +5,7 @@ import { ArrowRightIcon, CloseIcon } from "@/components/ui/icons";
 import { usePathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/locales";
 import { hideLanguageOffer, rememberLanguage } from "@/lib/language-choice";
+import { useHydrated } from "@/lib/use-hydrated";
 import { pathInLocale } from "@/routes";
 import { Container } from "./container";
 
@@ -26,6 +27,7 @@ type LanguageBarProps = {
  */
 export function LanguageBar({ locale, offered, regionLabel, text, action, dismissLabel }: LanguageBarProps) {
   const pathname = usePathname();
+  const hydrated = useHydrated();
 
   function dismiss() {
     rememberLanguage(locale);
@@ -48,6 +50,7 @@ export function LanguageBar({ locale, offered, regionLabel, text, action, dismis
           </Link>
           <button
             type="button"
+            disabled={!hydrated}
             aria-label={dismissLabel}
             onClick={dismiss}
             className="inline-flex size-11 cursor-pointer items-center justify-center transition-colors duration-150 hover:text-(--accent-text)"

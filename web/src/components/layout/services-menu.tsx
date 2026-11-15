@@ -4,6 +4,7 @@ import { type FocusEvent, useEffect, useId, useRef, useState } from "react";
 import { AppLink } from "@/components/ui/app-link";
 import { ArrowRightIcon, ChevronDownIcon } from "@/components/ui/icons";
 import { usePathname } from "@/i18n/navigation";
+import { useHydrated } from "@/lib/use-hydrated";
 import type { NavLine } from "./nav-data";
 
 type ServicesMenuProps = {
@@ -24,6 +25,7 @@ export function ServicesMenu({ label, lines, allServicesLabel, unsureLabel }: Se
   const rootRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const panelId = useId();
+  const hydrated = useHydrated();
   // Underlined, as in the mockups, while the visitor is anywhere inside the services section.
   const inSection = usePathname().startsWith("/servicios");
 
@@ -59,6 +61,8 @@ export function ServicesMenu({ label, lines, allServicesLabel, unsureLabel }: Se
       <button
         ref={buttonRef}
         type="button"
+        // Opens through its script; off until it runs (the panel's links are in the HTML either way).
+        disabled={!hydrated}
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((value) => !value)}

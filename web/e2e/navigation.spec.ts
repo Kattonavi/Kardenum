@@ -172,3 +172,28 @@ test.describe("where you are", () => {
     await expect(english.getByRole("link", { name: "Services" })).toHaveAttribute("href", "/en/services");
   });
 });
+
+test("the menu waits for its script instead of ignoring the first tap", async ({ page }, testInfo) => {
+  // A slow phone: the page is on screen, its scripts are still on their way. A tap on the menu
+  // button now would do nothing and say nothing, so the button is off until it can answer.
+  let release: () => void = () => {};
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route("**/_next/static/**/*.js", async (route) => {
+    await held;
+    await route.continue();
+  });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  const phone = testInfo.project.name === "mobile";
+  const trigger = phone
+    ? page.getByRole("button", { name: "Abrir menú" })
+    : page.getByRole("navigation", { name: "Principal" }).getByRole("button", { name: "Servicios" });
+  await expect(trigger).toBeDisabled();
+
+  release();
+  // click() waits for the button to be on: no race with the script.
+  await trigger.click();
+  if (phone) await expect(page.getByRole("dialog", { name: "Menú" })).toBeVisible();
+  else await expect(trigger).toHaveAttribute("aria-expanded", "true");
+});

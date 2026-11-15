@@ -398,6 +398,7 @@ const responses = [
   ["page /en/services/minecraft", (await get("/en/services/minecraft")).res],
   ["404", notFoundPage.res],
   ["redirect /es", esPrefixed.res],
+  ...(await Promise.all(shortLinkRedirects().map(async ({ source }) => [`short link ${source}`, (await get(source)).res]))),
   ["robots.txt", robots.res],
   ["social image", await fetch(new URL(ogImagePath("/", "es"), base))],
   ...(assetPath ? [["static asset", (await get(assetPath)).res]] : []),
