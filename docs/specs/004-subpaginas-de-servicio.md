@@ -1,6 +1,6 @@
 # 004 · Subpáginas de servicio
 
-**Estado:** en construcción (2026-11-15). **Fuente:** maquetas `B-Sub-*` (seis) y `B-Sub-ficha-SEO`,
+**Estado:** implementado y oculto tras `features.serviceSubpages` (2026-11-15). **Fuente:** maquetas `B-Sub-*` (seis) y `B-Sub-ficha-SEO`,
 `docs/handoff/docs/seo-sitio.md` §1 ("Subpáginas por servicio") y §2, `plan-sitio-web.md` §3.
 
 Seis servicios con búsqueda propia tienen su página dentro de su línea: tiendas online y software a la medida

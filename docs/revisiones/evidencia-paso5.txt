@@ -1,0 +1,44 @@
+EVIDENCIA DEL PASO 5 DEL BRIEF (subpáginas, portafolio, casos y guías, detrás de flags)
+Proyecto: Kardenum · se va completando rebanada por rebanada
+
+== 5a. Subpáginas de servicio (spec 004) · commits be82e7f y 4754318 · 2026-11-15
+
+-- 1. Puerta de clon limpio (clone -> install --frozen-lockfile -> build -> start -> smoke -> e2e), commit be82e7f
+# tests 93 # pass 93 # fail 0
+OK: all 796 checks passed (noindex)
+e2e: 603 passed, 15 skipped
+
+-- 2. Producción (Railway), commit 4754318
+$ pnpm smoke https://web-production-f1d7c246.up.railway.app --expect=noindex --site-url=self
+OK: all 796 checks passed (noindex) on https://web-production-f1d7c246.up.railway.app
+$ E2E_BASE_URL=https://web-production-f1d7c246.up.railway.app pnpm test:e2e
+603 passed (5.6m)
+15 skipped
+
+-- 3. Las ramas del flag que el árbol versionado no ejercita (clon de descarte, commit 4754318; el cambio del flag nunca se versionó)
+A. flag apagado, sitio abierto (SITE_INDEXABLE=true): las ocultas siguen con noindex y fuera del sitemap
+  OK: all 798 checks passed (indexable) on http://127.0.0.1:4712
+  PASS  [es] /servicios/minecraft/plugins meta robots has noindex (hidden page)  (noindex, nofollow)
+B. flag encendido, sitio cerrado: humo y navegador completos
+  OK: all 808 checks passed (noindex) on http://127.0.0.1:4712
+  PASS  [es] /servicios/minecraft/plugins meta robots has noindex  (noindex, nofollow)
+C. flag encendido, sitio abierto: indexables y en el sitemap
+  OK: all 810 checks passed (indexable) on http://127.0.0.1:4712
+  PASS  [es] /servicios/minecraft/plugins meta robots lacks noindex  (no tag)
+  sitemap: A = 22 URL (sin subpáginas) · C = 34 URL (22 + 12 de las seis subpáginas en dos idiomas)
+  B, navegador: 600 passed, 17 skipped, 1 failed -> net::ERR_NO_BUFFER_SPACE en page.goto (se agotaron los sockets de esta
+  máquina tras tres builds y tres corridas seguidas; no es un fallo de la página). La prueba, repetida sola contra un build
+  nuevo con el flag encendido: 24 passed (accessibility.spec.ts -g tebex).
+  Con el flag encendido, la página de Minecraft enlaza /plugins, /servidores y /tebex, y el inicio enlaza las seis.
+
+-- 4. Hallazgos de la propia construcción, corregidos antes del commit
+  - Tres títulos en inglés con una palabra de 12 letras (DEVELOPMENT.) desbordaban 6 px a 320 px: reescritos (provisionales).
+  - La cuadrícula de servicios relacionados desbordaba 55 px con el texto al 200 % (celdas en px): ahora se mide en rem.
+  - Las pruebas de rutas fijaban los flags en apagado: encender uno habría roto el build. Ahora siguen al flag.
+
+-- 5. Incidente de proceso (2026-11-15)
+  El push de 4754318 salió aunque `pnpm build` había devuelto error en el árbol local: el comando encadenaba con `;`.
+  Causa del error: EBUSY al borrar .next/standalone, bloqueada por el servidor local de pruebas (puerto 4700); lint, tipos y
+  93 pruebas habían pasado. El mismo commit ya había compilado tres veces en el clon de descarte y compiló en Railway.
+  Repetido con el servidor detenido: build_exit=0. Desde ahora el push sale de un guion que detiene los servidores,
+  compila y solo sube si el build pasó.
