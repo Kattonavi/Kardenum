@@ -1,18 +1,20 @@
 EVIDENCIA DEL LOTE: paso 4 del brief (SEO tecnico y confianza) + decisiones del fundador del 2026-11-15
 (cabecera al 200 %, paginas legales con freno de lanzamiento, cabeceras de seguridad y CSP, /discord)
-Commit verificado: 1ed1944c34d27ec25367908c1db3f180b485e035 2026-11-15T16:16:15-05:00 fix(web): script-only controls wait for their script; short links carry the site headers
-Lote: 6 commits desde 20f367a
+Commit verificado: 7f3a8b9ddaea79c6437f9127d50119b95696c0c1 2026-11-15T16:58:05-05:00 docs: step 4 review reports with their resolution, decisions and backlog
+Lote: 8 commits desde 20f367a
+  7f3a8b9 docs: step 4 review reports with their resolution, decisions and backlog
+  44a4e8c fix(web): menu no longer leaves the page inert; header works before its script; review fixes
   1ed1944 fix(web): script-only controls wait for their script; short links carry the site headers
   8b86f64 feat(web): /discord short link for the invitation, self-contained Service provider
   ce9473a feat(web): static Content-Security-Policy; browser tests fail on any violation
   4b07cba feat(web): security headers on every response and no X-Powered-By
   528d60e feat(web): privacy and terms pages; the launch check covers every pending value
   f4c6812 fix(web): text at 200 % keeps the header usable and every text grows (WCAG 1.4.4)
-Generado: 2026-11-15T21:27Z.
+Generado: 2026-11-15T22:08Z.
 
 == 1. Puerta de clon limpio del commit final (clone -> install --frozen-lockfile -> build -> start -> smoke -> e2e)
-# tests 84
-# pass 84
+# tests 91
+# pass 91
 # fail 0
 # skipped 0
 Route (app)
@@ -65,28 +67,28 @@ Route (app)
 ●  (SSG)     prerendered as static HTML (uses generateStaticParams)
 -- smoke (local, clon limpio)
 Site origin expected in canonical, hreflang, sitemap and JSON-LD: https://kardenum.com
-OK: all 509 checks passed (noindex) on http://127.0.0.1:4710
+OK: all 510 checks passed (noindex) on http://127.0.0.1:4710
 -- e2e (local, clon limpio)
-  14 skipped
-  374 passed (52.8s)
+  15 skipped
+  381 passed (52.5s)
 
 == 2. Produccion (Railway, SITE_URL = su propia direccion)
 $ pnpm smoke https://web-production-f1d7c246.up.railway.app --expect=noindex --site-url=self
 Site origin expected in canonical, hreflang, sitemap and JSON-LD: https://web-production-f1d7c246.up.railway.app
-OK: all 509 checks passed (noindex) on https://web-production-f1d7c246.up.railway.app
+OK: all 510 checks passed (noindex) on https://web-production-f1d7c246.up.railway.app
 $ E2E_BASE_URL=https://web-production-f1d7c246.up.railway.app pnpm test:e2e   (cada prueba falla ante una violacion de CSP)
-  14 skipped
-  374 passed (3.4m)
+  15 skipped
+  381 passed (3.7m)
 
 == 3. Build indexable del mismo commit (SITE_INDEXABLE=true, SITE_LAUNCH_CHECK=off, solo en local)
 $ pnpm smoke http://127.0.0.1:4712 --expect=indexable   (las cabeceras de seguridad siguen con el sitio abierto; sitemap con las 22 URL)
-OK: all 511 checks passed (indexable) on http://127.0.0.1:4712
+OK: all 512 checks passed (indexable) on http://127.0.0.1:4712
 -- Lighthouse 13.6.0, celular, con la CSP activa
 == p4-contacto-es.json | http://127.0.0.1:4712/contacto | lighthouse 13.6.0
   scores: {'performance': 100, 'accessibility': 100, 'best-practices': 100, 'seo': 100, 'agentic-browsing': 100}
   first-contentful-paint: 0.8 s
   largest-contentful-paint: 0.8 s
-  total-blocking-time: 30 ms
+  total-blocking-time: 40 ms
   cumulative-layout-shift: 0
   speed-index: 0.8 s
 == p4-inicio-es.json | http://127.0.0.1:4712/ | lighthouse 13.6.0
@@ -96,18 +98,18 @@ OK: all 511 checks passed (indexable) on http://127.0.0.1:4712
   total-blocking-time: 30 ms
   cumulative-layout-shift: 0
   speed-index: 0.8 s
-== p4-privacidad-es.json | http://127.0.0.1:4712/legal/privacidad | lighthouse 13.6.0
+== p4-nosotros-es.json | http://127.0.0.1:4712/nosotros | lighthouse 13.6.0
   scores: {'performance': 100, 'accessibility': 100, 'best-practices': 100, 'seo': 100, 'agentic-browsing': 100}
   first-contentful-paint: 0.8 s
   largest-contentful-paint: 0.8 s
   total-blocking-time: 30 ms
   cumulative-layout-shift: 0
   speed-index: 0.8 s
-== p4-terms-en.json | http://127.0.0.1:4712/en/legal/terms | lighthouse 13.6.0
+== p4-privacy-en.json | http://127.0.0.1:4712/en/legal/privacy | lighthouse 13.6.0
   scores: {'performance': 100, 'accessibility': 100, 'best-practices': 100, 'seo': 100, 'agentic-browsing': 100}
   first-contentful-paint: 0.8 s
   largest-contentful-paint: 0.8 s
-  total-blocking-time: 40 ms
+  total-blocking-time: 20 ms
   cumulative-layout-shift: 0
   speed-index: 0.8 s
 
@@ -163,6 +165,45 @@ OK: all 511 checks passed (noindex) on http://127.0.0.1:4711
 1 de 372: [mobile] language.spec 'the phone menu offers the same page in the other language' (servidor recien arrancado).
 Causa: clic en el boton del menu antes de la hidratacion. Arreglo en el producto (1ed1944): controles apagados hasta hidratar + prueba que retiene los scripts.
 Repeticion de la prueba original: 40 de 40 con el servidor caliente; puerta de 1ed1944: 374 de 374.
+
+== 10. Paginas legales con valores listos (RF-3), clon de descarte con datos ficticios, nunca versionados
+/legal/privacidad
+   dates: Vigente desde 1 de diciembre de 2026 Última actualización 15 de febrero de 2027
+   owner: Estudio Ficticio S.A.S., ID 000.000.000-0, con domicilio en Ciudad Ejemplo, Calle 0 # 0-00. Correo: legal@example.com. Teléfono: +00 000 000 0000.
+   paragraphs in article: 17 | brackets left in the page: 0
+/en/legal/privacy
+   dates: In force since December 1, 2026 Last updated February 15, 2027
+   owner: Estudio Ficticio S.A.S., ID 000.000.000-0, with registered address at Ciudad Ejemplo, Calle 0 # 0-00. E-mail: legal@example.com. Phone: +00 000 000 0000.
+   paragraphs in article: 17 | brackets left in the page: 0
+/legal/terminos
+   dates: Vigente desde 1 de diciembre de 2026 Última actualización 15 de febrero de 2027
+   owner: Estudio Ficticio S.A.S., ID 000.000.000-0, con domicilio en Ciudad Ejemplo, Calle 0 # 0-00. Correo: legal@example.com.
+   paragraphs in article: 17 | brackets left in the page: 0
+/en/legal/terms
+   dates: In force since December 1, 2026 Last updated February 15, 2027
+   owner: Estudio Ficticio S.A.S., ID 000.000.000-0, with registered address at Ciudad Ejemplo, Calle 0 # 0-00. E-mail: legal@example.com.
+   paragraphs in article: 17 | brackets left in the page: 0
+e2e (legal.spec + accesibilidad de las paginas legales) contra ese build: 66 passed (14.7s)
+
+== 11. Menu con barra de desplazamiento real (hallazgo Alto de la revision de codigo)
+e2e/scrollbar.spec.ts, ventana de 1030 px con barras visibles:
+  contra el build anterior (1ed1944, con el defecto): FALLA, el dialogo abierto no se ve (expect(dialog).toBeVisible: element(s) not found)
+  contra el build corregido y contra produccion: ok 198 [desktop] › e2e\scrollbar.spec.ts:13:5 › opening the menu never changes the width of the page, and the menu stays usable (2.3s)
+
+== 12. Umami por variables, build de prueba con UMAMI_SRC=https://analytics.example.com/script.js y un id ficticio
+<script defer="" src="https://analytics.example.com/script.js" data-website-id="00000000-0000-0000-0000-000000000000"> en las paginas y en el 404
+CSP: script-src 'self' 'unsafe-inline' https://analytics.example.com; ... connect-src 'self' https://analytics.example.com (ningun otro cambio)
+PASS  analytics: loads https://analytics.example.com/script.js
+OK: all 510 checks passed (noindex) on http://127.0.0.1:4721
+Sin las variables (produccion): PASS  analytics: not configured, nothing is loaded
+
+== 13. El freno no se puede saltar en Railway
+$ RAILWAY_ENVIRONMENT_NAME=production SITE_INDEXABLE=true SITE_LAUNCH_CHECK=off next typegen  -> exit 1
+SITE_LAUNCH_CHECK=off is for local verification only and RAILWAY_ENVIRONMENT_NAME is set: remove it from this environment
+
+== 14. Cambio de tamano de las paginas frente al build anterior (barras reales, 19 paginas x 4 anchos)
+1280 px: solo /nosotros y /en/about (+40 px, migas) y /contacto y /en/contact (+44 px, enlace a la politica); las otras 15 paginas, identicas.
+768 px: +24 px en todas; 390 y 320 px: +56 px en todas (las cinco lineas del pie son enlaces con 44 px de area tactil), mas lo de Nosotros y Contacto.
 
 == 9. Smoke completo en produccion (cada comprobacion)
 PASS  GET / -> 200  (status 200)
@@ -528,105 +569,105 @@ PASS  [en] /en/legal/terms social image /og/en/legal-terms.png -> 200 image/png 
 PASS  [en] /en/legal/terms theme-color and manifest are declared
 PASS  [es] JSON-LD is one valid document with Organization and WebSite  (types: Organization, WebSite)
 PASS  [es] Organization: name, url and fixed logo URL
-PASS  [es] WebSite: name and language
+PASS  [es] WebSite: one node for both languages
 PASS  [es] JSON-LD has no bracketed placeholders
 PASS  [es] the five service lines are in the HTML
 PASS  [es] the seven questions and their answers are in the HTML, folded or not
 PASS  [en] JSON-LD is one valid document with Organization and WebSite  (types: Organization, WebSite)
 PASS  [en] Organization: name, url and fixed logo URL
-PASS  [en] WebSite: name and language
+PASS  [en] WebSite: one node for both languages
 PASS  [en] JSON-LD has no bracketed placeholders
 PASS  [en] the five service lines are in the HTML
 PASS  [en] the seven questions and their answers are in the HTML, folded or not
 PASS  GET /logo.png -> 200 image/png  (status 200)
 PASS  GET /manifest.webmanifest -> 200 with the site name  (status 200)
-PASS  [es] /servicios breadcrumb: visible trail and BreadcrumbList agree  (Inicio > Servicios)
+PASS  [es] /servicios breadcrumb: visible trail and BreadcrumbList, both present and saying the same  (Inicio > Servicios)
 PASS  [es] /servicios JSON-LD has no bracketed placeholders
 PASS  [es] /servicios footer notices: minecraft  (minecraft)
 PASS  GET /services redirects permanently (308) to /servicios  (status 308 -> /servicios)
-PASS  [en] /en/services breadcrumb: visible trail and BreadcrumbList agree  (Home > Services)
+PASS  [en] /en/services breadcrumb: visible trail and BreadcrumbList, both present and saying the same  (Home > Services)
 PASS  [en] /en/services JSON-LD has no bracketed placeholders
 PASS  [en] /en/services footer notices: minecraft  (minecraft)
 PASS  GET /en/servicios redirects permanently (308) to /en/services  (status 308 -> /en/services)
-PASS  [es] /servicios/desarrollo breadcrumb: visible trail and BreadcrumbList agree  (Inicio > Servicios > Desarrollo)
+PASS  [es] /servicios/desarrollo breadcrumb: visible trail and BreadcrumbList, both present and saying the same  (Inicio > Servicios > Desarrollo)
 PASS  [es] /servicios/desarrollo Service: name, url and description of the line  (Desarrollo)
 PASS  [es] /servicios/desarrollo JSON-LD has no bracketed placeholders
 PASS  [es] /servicios/desarrollo footer notices: minecraft  (minecraft)
 PASS  GET /services/development redirects permanently (308) to /servicios/desarrollo  (status 308 -> /servicios/desarrollo)
-PASS  [en] /en/services/development breadcrumb: visible trail and BreadcrumbList agree  (Home > Services > Development)
+PASS  [en] /en/services/development breadcrumb: visible trail and BreadcrumbList, both present and saying the same  (Home > Services > Development)
 PASS  [en] /en/services/development Service: name, url and description of the line  (Development)
 PASS  [en] /en/services/development JSON-LD has no bracketed placeholders
 PASS  [en] /en/services/development footer notices: minecraft  (minecraft)
 PASS  GET /en/servicios/desarrollo redirects permanently (308) to /en/services/development  (status 308 -> /en/services/development)
-PASS  [es] /servicios/diseno breadcrumb: visible trail and BreadcrumbList agree  (Inicio > Servicios > Diseño)
+PASS  [es] /servicios/diseno breadcrumb: visible trail and BreadcrumbList, both present and saying the same  (Inicio > Servicios > Diseño)
 PASS  [es] /servicios/diseno Service: name, url and description of the line  (Diseño)
 PASS  [es] /servicios/diseno JSON-LD has no bracketed placeholders
 PASS  [es] /servicios/diseno footer notices: minecraft  (minecraft)
 PASS  GET /services/design redirects permanently (308) to /servicios/diseno  (status 308 -> /servicios/diseno)
-PASS  [en] /en/services/design breadcrumb: visible trail and BreadcrumbList agree  (Home > Services > Design)
+PASS  [en] /en/services/design breadcrumb: visible trail and BreadcrumbList, both present and saying the same  (Home > Services > Design)
 PASS  [en] /en/services/design Service: name, url and description of the line  (Design)
 PASS  [en] /en/services/design JSON-LD has no bracketed placeholders
 PASS  [en] /en/services/design footer notices: minecraft  (minecraft)
 PASS  GET /en/servicios/diseno redirects permanently (308) to /en/services/design  (status 308 -> /en/services/design)
-PASS  [es] /servicios/video breadcrumb: visible trail and BreadcrumbList agree  (Inicio > Servicios > Video y animación)
+PASS  [es] /servicios/video breadcrumb: visible trail and BreadcrumbList, both present and saying the same  (Inicio > Servicios > Video y animación)
 PASS  [es] /servicios/video Service: name, url and description of the line  (Video y animación)
 PASS  [es] /servicios/video JSON-LD has no bracketed placeholders
 PASS  [es] /servicios/video footer notices: minecraft  (minecraft)
 PASS  GET /services/video redirects permanently (308) to /servicios/video  (status 308 -> /servicios/video)
-PASS  [en] /en/services/video breadcrumb: visible trail and BreadcrumbList agree  (Home > Services > Video and animation)
+PASS  [en] /en/services/video breadcrumb: visible trail and BreadcrumbList, both present and saying the same  (Home > Services > Video and animation)
 PASS  [en] /en/services/video Service: name, url and description of the line  (Video and animation)
 PASS  [en] /en/services/video JSON-LD has no bracketed placeholders
 PASS  [en] /en/services/video footer notices: minecraft  (minecraft)
 PASS  GET /en/servicios/video redirects permanently (308) to /en/services/video  (status 308 -> /en/services/video)
-PASS  [es] /servicios/minecraft breadcrumb: visible trail and BreadcrumbList agree  (Inicio > Servicios > Minecraft)
+PASS  [es] /servicios/minecraft breadcrumb: visible trail and BreadcrumbList, both present and saying the same  (Inicio > Servicios > Minecraft)
 PASS  [es] /servicios/minecraft Service: name, url and description of the line  (Minecraft)
 PASS  [es] /servicios/minecraft JSON-LD has no bracketed placeholders
 PASS  [es] /servicios/minecraft footer notices: minecraft  (minecraft)
 PASS  GET /services/minecraft redirects permanently (308) to /servicios/minecraft  (status 308 -> /servicios/minecraft)
-PASS  [en] /en/services/minecraft breadcrumb: visible trail and BreadcrumbList agree  (Home > Services > Minecraft)
+PASS  [en] /en/services/minecraft breadcrumb: visible trail and BreadcrumbList, both present and saying the same  (Home > Services > Minecraft)
 PASS  [en] /en/services/minecraft Service: name, url and description of the line  (Minecraft)
 PASS  [en] /en/services/minecraft JSON-LD has no bracketed placeholders
 PASS  [en] /en/services/minecraft footer notices: minecraft  (minecraft)
 PASS  GET /en/servicios/minecraft redirects permanently (308) to /en/services/minecraft  (status 308 -> /en/services/minecraft)
-PASS  [es] /servicios/discord breadcrumb: visible trail and BreadcrumbList agree  (Inicio > Servicios > Discord)
+PASS  [es] /servicios/discord breadcrumb: visible trail and BreadcrumbList, both present and saying the same  (Inicio > Servicios > Discord)
 PASS  [es] /servicios/discord Service: name, url and description of the line  (Discord)
 PASS  [es] /servicios/discord JSON-LD has no bracketed placeholders
 PASS  [es] /servicios/discord footer notices: minecraft + discord  (minecraft + discord)
 PASS  GET /services/discord redirects permanently (308) to /servicios/discord  (status 308 -> /servicios/discord)
-PASS  [en] /en/services/discord breadcrumb: visible trail and BreadcrumbList agree  (Home > Services > Discord)
+PASS  [en] /en/services/discord breadcrumb: visible trail and BreadcrumbList, both present and saying the same  (Home > Services > Discord)
 PASS  [en] /en/services/discord Service: name, url and description of the line  (Discord)
 PASS  [en] /en/services/discord JSON-LD has no bracketed placeholders
 PASS  [en] /en/services/discord footer notices: minecraft + discord  (minecraft + discord)
 PASS  GET /en/servicios/discord redirects permanently (308) to /en/services/discord  (status 308 -> /en/services/discord)
-PASS  [es] /nosotros breadcrumb: visible trail and BreadcrumbList agree  (no breadcrumb)
+PASS  [es] /nosotros breadcrumb: visible trail and BreadcrumbList, both present and saying the same  (Inicio > Nosotros)
 PASS  [es] /nosotros JSON-LD has no bracketed placeholders
 PASS  [es] /nosotros footer notices: minecraft  (minecraft)
 PASS  GET /about redirects permanently (308) to /nosotros  (status 308 -> /nosotros)
-PASS  [en] /en/about breadcrumb: visible trail and BreadcrumbList agree  (no breadcrumb)
+PASS  [en] /en/about breadcrumb: visible trail and BreadcrumbList, both present and saying the same  (Home > About)
 PASS  [en] /en/about JSON-LD has no bracketed placeholders
 PASS  [en] /en/about footer notices: minecraft  (minecraft)
 PASS  GET /en/nosotros redirects permanently (308) to /en/about  (status 308 -> /en/about)
-PASS  [es] /contacto breadcrumb: visible trail and BreadcrumbList agree  (Inicio > Contacto)
+PASS  [es] /contacto breadcrumb: visible trail and BreadcrumbList, both present and saying the same  (Inicio > Contacto)
 PASS  [es] /contacto JSON-LD has no bracketed placeholders
 PASS  [es] /contacto footer notices: minecraft  (minecraft)
 PASS  GET /contact redirects permanently (308) to /contacto  (status 308 -> /contacto)
-PASS  [en] /en/contact breadcrumb: visible trail and BreadcrumbList agree  (Home > Contact)
+PASS  [en] /en/contact breadcrumb: visible trail and BreadcrumbList, both present and saying the same  (Home > Contact)
 PASS  [en] /en/contact JSON-LD has no bracketed placeholders
 PASS  [en] /en/contact footer notices: minecraft  (minecraft)
 PASS  GET /en/contacto redirects permanently (308) to /en/contact  (status 308 -> /en/contact)
-PASS  [es] /legal/privacidad breadcrumb: visible trail and BreadcrumbList agree  (Inicio > Privacidad)
+PASS  [es] /legal/privacidad breadcrumb: visible trail and BreadcrumbList, both present and saying the same  (Inicio > Privacidad)
 PASS  [es] /legal/privacidad JSON-LD has no bracketed placeholders
 PASS  [es] /legal/privacidad footer notices: minecraft  (minecraft)
 PASS  GET /legal/privacy redirects permanently (308) to /legal/privacidad  (status 308 -> /legal/privacidad)
-PASS  [en] /en/legal/privacy breadcrumb: visible trail and BreadcrumbList agree  (Home > Privacy)
+PASS  [en] /en/legal/privacy breadcrumb: visible trail and BreadcrumbList, both present and saying the same  (Home > Privacy)
 PASS  [en] /en/legal/privacy JSON-LD has no bracketed placeholders
 PASS  [en] /en/legal/privacy footer notices: minecraft  (minecraft)
 PASS  GET /en/legal/privacidad redirects permanently (308) to /en/legal/privacy  (status 308 -> /en/legal/privacy)
-PASS  [es] /legal/terminos breadcrumb: visible trail and BreadcrumbList agree  (Inicio > Términos)
+PASS  [es] /legal/terminos breadcrumb: visible trail and BreadcrumbList, both present and saying the same  (Inicio > Términos)
 PASS  [es] /legal/terminos JSON-LD has no bracketed placeholders
 PASS  [es] /legal/terminos footer notices: minecraft  (minecraft)
 PASS  GET /legal/terms redirects permanently (308) to /legal/terminos  (status 308 -> /legal/terminos)
-PASS  [en] /en/legal/terms breadcrumb: visible trail and BreadcrumbList agree  (Home > Terms)
+PASS  [en] /en/legal/terms breadcrumb: visible trail and BreadcrumbList, both present and saying the same  (Home > Terms)
 PASS  [en] /en/legal/terms JSON-LD has no bracketed placeholders
 PASS  [en] /en/legal/terms footer notices: minecraft  (minecraft)
 PASS  GET /en/legal/terminos redirects permanently (308) to /en/legal/terms  (status 308 -> /en/legal/terms)
@@ -647,7 +688,7 @@ PASS  robots.txt disallows everything  (User-Agent: * | Disallow: /)
 PASS  robots.txt does not announce a sitemap  (User-Agent: * | Disallow: /)
 PASS  GET /sitemap.xml -> 404 while not indexable  (status 404)
 PASS  robots.txt X-Robots-Tag has noindex
-PASS  the 404 page links only to pages that exist  (7 links)
+PASS  the 404 page links only to pages that exist  (12 links)
 PASS  GET /ruta-que-no-existe-smoke -> 404 with the brand page in HTML  (status 404)
 PASS  unknown route X-Robots-Tag has noindex
 PASS  GET /en/ruta-que-no-existe-smoke -> 404 with the brand page in HTML  (status 404)
@@ -658,6 +699,7 @@ PASS  GET /og/es/no-existe.png -> 404 with the brand page in HTML  (status 404)
 PASS  home references a /_next/static asset
 PASS  GET /_next/static/media/9a321a2c78eff0b5-s.p.1bkzbscqrt8rl.woff2 -> 200  (status 200)
 PASS  static asset X-Robots-Tag has noindex
+PASS  analytics: not configured, nothing is loaded
 PASS  page /: security headers (6)
 PASS  page /: does not say what it is built with
 PASS  page /en/services/minecraft: security headers (6)
@@ -676,4 +718,4 @@ PASS  static asset: security headers (6)
 PASS  static asset: does not say what it is built with
 
 Site origin expected in canonical, hreflang, sitemap and JSON-LD: https://web-production-f1d7c246.up.railway.app
-OK: all 509 checks passed (noindex) on https://web-production-f1d7c246.up.railway.app
+OK: all 510 checks passed (noindex) on https://web-production-f1d7c246.up.railway.app
