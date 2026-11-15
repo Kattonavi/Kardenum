@@ -1,10 +1,13 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type Page, test } from "@playwright/test";
+import { locales } from "../src/i18n/locales";
+import { localizedPath, publicPathnames } from "../src/routes";
 
 // BRIEF.md → "Accesibilidad (WCAG 2.1 AA)". axe finds roughly half of the problems; the rest
 // (keyboard, focus order) is covered by navigation.spec.ts and language.spec.ts.
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice"];
-const PAGES = ["/", "/en"];
+// Every public page in both languages, from the route registry: a new page is checked without listing it here.
+const PAGES = publicPathnames().flatMap((pathname) => locales.map((locale) => localizedPath(pathname, locale)));
 
 async function expectNoViolations(page: Page, context: string) {
   const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
@@ -24,6 +27,16 @@ for (const path of PAGES) {
     await expect(page.getByRole("banner")).toHaveCount(1);
     await expect(page.getByRole("main")).toHaveCount(1);
     await expect(page.getByRole("contentinfo")).toHaveCount(1);
+  });
+
+  test(`${path} headings follow one outline: a single h1, then h2 and h3 without jumps`, async ({ page }) => {
+    await page.goto(path);
+    const levels = await page.locator("main h1, main h2, main h3, main h4").evaluateAll((nodes) => nodes.map((node) => Number(node.tagName[1])));
+    expect(levels.filter((level) => level === 1)).toHaveLength(1);
+    expect(levels[0]).toBe(1);
+    for (let i = 1; i < levels.length; i += 1) {
+      expect((levels[i] ?? 0) - (levels[i - 1] ?? 0), `heading ${i + 1}`).toBeLessThanOrEqual(1);
+    }
   });
 
   test(`${path} does not scroll sideways, down to 320 px`, async ({ page }) => {

@@ -3,6 +3,7 @@
 import { type FocusEvent, useEffect, useId, useRef, useState } from "react";
 import { AppLink } from "@/components/ui/app-link";
 import { ArrowRightIcon, ChevronDownIcon } from "@/components/ui/icons";
+import { usePathname } from "@/i18n/navigation";
 import type { NavLine } from "./nav-data";
 
 type ServicesMenuProps = {
@@ -23,6 +24,8 @@ export function ServicesMenu({ label, lines, allServicesLabel, unsureLabel }: Se
   const rootRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const panelId = useId();
+  // Underlined, as in the mockups, while the visitor is anywhere inside the services section.
+  const inSection = usePathname().startsWith("/servicios");
 
   useEffect(() => {
     if (!open) return;
@@ -60,7 +63,7 @@ export function ServicesMenu({ label, lines, allServicesLabel, unsureLabel }: Se
         aria-controls={panelId}
         onClick={() => setOpen((value) => !value)}
         className={`inline-flex min-h-11 cursor-pointer items-center gap-2 border-b-2 text-[15px] transition-colors duration-150 hover:text-(--accent-text) ${
-          open ? "border-bronze" : "border-transparent"
+          open || inSection ? "border-bronze" : "border-transparent"
         }`}
       >
         {label}

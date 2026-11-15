@@ -9,7 +9,8 @@ import {
 } from "@/lib/seo/json-ld";
 import { buildPageMetadata, ogImageName, ogImagePath } from "@/lib/seo/metadata";
 import { buildSitemapEntries } from "@/lib/seo/sitemap";
-import { publicPathnames } from "@/routes";
+import { hasPageMeta } from "@/content/pages";
+import { appPathnames, publicPathnames } from "@/routes";
 import { type SiteConfig, siteConfig } from "@/site.config";
 
 // These tests describe the production origin: ignore the SITE_URL of the machine running them.
@@ -53,8 +54,11 @@ test("the social image is per page and language, on the production origin", () =
   assert.equal(ogImagePath("/servicios/minecraft/tebex", "en"), "/og/en/services-minecraft-tebex.png");
 });
 
-test("a page without texts cannot get metadata by accident", () => {
-  assert.throws(() => buildPageMetadata("/nosotros", "es", closed), /No page meta/);
+test("a page without texts cannot get metadata by accident", (t) => {
+  // Checked on a real route that has no texts yet (the portfolio, the guides, the legal pages…).
+  const withoutTexts = appPathnames.find((pathname) => !hasPageMeta(pathname));
+  if (!withoutTexts) return t.skip("every route has its texts");
+  assert.throws(() => buildPageMetadata(withoutTexts, "es", closed), /No page meta/);
 });
 
 test("the sitemap lists every public page in both languages with its alternatives", () => {

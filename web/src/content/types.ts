@@ -48,6 +48,62 @@ export type PageMeta = {
   readonly og: Localized<{ readonly label: string; readonly lines: readonly string[]; readonly accent?: string }>;
 };
 
+/** A service inside a line page. `subpage` links to its own page once that page is public. */
+export type LineService = {
+  readonly title: Localized<string>;
+  readonly text: Localized<string>;
+  readonly subpage?: AppPathname;
+};
+
+/** One card of "which one do you need?": a condition, the need and the kind of project that answers it. */
+export type ChooserOption = {
+  readonly condition: Localized<string>;
+  readonly need: Localized<string>;
+  readonly answer: Localized<string>;
+  readonly text: Localized<string>;
+};
+
+/**
+ * Content of a service line page (maquetas B-Linea-*).
+ * - "service" (Desarrollo, Diseño, Video): WhatsApp is the first channel.
+ * - "community" (Minecraft, Discord): Discord first, the bracket in the hero, an explicit scope
+ *   and the invitation to the studio's server.
+ */
+export type LinePageContent = {
+  readonly line: ServiceLineId;
+  readonly kind: "service" | "community";
+  readonly hero: {
+    readonly titleLines: Localized<readonly string[]>;
+    /** Last line of the title, in bronze. */
+    readonly titleAccent: Localized<string>;
+    readonly text: Localized<string>;
+    /** Label of the main button. */
+    readonly cta: Localized<string>;
+    /** "reel" shows the studio reel next to the title, only while a reel exists. */
+    readonly visual: "none" | "bracket" | "reel";
+  };
+  /** Strip under the hero: technologies, platforms or formats. */
+  readonly strip: { readonly label: Localized<string>; readonly items: Localized<readonly string[]> };
+  readonly services: {
+    readonly title: Localized<string>;
+    readonly items: readonly LineService[];
+    readonly note?: Localized<string>;
+  };
+  readonly chooser?: { readonly title: Localized<string>; readonly options: readonly ChooserOption[] };
+  /** "Qué recibes". */
+  readonly deliverables?: { readonly title: Localized<string>; readonly items: readonly Localized<string>[] };
+  /** "Alcance": what the studio does and what it does not. */
+  readonly scope?: {
+    readonly title: Localized<string>;
+    readonly does: readonly Localized<string>[];
+    readonly doesNot: readonly Localized<string>[];
+  };
+  /** Text of the first step of "how we work", which names what the line produces. */
+  readonly processFirstStep: Localized<string>;
+  readonly faq: { readonly title: Localized<string>; readonly items: readonly Faq[] };
+  readonly meta: PageMeta;
+};
+
 /**
  * What can be shown of a project. It is agreed in the quote and written in the contract.
  * - publico: the work and the client's name.

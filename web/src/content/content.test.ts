@@ -1,15 +1,18 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { homeFaqs, processSteps } from "@/content/home";
-import { getPageMeta, hasPageMeta } from "@/content/pages";
+import { linePages } from "@/content/lines";
+import { getPageMeta, getPageName, hasPageMeta } from "@/content/pages";
 import { serviceLines } from "@/content/service-lines";
 import { type AppLocale, locales } from "@/i18n/locales";
-import { appPathnames, routeTable } from "@/routes";
+import { MAX_OG_LINE_LENGTH } from "@/lib/seo/metadata";
+import { appPathnames, breadcrumbTrail, routeTable } from "@/routes";
 
-const webDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+const contentDir = path.dirname(fileURLToPath(import.meta.url));
+const webDir = path.join(contentDir, "..", "..");
 
 function collectStrings(value: unknown, out: string[] = []): string[] {
   if (typeof value === "string") out.push(value);
@@ -18,20 +21,36 @@ function collectStrings(value: unknown, out: string[] = []): string[] {
   return out;
 }
 
+/** Texts in one language inside any value: everything under a `{ es, en }` pair. */
+function collectLocalized(value: unknown, locale: AppLocale, out: string[] = [], seen = new Set<unknown>()): string[] {
+  if (!value || typeof value !== "object" || seen.has(value)) return out;
+  seen.add(value);
+  if (!Array.isArray(value) && "es" in value && "en" in value) {
+    collectStrings((value as Record<AppLocale, unknown>)[locale], out);
+    return out;
+  }
+  for (const item of Object.values(value)) collectLocalized(item, locale, out, seen);
+  return out;
+}
+
+function contentFiles(dir: string): string[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) return contentFiles(full);
+    return entry.name.endsWith(".ts") && !entry.name.endsWith(".test.ts") ? [full] : [];
+  });
+}
+
+// Every module under src/content is loaded, so a new content file is covered without touching this test.
+const contentModules = await Promise.all(contentFiles(contentDir).map((file) => import(pathToFileURL(file).href)));
+
 function messages(locale: AppLocale): string[] {
   return collectStrings(JSON.parse(readFileSync(path.join(webDir, "messages", `${locale}.json`), "utf8")));
 }
 
-/** Every text a visitor can read in a language: UI messages plus typed content. */
+/** Every text a visitor can read in a language: UI messages plus all typed content. */
 function allTexts(locale: AppLocale): string[] {
-  const builtMeta = appPathnames.filter(hasPageMeta).map(getPageMeta);
-  const typed = [
-    ...serviceLines.flatMap((line) => [line.name[locale], line.shortName[locale], line.summary[locale], ...line.subpages.map((s) => s.label[locale])]),
-    ...processSteps.flatMap((step) => [step.title[locale], step.text[locale]]),
-    ...homeFaqs.flatMap((faq) => [faq.question[locale], faq.answer[locale]]),
-    ...builtMeta.flatMap((meta) => [meta.title[locale], meta.description[locale], meta.og[locale].label, ...meta.og[locale].lines, meta.og[locale].accent ?? ""]),
-  ];
-  return [...messages(locale), ...typed];
+  return [...messages(locale), ...contentModules.flatMap((module) => collectLocalized(module, locale))];
 }
 
 // BRIEF.md, "Reglas que no se negocian": never "plan" or "mensualidad", and the country is not mentioned.
@@ -39,6 +58,15 @@ const FORBIDDEN: Record<AppLocale, RegExp[]> = {
   es: [/\bplan(es)?\b/i, /\bmensualidad(es)?\b/i, /\bcolombi/i],
   en: [/\bplans?\b/i, /\bmonthly\b/i, /\bsubscriptions?\b/i, /\bcolombi/i],
 };
+
+test("the content scan reaches the texts of every content module", () => {
+  const es = allTexts("es");
+  assert.ok(es.length > 300, `only ${es.length} Spanish texts found`);
+  // One text from each kind of module: line pages, home and page meta.
+  assert.ok(es.includes(linePages.minecraft.hero.text.es));
+  assert.ok(es.includes(homeFaqs[0]?.answer.es ?? ""));
+  assert.ok(es.includes(getPageMeta("/").description.es));
+});
 
 test('texts never say "plan" or "mensualidad" and never mention the country', () => {
   for (const locale of locales) {
@@ -58,6 +86,13 @@ test("no pending content in brackets ships inside the texts", () => {
   }
 });
 
+test("every text exists in both languages and is not left empty", () => {
+  const es = contentModules.flatMap((module) => collectLocalized(module, "es"));
+  const en = contentModules.flatMap((module) => collectLocalized(module, "en"));
+  assert.equal(es.length, en.length, "a text has a different number of entries in Spanish and English");
+  for (const text of [...es, ...en]) assert.notEqual(text.trim(), "", "empty text in the content");
+});
+
 test("there are five service lines, numbered I to V, each pointing to its own route", () => {
   assert.deepEqual(serviceLines.map((line) => line.numeral), ["I", "II", "III", "IV", "V"]);
   assert.equal(new Set(serviceLines.map((line) => line.pathname)).size, 5);
@@ -66,6 +101,20 @@ test("there are five service lines, numbered I to V, each pointing to its own ro
     for (const sub of line.subpages) {
       assert.ok(sub.pathname.startsWith(`${line.pathname}/`), `${sub.pathname} is not inside ${line.pathname}`);
     }
+  }
+});
+
+test("each line page belongs to its line and links only to sub-pages of that line", () => {
+  for (const line of serviceLines) {
+    const page = linePages[line.id];
+    assert.equal(page.line, line.id);
+    for (const service of page.services.items) {
+      if (service.subpage) assert.ok(service.subpage.startsWith(`${line.pathname}/`), `${service.subpage} in ${line.id}`);
+    }
+    // Community lines state their scope; service lines say what the client receives.
+    assert.equal(Boolean(page.scope), page.kind === "community", `${line.id} scope`);
+    assert.equal(Boolean(page.deliverables), page.kind === "service", `${line.id} deliverables`);
+    assert.equal(new Set(page.faq.items.map((faq) => faq.id)).size, page.faq.items.length, `${line.id} faq ids`);
   }
 });
 
@@ -93,5 +142,25 @@ test("titles and descriptions are unique across pages and languages", () => {
   for (const field of ["title", "description"] as const) {
     const values = metas.flatMap((meta) => locales.map((locale) => meta[field][locale]));
     assert.equal(new Set(values).size, values.length, `duplicated ${field}`);
+  }
+});
+
+test("every line of a social image fits in one row", () => {
+  // The image never wraps: a longer line would be cut at the edge without warning.
+  for (const pathname of appPathnames.filter(hasPageMeta)) {
+    for (const locale of locales) {
+      const og = getPageMeta(pathname).og[locale];
+      for (const line of [...og.lines, og.accent ?? ""]) {
+        assert.ok(line.length <= MAX_OG_LINE_LENGTH, `${pathname} ${locale}: "${line}" has ${line.length} characters (max ${MAX_OG_LINE_LENGTH})`);
+      }
+    }
+  }
+});
+
+test("every page in a breadcrumb trail has a name", () => {
+  for (const pathname of appPathnames.filter((p) => routeTable[p].built)) {
+    for (const crumb of breadcrumbTrail(pathname)) {
+      for (const locale of locales) assert.notEqual(getPageName(crumb)[locale].trim(), "", `${crumb} ${locale}`);
+    }
   }
 });

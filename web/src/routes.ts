@@ -23,22 +23,22 @@ const { portfolio, guides, serviceSubpages } = siteConfig.features;
 
 export const routeTable = {
   "/": { en: "/", built: true, listed: true },
-  "/servicios": { en: "/services", built: false, listed: true },
-  "/servicios/desarrollo": { en: "/services/development", built: false, listed: true },
+  "/servicios": { en: "/services", built: true, listed: true },
+  "/servicios/desarrollo": { en: "/services/development", built: true, listed: true },
   "/servicios/desarrollo/tiendas-online": { en: "/services/development/ecommerce", built: false, listed: serviceSubpages },
   "/servicios/desarrollo/software-a-la-medida": { en: "/services/development/custom-software", built: false, listed: serviceSubpages },
-  "/servicios/diseno": { en: "/services/design", built: false, listed: true },
-  "/servicios/video": { en: "/services/video", built: false, listed: true },
-  "/servicios/minecraft": { en: "/services/minecraft", built: false, listed: true },
+  "/servicios/diseno": { en: "/services/design", built: true, listed: true },
+  "/servicios/video": { en: "/services/video", built: true, listed: true },
+  "/servicios/minecraft": { en: "/services/minecraft", built: true, listed: true },
   "/servicios/minecraft/plugins": { en: "/services/minecraft/plugins", built: false, listed: serviceSubpages },
   "/servicios/minecraft/servidores": { en: "/services/minecraft/servers", built: false, listed: serviceSubpages },
   "/servicios/minecraft/tebex": { en: "/services/minecraft/tebex", built: false, listed: serviceSubpages },
-  "/servicios/discord": { en: "/services/discord", built: false, listed: true },
+  "/servicios/discord": { en: "/services/discord", built: true, listed: true },
   "/servicios/discord/bots": { en: "/services/discord/bots", built: false, listed: serviceSubpages },
   "/portafolio": { en: "/work", built: false, listed: portfolio },
   "/guias": { en: "/guides", built: false, listed: guides },
-  "/nosotros": { en: "/about", built: false, listed: true },
-  "/contacto": { en: "/contact", built: false, listed: true },
+  "/nosotros": { en: "/about", built: true, listed: true },
+  "/contacto": { en: "/contact", built: true, listed: true },
   "/legal/privacidad": { en: "/legal/privacy", built: false, listed: true },
   "/legal/terminos": { en: "/legal/terms", built: false, listed: true },
 } as const satisfies Record<string, RouteDefinition>;
@@ -82,6 +82,37 @@ export function absoluteUrl(path: string, env: Env = process.env): string {
   if (!path.startsWith("/")) throw new Error(`absoluteUrl expects a path starting with "/": ${path}`);
   const origin = getSiteUrl(env);
   return path === "/" ? origin : `${origin}${path}`;
+}
+
+/** Pages from the home page down to `pathname`, for breadcrumbs: every parent path that is a route. */
+export function breadcrumbTrail(pathname: AppPathname): AppPathname[] {
+  const trail: AppPathname[] = ["/"];
+  let current = "";
+  for (const segment of pathname.split("/").filter(Boolean)) {
+    current += `/${segment}`;
+    if (current in routeTable) trail.push(current as AppPathname);
+  }
+  return trail;
+}
+
+export type FooterNotice = "minecraft" | "discord";
+
+/**
+ * Trademark notices of the footer. The Minecraft one is shown on the whole site (the lines are
+ * named on every page); the Discord one on the Discord pages.
+ */
+export function footerNotices(pathname: string): FooterNotice[] {
+  const discord = "/servicios/discord";
+  return pathname === discord || pathname.startsWith(`${discord}/`) ? ["minecraft", "discord"] : ["minecraft"];
+}
+
+/** Short addresses that redirect (308) to a page, once that page is built. */
+const shortLinks: Readonly<Record<string, AppPathname>> = { "/minecraft": "/servicios/minecraft" };
+
+export function shortLinkRedirects(): { source: string; destination: string; permanent: true }[] {
+  return Object.entries(shortLinks)
+    .filter(([, target]) => isBuilt(target))
+    .map(([source, destination]) => ({ source, destination, permanent: true }));
 }
 
 export type LanguageAlternates = Record<AppLocale | "x-default", string>;

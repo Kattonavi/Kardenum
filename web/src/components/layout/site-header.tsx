@@ -2,12 +2,13 @@ import { getTranslations } from "next-intl/server";
 import { KardenumSymbol } from "@/components/brand/kardenum-symbol";
 import { AppLink } from "@/components/ui/app-link";
 import { type AppLocale, otherLocale } from "@/i18n/locales";
-import { contactChannels } from "@/lib/contact";
+import { contactChannels, quoteFormHref } from "@/lib/contact";
 import { isListed } from "@/routes";
 import { Container } from "./container";
 import { LanguageBar } from "./language-bar";
 import { LocaleSwitcher } from "./locale-switcher";
 import { MobileMenu } from "./mobile-menu";
+import { NavLink } from "./nav-link";
 import { getNavLines } from "./nav-data";
 import { ServicesMenu } from "./services-menu";
 
@@ -23,13 +24,14 @@ const navLinkClass =
  */
 export async function SiteHeader({ locale }: { locale: AppLocale }) {
   const offered = otherLocale(locale);
-  const [t, nav, language, offer, channels] = await Promise.all([
+  const [t, nav, language, offer, channels, contact] = await Promise.all([
     getTranslations({ locale, namespace: "Layout" }),
     getTranslations({ locale, namespace: "Nav" }),
     getTranslations({ locale, namespace: "Language" }),
     // The bar speaks the language it offers.
     getTranslations({ locale: offered, namespace: "Language" }),
     getTranslations({ locale, namespace: "Channels" }),
+    getTranslations({ locale, namespace: "ContactPage" }),
   ]);
   const lines = getNavLines(locale);
   const showPortfolio = isListed("/portafolio");
@@ -64,30 +66,37 @@ export async function SiteHeader({ locale }: { locale: AppLocale }) {
                 <ServicesMenu label={nav("services")} lines={lines} allServicesLabel={nav("allServices")} unsureLabel={nav("unsure")} />
               </div>
               {showPortfolio ? (
-                <AppLink href="/portafolio" className={`${navLinkClass} max-lg:hidden`}>
+                <NavLink href="/portafolio" className={`${navLinkClass} max-lg:hidden`}>
                   {nav("portfolio")}
-                </AppLink>
+                </NavLink>
               ) : null}
-              <AppLink href="/nosotros" className={`${navLinkClass} max-lg:hidden`}>
+              <NavLink href="/nosotros" className={`${navLinkClass} max-lg:hidden`}>
                 {nav("about")}
-              </AppLink>
+              </NavLink>
               {/* Below 360 px there is no room for it next to the logo: the language choice stays inside the menu. */}
               <div className="max-[359px]:hidden">
                 <LocaleSwitcher locale={locale} label={language("label")} names={languageNames} variant="compact" />
               </div>
-              <AppLink
+              {/* Filled in bronze on the Contact page itself (maqueta B-Contacto). */}
+              <NavLink
                 href="/contacto"
-                className="inline-flex min-h-11 items-center border border-stone px-5 text-xs tracking-[0.14em] type-display transition-colors duration-150 hover:border-bronze hover:text-bronze max-lg:hidden"
+                className="inline-flex min-h-11 items-center border px-5 text-xs tracking-[0.14em] type-display transition-colors duration-150 max-lg:hidden"
+                currentClassName="border-bronze bg-bronze text-ink"
+                idleClassName="border-stone hover:border-bronze hover:text-bronze"
               >
                 {nav("quote")}
-              </AppLink>
+              </NavLink>
               <div className="lg:hidden">
                 <MobileMenu
                   locale={locale}
                   lines={lines}
                   showPortfolio={showPortfolio}
                   languageNames={languageNames}
-                  channels={contactChannels.map((channel) => ({ channel, label: channels(channel) }))}
+                  channels={contactChannels.map((channel) => ({
+                    channel,
+                    label: channels(channel),
+                    href: channel === "whatsapp" ? quoteFormHref(locale, contact("quoteId")) : undefined,
+                  }))}
                   labels={{
                     open: nav("openMenu"),
                     close: nav("closeMenu"),

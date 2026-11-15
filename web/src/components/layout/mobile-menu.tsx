@@ -15,7 +15,8 @@ type MobileMenuProps = {
   locale: AppLocale;
   lines: NavLine[];
   showPortfolio: boolean;
-  channels: { channel: ContactChannel; label: string }[];
+  /** `href` replaces the link of the channel itself (WhatsApp leads to the quote form). */
+  channels: { channel: ContactChannel; label: string; href?: string }[];
   languageNames: Record<AppLocale, string>;
   labels: {
     open: string;
@@ -32,6 +33,8 @@ type MobileMenuProps = {
     channels: string;
   };
 };
+
+const channelClass = "inline-flex min-h-11 items-center font-mono text-xs tracking-[0.1em] text-(--muted-text) uppercase";
 
 const itemClass =
   "flex min-h-14 w-full items-center justify-between border-b border-line text-lg tracking-[0.08em] type-display transition-colors duration-150 hover:text-(--accent-text)";
@@ -159,14 +162,17 @@ export function MobileMenu({ locale, lines, showPortfolio, channels, languageNam
               {labels.quote}
             </AppLink>
             <ul aria-label={labels.channels} className="flex justify-between gap-2">
-              {channels.map(({ channel, label }) => (
+              {channels.map(({ channel, label, href }) => (
                 <li key={channel}>
-                  <ChannelLink
-                    channel={channel}
-                    className="inline-flex min-h-11 items-center font-mono text-xs tracking-[0.1em] text-(--muted-text) uppercase"
-                  >
-                    {label}
-                  </ChannelLink>
+                  {href ? (
+                    <a href={href} onClick={close} className={`${channelClass} transition-colors duration-150 hover:text-(--accent-text)`}>
+                      {label}
+                    </a>
+                  ) : (
+                    <ChannelLink channel={channel} className={channelClass}>
+                      {label}
+                    </ChannelLink>
+                  )}
                 </li>
               ))}
             </ul>

@@ -12,6 +12,22 @@ export const OG_IMAGE_SIZE = { width: 1200, height: 630 } as const;
 
 const HOME_IMAGE_SLUG: Record<AppLocale, string> = { es: "inicio", en: "home" };
 
+// The social image sets its title in one row per line, in expanded capitals (about 0.9 em per
+// character), between OG_TITLE_SIZE.min and .max pixels.
+export const OG_PADDING_X = 72;
+const OG_CHARACTER_WIDTH = 0.9;
+export const OG_TITLE_SIZE = { min: 40, max: 76 } as const;
+
+/** Longest line the image can show whole. content.test.ts keeps every page under it. */
+export const MAX_OG_LINE_LENGTH = Math.floor((OG_IMAGE_SIZE.width - OG_PADDING_X * 2) / (OG_TITLE_SIZE.min * OG_CHARACTER_WIDTH));
+
+/** Largest title size at which the longest line still fits in one row. */
+export function ogTitleFontSize(lines: readonly string[]): number {
+  const longest = Math.max(...lines.map((line) => line.length), 1);
+  const fit = Math.floor((OG_IMAGE_SIZE.width - OG_PADDING_X * 2) / (longest * OG_CHARACTER_WIDTH));
+  return Math.max(OG_TITLE_SIZE.min, Math.min(OG_TITLE_SIZE.max, fit));
+}
+
 /** File name of a page's social image, in the page's language: "inicio.png", "services-development.png". */
 export function ogImageName(pathname: AppPathname, locale: AppLocale): string {
   const path = intlPathnames[pathname][locale];

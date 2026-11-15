@@ -3,13 +3,14 @@
 // Default expectation is "noindex": the state the site must keep until launch.
 // It reads the route registry and the page texts from src/, so every public page is checked
 // in both languages without listing URLs here. Exits with code 1 if any check fails.
+import { readFileSync } from "node:fs";
 import { homeFaqs } from "@/content/home";
-import { getPageMeta } from "@/content/pages";
+import { getPageMeta, getPageName } from "@/content/pages";
 import { serviceLines } from "@/content/service-lines";
 import { locales } from "@/i18n/locales";
 import { ogImagePath } from "@/lib/seo/metadata";
 import { getSiteUrl } from "@/lib/site-url";
-import { absoluteUrl, languageAlternates, localizedPath, publicPathnames } from "@/routes";
+import { absoluteUrl, breadcrumbTrail, footerNotices, languageAlternates, localizedPath, publicPathnames, routeTable, shortLinkRedirects } from "@/routes";
 import { siteConfig } from "@/site.config";
 
 const args = process.argv.slice(2);
@@ -68,6 +69,9 @@ function headTags(html) {
 }
 
 const count = (html, re) => (html.match(re) ?? []).length;
+
+/** What the visitor gets without JavaScript: the markup, without the data Next serializes in <script>. */
+const rendered = (html) => decode(html.replace(/<script\b[\s\S]*?<\/script>/g, ""));
 
 // ---------------------------------------------------------------------------------------------
 // 1. Home: 200 in Spanish, no redirect (Railway healthcheck hits "/").
@@ -198,6 +202,90 @@ try {
   // reported by the check below
 }
 check("GET /manifest.webmanifest -> 200 with the site name", manifest.res.status === 200 && manifestName === siteConfig.name, `status ${manifest.res.status}`);
+
+// ---------------------------------------------------------------------------------------------
+// 3b. Inner pages: breadcrumbs and Service data, trademark notices, translated addresses.
+// ---------------------------------------------------------------------------------------------
+const messages = Object.fromEntries(
+  locales.map((locale) => [locale, JSON.parse(readFileSync(new URL(`../messages/${locale}.json`, import.meta.url), "utf8"))]),
+);
+const lineByPathname = new Map(serviceLines.map((line) => [line.pathname, line]));
+
+for (const pathname of publicPathnames().filter((candidate) => candidate !== "/")) {
+  for (const locale of locales) {
+    const path = localizedPath(pathname, locale);
+    const label = `[${locale}] ${path}`;
+    const page = await get(path);
+    const html = rendered(page.body);
+    const scripts = [...page.body.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+    let graph = [];
+    try {
+      graph = scripts.flatMap((script) => JSON.parse(script)["@graph"] ?? []);
+    } catch {
+      check(`${label} JSON-LD parses`, false);
+    }
+    const breadcrumb = graph.find((node) => node["@type"] === "BreadcrumbList");
+
+    // The visible trail and its structured data go together: both or neither, and the same pages.
+    const trail = breadcrumbTrail(pathname);
+    const visibleTrail = html.includes(`<nav aria-label="${messages[locale].Sections.breadcrumb}"`);
+    const items = breadcrumb?.itemListElement ?? [];
+    check(
+      `${label} breadcrumb: visible trail and BreadcrumbList agree`,
+      visibleTrail === Boolean(breadcrumb) &&
+        (!breadcrumb ||
+          (items.length === trail.length &&
+            trail.every((crumb, index) => items[index]?.position === index + 1 && items[index]?.item === absoluteUrl(localizedPath(crumb, locale)) && items[index]?.name === getPageName(crumb)[locale]))),
+      breadcrumb ? items.map((item) => item.name).join(" > ") : "no breadcrumb",
+    );
+
+    const line = lineByPathname.get(pathname);
+    if (line) {
+      const service = graph.find((node) => node["@type"] === "Service");
+      check(
+        `${label} Service: name, url and description of the line`,
+        service?.name === line.name[locale] && service?.url === absoluteUrl(path) && service?.description === getPageMeta(pathname).description[locale],
+        service ? service.name : "no Service node",
+      );
+    }
+    check(`${label} JSON-LD has no bracketed placeholders`, !scripts.some((script) => /"\[[^"]*\]"/.test(script)));
+
+    const expectedNotices = footerNotices(pathname);
+    const shown = ["minecraft", "discord"].filter((notice) => html.includes(messages[locale].Footer[`${notice}Notice`]));
+    check(`${label} footer notices: ${expectedNotices.join(" + ")}`, shown.length === expectedNotices.length && expectedNotices.every((notice) => shown.includes(notice)), shown.join(" + ") || "none");
+
+    // The other language's slug under this language's prefix is not a second URL for the page.
+    const foreign = locale === "en" ? `/en${pathname}` : routeTable[pathname].en;
+    if (foreign !== path) {
+      const redirected = await get(foreign);
+      check(
+        `GET ${foreign} redirects permanently (308) to ${path}`,
+        redirected.res.status === 308 && new URL(redirected.res.headers.get("location") ?? "x:", base).pathname === path,
+        `status ${redirected.res.status} -> ${redirected.res.headers.get("location")}`,
+      );
+    }
+  }
+}
+
+for (const { source, destination } of shortLinkRedirects()) {
+  const short = await get(source);
+  check(
+    `GET ${source} redirects permanently (308) to ${destination}`,
+    short.res.status === 308 && new URL(short.res.headers.get("location") ?? "x:", base).pathname === destination,
+    `status ${short.res.status} -> ${short.res.headers.get("location")}`,
+  );
+}
+
+// The quote form is in the server HTML with its five fields and says, literally, that it stores nothing.
+for (const locale of locales) {
+  const contact = await get(localizedPath("/contacto", locale));
+  const html = rendered(contact.body);
+  const text = messages[locale].ContactPage;
+  const fields = [text.fieldLine, text.fieldType, text.fieldIdea, text.fieldDeadline, text.fieldName];
+  check(`[${locale}] quote form: five labelled fields in the HTML`, count(contact.body, /<label[\s>]/g) === 5 && fields.every((field) => html.includes(field)), `${count(contact.body, /<label[\s>]/g)} labels`);
+  check(`[${locale}] quote form says it does not store the data`, html.includes(text.submitNote));
+  check(`[${locale}] contact page links to no invented WhatsApp number`, siteConfig.contact.whatsapp.status === "ready" || !contact.body.includes("wa.me/"));
+}
 
 // ---------------------------------------------------------------------------------------------
 // 4. robots.txt and sitemap follow the indexing guard.

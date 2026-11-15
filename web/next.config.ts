@@ -4,6 +4,7 @@ import createNextIntlPlugin from "next-intl/plugin";
 import { isSiteIndexable, NOINDEX_DIRECTIVE } from "./src/lib/indexing";
 import { assertLaunchReady } from "./src/lib/launch";
 import { getSiteUrl } from "./src/lib/site-url";
+import { shortLinkRedirects } from "./src/routes";
 
 // Fail at once on a malformed SITE_URL: every absolute URL of the site is built from it.
 getSiteUrl();
@@ -33,6 +34,10 @@ const nextConfig: NextConfig = {
         as: "*.css",
       },
     },
+  },
+  // Short addresses such as /minecraft, permanent (308), once their page exists.
+  async redirects() {
+    return shortLinkRedirects();
   },
   async headers() {
     if (isSiteIndexable()) return [];

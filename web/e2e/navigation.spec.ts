@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { siteConfig } from "../src/site.config";
 
 // BRIEF.md: the menu and the dropdown work completely with the keyboard.
 
@@ -120,11 +121,54 @@ test.describe("phone menu", () => {
   });
 });
 
-test("pending contact channels are shown but cannot be followed", async ({ page }, testInfo) => {
+test("in the phone menu WhatsApp leads to the quote form; pending channels cannot be followed", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile", "the header shows the channels only in the phone menu");
   await page.goto("/");
   await page.getByRole("button", { name: "Abrir menú" }).click();
-  const whatsapp = page.getByRole("dialog", { name: "Menú" }).getByRole("link", { name: "WhatsApp" });
-  await expect(whatsapp).toBeDisabled();
-  await expect(whatsapp).not.toHaveAttribute("href", /.*/);
+  const dialog = page.getByRole("dialog", { name: "Menú" });
+  await expect(dialog.getByRole("link", { name: "WhatsApp" })).toHaveAttribute("href", "/contacto#cotizador");
+
+  test.skip(siteConfig.contact.discordInvite.status !== "pending", "the Discord invitation is already set");
+  const discord = dialog.getByRole("list", { name: "Canales de contacto" }).getByRole("link", { name: "Discord" });
+  await expect(discord).toBeDisabled();
+  await expect(discord).not.toHaveAttribute("href", /.*/);
+});
+
+test.describe("where you are", () => {
+  test.beforeEach(({}, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop", "the desktop menu marks the current page");
+  });
+
+  test("the menu marks the current page", async ({ page }) => {
+    const nav = page.getByRole("navigation", { name: "Principal" });
+
+    await page.goto("/");
+    await expect(nav.locator('[aria-current="page"]')).toHaveCount(0);
+
+    await page.goto("/nosotros");
+    await expect(nav.getByRole("link", { name: "Nosotros" })).toHaveAttribute("aria-current", "page");
+    await expect(nav.getByRole("link", { name: "Cotizar" })).not.toHaveAttribute("aria-current", /.*/);
+
+    await page.goto("/contacto");
+    await expect(nav.getByRole("link", { name: "Cotizar" })).toHaveAttribute("aria-current", "page");
+    await expect(nav.getByRole("link", { name: "Nosotros" })).not.toHaveAttribute("aria-current", /.*/);
+
+    await page.goto("/en/about");
+    await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "About" })).toHaveAttribute("aria-current", "page");
+  });
+
+  test("inner pages show the path from the home page", async ({ page }) => {
+    await page.goto("/servicios/desarrollo");
+    const trail = page.getByRole("navigation", { name: "Ruta" });
+    await expect(trail.getByRole("listitem")).toHaveText(["Inicio", "Servicios", "Desarrollo"]);
+    await expect(trail.getByText("Desarrollo")).toHaveAttribute("aria-current", "page");
+    await trail.getByRole("link", { name: "Servicios" }).click();
+    await expect(page).toHaveURL(/\/servicios$/);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Cinco líneas, un mismo criterio.");
+
+    await page.goto("/en/services/minecraft");
+    const english = page.getByRole("navigation", { name: "Breadcrumb" });
+    await expect(english.getByRole("link")).toHaveText(["Home", "Services"]);
+    await expect(english.getByRole("link", { name: "Services" })).toHaveAttribute("href", "/en/services");
+  });
 });

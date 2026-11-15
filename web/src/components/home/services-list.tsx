@@ -8,11 +8,12 @@ import type { AppLocale } from "@/i18n/locales";
 // name in capitals, what it includes and an arrow, separated by 1 px rules.
 export function ServicesList({ id, locale }: { id: string; locale: AppLocale }) {
   const t = useTranslations("Home");
+  const sections = useTranslations("Sections");
 
   return (
     <section id={id} aria-labelledby="services-title" className="flex flex-col gap-10 py-22">
       <div className="flex flex-col gap-4">
-        <p className="type-label text-(--muted-text)">{t("servicesLabel")}</p>
+        <p className="type-label text-(--muted-text)">{sections("services")}</p>
         <h2 id="services-title" className="text-[clamp(1.5rem,2.8vw,2.25rem)] leading-[1.15] tracking-[0.01em] type-display">
           {t("servicesTitle")}
         </h2>

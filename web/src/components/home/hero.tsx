@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 import { Container } from "@/components/layout/container";
 import { buttonClass } from "@/components/ui/button";
+import { TitleLines } from "@/components/ui/title-lines";
 
 type HeroProps = {
   /** Anchors of the sections the two buttons lead to. */
@@ -20,10 +21,7 @@ export function Hero({ contactId, servicesId }: HeroProps) {
           {t("heroLabel")}
         </p>
         <h1 className="text-[clamp(1.875rem,4.6vw,3.625rem)] leading-[1.05] tracking-[0.01em] type-display">
-          {/* A space before each <br>: readers that ignore the break still get separate words. */}
-          {t("heroTitleLine1")} <br />
-          {t("heroTitleLine2")} <br />
-          <span className="text-bronze">{t("heroTitleAccent")}</span>
+          <TitleLines lines={[t("heroTitleLine1"), t("heroTitleLine2")]} accent={t("heroTitleAccent")} />
         </h1>
         <p className="max-w-[34rem] text-lg leading-[1.6] text-(--muted-text)">{t("heroText")}</p>
         <div className="flex flex-wrap gap-3">

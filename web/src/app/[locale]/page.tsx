@@ -3,13 +3,13 @@ import { notFound } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { use } from "react";
 import { ContactCta } from "@/components/contact/contact-cta";
-import { Faq } from "@/components/home/faq";
 import { Hero } from "@/components/home/hero";
-import { Process } from "@/components/home/process";
 import { ServicesList } from "@/components/home/services-list";
 import { Container } from "@/components/layout/container";
+import { StepsSection } from "@/components/sections/content";
+import { FaqSection } from "@/components/sections/faq";
 import { JsonLd } from "@/components/seo/json-ld";
-import { homeFaqs } from "@/content/home";
+import { homeFaqs, processSteps } from "@/content/home";
 import { isAppLocale } from "@/i18n/locales";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/json-ld";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -26,17 +26,30 @@ export default function Home({ params }: PageProps<"/[locale]">) {
   const { locale } = use(params);
   if (!isAppLocale(locale)) notFound();
   const t = useTranslations("Home");
+  const sections = useTranslations("Sections");
   const cta = useTranslations("ContactCta");
 
   return (
     <>
       <JsonLd nodes={[organizationJsonLd(locale), websiteJsonLd(locale)]} />
-      <Hero contactId={cta("id")} servicesId={t("servicesId")} />
+      <Hero contactId={cta("id")} servicesId={sections("servicesId")} />
       <div className="surface-stone">
         <Container>
-          <ServicesList id={t("servicesId")} locale={locale} />
-          <Process locale={locale} />
-          <Faq id={t("faqId")} locale={locale} items={homeFaqs} />
+          <ServicesList id={sections("servicesId")} locale={locale} />
+          <StepsSection
+            label={sections("process")}
+            titleId="process-title"
+            variant="home"
+            steps={processSteps.map((step) => ({ number: step.number, title: step.title[locale], text: step.text[locale] }))}
+          />
+          <FaqSection
+            id={t("faqId")}
+            label={sections("faq")}
+            title={t("faqTitle")}
+            titleId="faq-title"
+            variant="home"
+            items={homeFaqs.map((faq) => ({ id: faq.id, question: faq.question[locale], answer: faq.answer[locale] }))}
+          />
         </Container>
       </div>
       <ContactCta />

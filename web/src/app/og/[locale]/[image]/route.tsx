@@ -4,7 +4,7 @@ import { ImageResponse } from "next/og";
 import { getPageMeta, hasPageMeta } from "@/content/pages";
 import { type AppLocale, isAppLocale, locales } from "@/i18n/locales";
 import { brand } from "@/lib/brand";
-import { OG_IMAGE_SIZE, ogImageName } from "@/lib/seo/metadata";
+import { OG_IMAGE_SIZE, OG_PADDING_X, ogImageName, ogTitleFontSize } from "@/lib/seo/metadata";
 import { type AppPathname, appPathnames } from "@/routes";
 import { siteConfig } from "@/site.config";
 
@@ -19,15 +19,7 @@ export function generateStaticParams() {
   return imagePages.flatMap((pathname) => locales.map((locale) => ({ locale, image: ogImageName(pathname, locale) })));
 }
 
-const PADDING_X = 72;
 const fontDir = path.join(process.cwd(), "src", "assets", "fonts");
-
-/** Largest size at which the longest line fits in one row (expanded uppercase is about 0.9 em per character). */
-function titleFontSize(lines: readonly string[]): number {
-  const longest = Math.max(...lines.map((line) => line.length));
-  const fit = Math.floor((OG_IMAGE_SIZE.width - PADDING_X * 2) / (longest * 0.9));
-  return Math.max(40, Math.min(76, fit));
-}
 
 function findPage(locale: string, image: string): { pathname: AppPathname; locale: AppLocale } | undefined {
   if (!isAppLocale(locale)) return undefined;
@@ -42,7 +34,7 @@ export async function GET(_request: Request, context: RouteContext<"/og/[locale]
 
   const text = getPageMeta(page.pathname).og[page.locale];
   const lines = text.accent ? [...text.lines, text.accent] : text.lines;
-  const fontSize = titleFontSize(lines);
+  const fontSize = ogTitleFontSize(lines);
   const [archivo, mono] = await Promise.all([
     readFile(path.join(fontDir, "ArchivoExpanded-SemiBold.ttf")),
     readFile(path.join(fontDir, "JetBrainsMono-Medium.ttf")),
@@ -59,7 +51,7 @@ export async function GET(_request: Request, context: RouteContext<"/og/[locale]
           justifyContent: "space-between",
           backgroundColor: brand.ink,
           color: brand.stone,
-          padding: `64px ${PADDING_X}px 68px`,
+          padding: `64px ${OG_PADDING_X}px 68px`,
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>

@@ -9,6 +9,8 @@ const base =
 export const buttonClass = {
   /** Bronze with ink text: the single accent of a screen. */
   primary: `${base} bg-bronze text-ink hover:bg-(--primary-hover) hover:text-(--primary-hover-text)`,
+  /** Ink with stone text: the main action on a light surface that already has its accent. */
+  dark: `${base} bg-ink text-stone hover:bg-bronze-deep`,
   /** 1 px border, no fill. It takes the text color of its surface. */
   secondary: `${base} border border-current hover:border-(--accent-text) hover:text-(--accent-text)`,
 } as const;

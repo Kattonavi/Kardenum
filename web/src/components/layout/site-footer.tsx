@@ -5,6 +5,7 @@ import { serviceLines } from "@/content/service-lines";
 import type { AppLocale } from "@/i18n/locales";
 import { isListed } from "@/routes";
 import { Container } from "./container";
+import { FooterNotices } from "./footer-notices";
 
 // Rendered at build time, so the year is the build year.
 const YEAR = new Date().getFullYear();
@@ -12,8 +13,8 @@ const YEAR = new Date().getFullYear();
 const legalLinkClass = "inline-flex min-h-11 min-w-11 items-center justify-center transition-colors duration-150 hover:text-stone";
 
 /**
- * Site footer (maquetas B-Gremio-inicio-v2 and B-Linea-Minecraft): brand, the five lines,
- * legal links and the notice that the Minecraft trademark guidelines ask to show.
+ * Site footer (maquetas B-Gremio-inicio-v2, B-Linea-Minecraft and B-Linea-Discord): brand, the
+ * five lines, legal links and the trademark notices (Minecraft on every page, Discord on its pages).
  */
 export async function SiteFooter({ locale }: { locale: AppLocale }) {
   const t = await getTranslations({ locale, namespace: "Footer" });
@@ -47,7 +48,7 @@ export async function SiteFooter({ locale }: { locale: AppLocale }) {
               <span>© {YEAR} Kardenum</span>
             </div>
           </div>
-          <p className="font-mono text-[11px] leading-[1.6] tracking-[0.08em] text-(--muted-text) uppercase">{t("minecraftNotice")}</p>
+          <FooterNotices texts={{ minecraft: t("minecraftNotice"), discord: t("discordNotice") }} />
         </div>
       </Container>
     </footer>

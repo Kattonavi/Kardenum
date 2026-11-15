@@ -1,3 +1,5 @@
+import type { AppLocale } from "../i18n/locales";
+import { localizedPath } from "../routes";
 import { type SiteConfig, siteConfig } from "../site.config";
 
 export const contactChannels = ["whatsapp", "discord", "email"] as const;
@@ -24,6 +26,15 @@ export function getChannelHref(channel: ContactChannel, config: SiteConfig = sit
   }
 }
 
-export function hasPendingChannels(config: SiteConfig = siteConfig): boolean {
-  return contactChannels.some((channel) => getChannelHref(channel, config) === null);
+export function hasPendingChannels(channels: readonly ContactChannel[] = contactChannels, config: SiteConfig = siteConfig): boolean {
+  return channels.some((channel) => getChannelHref(channel, config) === null);
+}
+
+/**
+ * Address of the WhatsApp quote form on the Contact page, optionally with a service line
+ * preselected (docs/specs/002-cotizador-whatsapp.md, RF-8). `anchor` is the id of the form section.
+ */
+export function quoteFormHref(locale: AppLocale, anchor: string, line?: string): string {
+  const query = line ? `?linea=${encodeURIComponent(line)}` : "";
+  return `${localizedPath("/contacto", locale)}${query}#${anchor}`;
 }

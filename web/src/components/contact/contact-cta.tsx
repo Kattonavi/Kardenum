@@ -1,40 +1,84 @@
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Container } from "@/components/layout/container";
 import { buttonClass } from "@/components/ui/button";
-import { contactChannels, hasPendingChannels } from "@/lib/contact";
+import { ArrowRightIcon } from "@/components/ui/icons";
+import type { ServiceLineId } from "@/content/types";
+import { isAppLocale } from "@/i18n/locales";
+import { type ContactChannel, getChannelHref, hasPendingChannels, quoteFormHref } from "@/lib/contact";
 import { ChannelLink } from "./channel-link";
 
+const CHANNEL_ORDER: Record<"whatsapp" | "discord", readonly ContactChannel[]> = {
+  whatsapp: ["whatsapp", "discord", "email"],
+  discord: ["discord", "whatsapp", "email"],
+};
+
+type ContactCtaProps = {
+  /** Channel shown first, as the main button. Discord on the Minecraft and Discord pages. */
+  first?: "whatsapp" | "discord";
+  /** Adds the invitation to the studio's Discord server (community landings). */
+  community?: boolean;
+  /** Line of the page: it arrives preselected in the quote form. */
+  line?: ServiceLineId;
+};
+
 /**
- * Closing band of every page: "Hablemos de tu proyecto." with the three contact channels,
- * WhatsApp first. While the channels have no data they are shown inert, with a bracketed
- * note (the handoff's convention for pending content).
+ * Closing band of every page: "Hablemos de tu proyecto." with the three contact channels.
+ * WhatsApp leads to the quote form, which builds the message (plan §4: "llamado a cotizar con
+ * la línea ya preseleccionada"). Discord and e-mail are shown inert while they have no data,
+ * with a bracketed note (the handoff's convention for pending content).
  */
-export function ContactCta() {
+export function ContactCta({ first = "whatsapp", community = false, line }: ContactCtaProps) {
   const t = useTranslations("ContactCta");
   const channels = useTranslations("Channels");
+  const sections = useTranslations("Sections");
+  const contact = useTranslations("ContactPage");
+  const locale = useLocale();
+  const quoteHref = quoteFormHref(isAppLocale(locale) ? locale : "es", contact("quoteId"), line);
 
   return (
-    <section id={t("id")} aria-labelledby="contact-cta-title" className="surface-ink">
-      <Container className="flex flex-wrap items-end justify-between gap-x-16 gap-y-8 py-22">
-        <div className="flex flex-[1_1_24rem] flex-col gap-4">
-          <h2 id="contact-cta-title" className="text-[clamp(1.5rem,3.4vw,2.75rem)] leading-[1.1] tracking-[0.01em] type-display">
-            {t("title")}
-          </h2>
-          <p className="max-w-[34rem] text-lg leading-[1.6] text-(--muted-text)">{t("text")}</p>
-        </div>
-        <div className="flex flex-col gap-3">
-          <ul aria-label={channels("label")} className="flex flex-wrap gap-3">
-            {contactChannels.map((channel, index) => (
-              <li key={channel}>
-                <ChannelLink channel={channel} className={index === 0 ? buttonClass.primary : buttonClass.secondary}>
-                  {channels(channel)}
-                </ChannelLink>
-              </li>
-            ))}
-          </ul>
-          {hasPendingChannels() ? <p className="type-label text-(--muted-text)">[{channels("pending")}]</p> : null}
-        </div>
+    <div className="surface-ink">
+      <Container>
+        <section id={t("id")} aria-labelledby="contact-cta-title" className="flex flex-wrap items-end justify-between gap-x-16 gap-y-8 py-22">
+          <div className="flex flex-[1_1_24rem] flex-col gap-4">
+            <h2 id="contact-cta-title" className="text-[clamp(1.5rem,3.4vw,2.75rem)] leading-[1.1] tracking-[0.01em] type-display">
+              {t("title")}
+            </h2>
+            <p className="max-w-[34rem] text-lg leading-[1.6] text-(--muted-text)">{t("text")}</p>
+          </div>
+          <div className="flex flex-col gap-3">
+            <ul aria-label={channels("label")} className="flex flex-wrap gap-3">
+              {CHANNEL_ORDER[first].map((channel, index) => (
+                <li key={channel}>
+                  {channel === "whatsapp" ? (
+                    <a href={quoteHref} className={index === 0 ? buttonClass.primary : buttonClass.secondary}>
+                      {channels(channel)}
+                    </a>
+                  ) : (
+                    <ChannelLink channel={channel} className={index === 0 ? buttonClass.primary : buttonClass.secondary}>
+                      {channels(channel)}
+                    </ChannelLink>
+                  )}
+                </li>
+              ))}
+            </ul>
+            {hasPendingChannels(["discord", "email"]) ?<p className="type-label text-(--muted-text)">[{channels("pending")}]</p> : null}
+          </div>
+        </section>
+        {community ? (
+          <section aria-label={channels("discord")} className="flex flex-wrap items-center justify-between gap-x-8 gap-y-4 border-t border-line py-10">
+            <p className="leading-[1.6] text-(--muted-text)">{sections("communityText")}</p>
+            <ChannelLink
+              channel="discord"
+              className={`inline-flex min-h-11 items-center gap-2.5 text-xs tracking-[0.14em] type-display ${
+                getChannelHref("discord") === null ? "" : "transition-colors duration-150 hover:text-(--accent-text)"
+              }`}
+            >
+              {sections("communityAction")}
+              <ArrowRightIcon size={16} />
+            </ChannelLink>
+          </section>
+        ) : null}
       </Container>
-    </section>
+    </div>
   );
 }

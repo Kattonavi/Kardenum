@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { siteConfig } from "../src/site.config";
 
 // Home page (maqueta B-Gremio-inicio-v2). One goal: understand in seconds what the studio does
 // and ask for a quote.
@@ -54,24 +55,22 @@ test("questions open and close with the keyboard; the first one starts open", as
   await expect(answers.nth(1)).not.toHaveAttribute("open", "");
 });
 
-test("the closing band shows the three channels, WhatsApp first, inert while their data is pending", async ({ page }) => {
+test("the closing band shows the three channels, WhatsApp first and leading to the quote form", async ({ page }) => {
   await page.goto("/");
   const closing = page.getByRole("region", { name: "Hablemos de tu proyecto." });
   const channels = closing.getByRole("list", { name: "Canales de contacto" }).getByRole("link");
   await expect(channels).toHaveText(["WhatsApp", "Discord", "Correo"]);
-  for (const channel of await channels.all()) {
-    await expect(channel).toBeDisabled();
-    await expect(channel).not.toHaveAttribute("href", /.*/);
-  }
-  await expect(closing.getByText("[Canales por activar]")).toBeVisible();
-});
+  await expect(channels.nth(0)).toHaveAttribute("href", "/contacto#cotizador");
 
-test("headings follow one outline: a single h1, then h2 and h3 without jumps", async ({ page }) => {
-  await page.goto("/");
-  const levels = await page.locator("main h1, main h2, main h3, main h4").evaluateAll((nodes) => nodes.map((node) => Number(node.tagName[1])));
-  expect(levels.filter((level) => level === 1)).toHaveLength(1);
-  expect(levels[0]).toBe(1);
-  for (let i = 1; i < levels.length; i += 1) {
-    expect((levels[i] ?? 0) - (levels[i - 1] ?? 0), `heading ${i + 1}`).toBeLessThanOrEqual(1);
+  // Discord and e-mail are inert while their data is pending in site.config.ts.
+  const pending: [number, boolean][] = [
+    [1, siteConfig.contact.discordInvite.status === "pending"],
+    [2, siteConfig.contact.email.status === "pending"],
+  ];
+  for (const [index, isPending] of pending) {
+    if (!isPending) continue;
+    await expect(channels.nth(index)).toBeDisabled();
+    await expect(channels.nth(index)).not.toHaveAttribute("href", /.*/);
   }
+  if (pending.some(([, isPending]) => isPending)) await expect(closing.getByText("[Canales por activar]")).toBeVisible();
 });
