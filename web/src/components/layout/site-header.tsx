@@ -1,14 +1,39 @@
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { KardenumSymbol } from "@/components/brand/kardenum-symbol";
-import { Link } from "@/i18n/navigation";
+import { AppLink } from "@/components/ui/app-link";
+import { type AppLocale, otherLocale } from "@/i18n/locales";
+import { contactChannels } from "@/lib/contact";
+import { isListed } from "@/routes";
 import { Container } from "./container";
+import { LanguageBar } from "./language-bar";
+import { LocaleSwitcher } from "./locale-switcher";
+import { MobileMenu } from "./mobile-menu";
+import { getNavLines } from "./nav-data";
+import { ServicesMenu } from "./services-menu";
 
 export const MAIN_CONTENT_ID = "contenido";
 
-// Layout skeleton. The full menu (Servicios dropdown, ES / EN, Cotizar) and the mobile
-// menu are built from maqueta B-Nav-escritorio in the components step.
-export function SiteHeader() {
-  const t = useTranslations("Layout");
+const navLinkClass =
+  "inline-flex min-h-11 min-w-11 items-center justify-center text-[15px] transition-colors duration-150 hover:text-(--accent-text)";
+
+/**
+ * Site header (maquetas B-Nav-escritorio and B-Movil-menu): language bar, logo and menu.
+ * From 1024 px: Servicios (dropdown), Portafolio (only when public), Nosotros, ES / EN and Cotizar.
+ * Below: ES / EN and the button that opens the full-screen menu.
+ */
+export async function SiteHeader({ locale }: { locale: AppLocale }) {
+  const offered = otherLocale(locale);
+  const [t, nav, language, offer, channels] = await Promise.all([
+    getTranslations({ locale, namespace: "Layout" }),
+    getTranslations({ locale, namespace: "Nav" }),
+    getTranslations({ locale, namespace: "Language" }),
+    // The bar speaks the language it offers.
+    getTranslations({ locale: offered, namespace: "Language" }),
+    getTranslations({ locale, namespace: "Channels" }),
+  ]);
+  const lines = getNavLines(locale);
+  const showPortfolio = isListed("/portafolio");
+  const languageNames = { es: language("es"), en: language("en") };
 
   return (
     <>
@@ -18,14 +43,69 @@ export function SiteHeader() {
       >
         {t("skipToContent")}
       </a>
-      <header className="bg-ink text-stone">
+      <header className="relative z-30 surface-ink">
+        <LanguageBar
+          locale={locale}
+          offered={offered}
+          regionLabel={offer("label")}
+          text={offer("offerText")}
+          action={offer("offerAction")}
+          dismissLabel={offer("offerDismiss")}
+        />
         <Container>
-          <div className="flex items-center justify-between border-b border-line py-6">
-            <Link href="/" className="inline-flex min-h-11 items-center gap-3">
-              <KardenumSymbol size={26} variant="negative" />
-              <span className="text-lg font-semibold tracking-[0.16em] uppercase font-stretch-[125%]">Kardenum</span>
-            </Link>
-          </div>
+          <nav aria-label={nav("label")} className="relative flex items-center justify-between gap-x-3 border-b border-line py-4 lg:gap-x-8 lg:py-6">
+            <AppLink href="/" aria-label={t("homeLink")} className="inline-flex min-h-11 items-center gap-2.5 lg:gap-3">
+              <KardenumSymbol size={26} variant="negative" className="size-[22px] lg:size-[26px]" />
+              <span className="text-[15px] tracking-[0.16em] type-display lg:text-lg">Kardenum</span>
+            </AppLink>
+
+            <div className="flex items-center gap-2 lg:gap-7">
+              <div className="hidden lg:block">
+                <ServicesMenu label={nav("services")} lines={lines} allServicesLabel={nav("allServices")} unsureLabel={nav("unsure")} />
+              </div>
+              {showPortfolio ? (
+                <AppLink href="/portafolio" className={`${navLinkClass} max-lg:hidden`}>
+                  {nav("portfolio")}
+                </AppLink>
+              ) : null}
+              <AppLink href="/nosotros" className={`${navLinkClass} max-lg:hidden`}>
+                {nav("about")}
+              </AppLink>
+              {/* Below 360 px there is no room for it next to the logo: the language choice stays inside the menu. */}
+              <div className="max-[359px]:hidden">
+                <LocaleSwitcher locale={locale} label={language("label")} names={languageNames} variant="compact" />
+              </div>
+              <AppLink
+                href="/contacto"
+                className="inline-flex min-h-11 items-center border border-stone px-5 text-xs tracking-[0.14em] type-display transition-colors duration-150 hover:border-bronze hover:text-bronze max-lg:hidden"
+              >
+                {nav("quote")}
+              </AppLink>
+              <div className="lg:hidden">
+                <MobileMenu
+                  locale={locale}
+                  lines={lines}
+                  showPortfolio={showPortfolio}
+                  languageNames={languageNames}
+                  channels={contactChannels.map((channel) => ({ channel, label: channels(channel) }))}
+                  labels={{
+                    open: nav("openMenu"),
+                    close: nav("closeMenu"),
+                    menu: nav("menuTitle"),
+                    nav: nav("label"),
+                    home: t("homeLink"),
+                    services: nav("services"),
+                    allServices: nav("allServicesShort"),
+                    portfolio: nav("portfolio"),
+                    about: nav("about"),
+                    quote: nav("quoteProject"),
+                    language: language("label"),
+                    channels: channels("label"),
+                  }}
+                />
+              </div>
+            </div>
+          </nav>
         </Container>
       </header>
     </>

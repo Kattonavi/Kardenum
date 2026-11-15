@@ -1,25 +1,53 @@
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { KardenumSymbol } from "@/components/brand/kardenum-symbol";
+import { AppLink } from "@/components/ui/app-link";
+import { serviceLines } from "@/content/service-lines";
+import type { AppLocale } from "@/i18n/locales";
+import { isListed } from "@/routes";
 import { Container } from "./container";
 
 // Rendered at build time, so the year is the build year.
 const YEAR = new Date().getFullYear();
 
-// Layout skeleton from maqueta B-404. Privacy and Terms links arrive with the legal pages;
-// the Minecraft and Discord notices with their pages.
-export function SiteFooter() {
-  const t = useTranslations("Layout");
+const legalLinkClass = "inline-flex min-h-11 min-w-11 items-center justify-center transition-colors duration-150 hover:text-stone";
+
+/**
+ * Site footer (maquetas B-Gremio-inicio-v2 and B-Linea-Minecraft): brand, the five lines,
+ * legal links and the notice that the Minecraft trademark guidelines ask to show.
+ */
+export async function SiteFooter({ locale }: { locale: AppLocale }) {
+  const t = await getTranslations({ locale, namespace: "Footer" });
 
   return (
-    <footer className="bg-ink text-stone">
+    <footer className="surface-ink">
       <Container>
-        <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-3 border-t border-line pt-7 pb-10">
-          <span className="inline-flex items-center gap-2.5">
-            <KardenumSymbol size={18} variant="negative" />
-            <span className="text-sm font-semibold tracking-[0.16em] uppercase font-stretch-[125%]">Kardenum</span>
-          </span>
-          <span className="font-mono text-xs tracking-[0.1em] text-ash uppercase">{t("lines")}</span>
-          <span className="font-mono text-xs tracking-[0.1em] text-ash uppercase">© {YEAR} Kardenum</span>
+        <div className="flex flex-col gap-5 border-t border-line pt-7 pb-10">
+          <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-3">
+            <span className="inline-flex items-center gap-2.5">
+              <KardenumSymbol size={18} variant="negative" />
+              <span className="text-sm tracking-[0.16em] type-display">Kardenum</span>
+            </span>
+            <span className="font-mono text-xs tracking-[0.1em] text-(--muted-text) uppercase">
+              {serviceLines.map((line) => line.shortName[locale]).join(" · ")}
+            </span>
+            <div className="flex flex-wrap items-center gap-x-5 font-mono text-xs tracking-[0.1em] text-(--muted-text) uppercase">
+              <nav aria-label={t("legalLabel")} className="flex flex-wrap gap-x-5">
+                {isListed("/guias") ? (
+                  <AppLink href="/guias" className={legalLinkClass}>
+                    {t("guides")}
+                  </AppLink>
+                ) : null}
+                <AppLink href="/legal/privacidad" className={legalLinkClass}>
+                  {t("privacy")}
+                </AppLink>
+                <AppLink href="/legal/terminos" className={legalLinkClass}>
+                  {t("terms")}
+                </AppLink>
+              </nav>
+              <span>© {YEAR} Kardenum</span>
+            </div>
+          </div>
+          <p className="font-mono text-[11px] leading-[1.6] tracking-[0.08em] text-(--muted-text) uppercase">{t("minecraftNotice")}</p>
         </div>
       </Container>
     </footer>

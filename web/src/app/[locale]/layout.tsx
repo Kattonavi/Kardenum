@@ -6,6 +6,7 @@ import { MAIN_CONTENT_ID, SiteHeader } from "@/components/layout/site-header";
 import { routing } from "@/i18n/routing";
 import { brand } from "@/lib/brand";
 import { isSiteIndexable } from "@/lib/indexing";
+import { languageOfferScript } from "@/lib/language-choice";
 import { siteConfig } from "@/site.config";
 import { archivo, jetbrainsMono } from "../fonts";
 import "../globals.css";
@@ -37,17 +38,20 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
   if (!hasLocale(routing.locales, locale)) notFound();
 
   return (
-    <html lang={locale} className={`${archivo.variable} ${jetbrainsMono.variable}`}>
+    // suppressHydrationWarning: the script below may add data-lang-offer to <html> before React hydrates.
+    <html lang={locale} className={`${archivo.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <body className="flex min-h-dvh flex-col">
+        {/* Decides before the first paint whether to offer the other language (no layout shift). */}
+        <script dangerouslySetInnerHTML={{ __html: languageOfferScript }} />
         {/* Gives client components (e.g. next-intl's Link) the locale. messages={null}: no
-            translations are shipped to the browser; client components get only what they need. */}
+            translations are shipped to the browser; client components receive their texts as props. */}
         <NextIntlClientProvider messages={null}>
-          <SiteHeader />
+          <SiteHeader locale={locale} />
           {/* The only <main> of every page: pages render sections, never their own <main>. */}
           <main id={MAIN_CONTENT_ID} tabIndex={-1} className="flex flex-1 flex-col focus:outline-none">
             {children}
           </main>
-          <SiteFooter />
+          <SiteFooter locale={locale} />
         </NextIntlClientProvider>
       </body>
     </html>

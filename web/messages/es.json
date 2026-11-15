@@ -1,11 +1,62 @@
 {
   "Layout": {
     "skipToContent": "Saltar al contenido",
-    "lines": "Desarrollo · Diseño · Video · Minecraft · Discord"
+    "homeLink": "Kardenum, ir al inicio"
+  },
+  "Nav": {
+    "label": "Principal",
+    "services": "Servicios",
+    "portfolio": "Portafolio",
+    "about": "Nosotros",
+    "quote": "Cotizar",
+    "quoteProject": "Cotizar proyecto",
+    "allServices": "Ver todos los servicios",
+    "allServicesShort": "Ver todos",
+    "unsure": "¿No sabes cuál necesitas? Cuéntanos tu idea",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú",
+    "menuTitle": "Menú"
+  },
+  "Language": {
+    "label": "Idioma",
+    "es": "Español",
+    "en": "English",
+    "offerText": "Este sitio también está disponible en español.",
+    "offerAction": "Ver en español",
+    "offerDismiss": "Cerrar aviso de idioma"
+  },
+  "Channels": {
+    "label": "Canales de contacto",
+    "whatsapp": "WhatsApp",
+    "discord": "Discord",
+    "email": "Correo",
+    "pending": "Canales por activar"
+  },
+  "Footer": {
+    "legalLabel": "Legal",
+    "privacy": "Privacidad",
+    "terms": "Términos",
+    "guides": "Guías",
+    "minecraftNotice": "No es un servicio oficial de Minecraft. No está aprobado por Mojang ni por Microsoft, ni asociado con ellos."
   },
   "Home": {
-    "descriptor": "Estudio de desarrollo, diseño y video.",
-    "status": "Sitio en construcción"
+    "heroLabel": "Estudio de desarrollo, diseño y video",
+    "heroTitleLine1": "Software, diseño",
+    "heroTitleLine2": "y video.",
+    "heroTitleAccent": "Un solo estudio.",
+    "heroText": "Un estudio para llevar tu proyecto de la idea a algo que puedas mostrar con orgullo. Escuchamos, proponemos y construimos contigo cada parte.",
+    "heroPrimary": "Cotizar proyecto",
+    "heroSecondary": "Ver servicios",
+    "servicesId": "servicios",
+    "servicesLabel": "Servicios",
+    "servicesTitle": "Cinco líneas, un mismo criterio.",
+    "processLabel": "Cómo trabajamos",
+    "faqId": "preguntas",
+    "faqLabel": "Preguntas frecuentes",
+    "faqTitle": "Claridad antes de empezar.",
+    "contactId": "contacto",
+    "contactTitle": "Hablemos de tu proyecto.",
+    "contactText": "Elige el canal de tu preferencia. Analizamos tu solicitud y respondemos con una cotización a la medida."
   },
   "NotFound": {
     "metaTitle": "Página no encontrada — Kardenum",

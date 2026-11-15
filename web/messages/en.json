@@ -1,11 +1,62 @@
 {
   "Layout": {
     "skipToContent": "Skip to content",
-    "lines": "Development · Design · Video · Minecraft · Discord"
+    "homeLink": "Kardenum, go to the home page"
+  },
+  "Nav": {
+    "label": "Main",
+    "services": "Services",
+    "portfolio": "Work",
+    "about": "About",
+    "quote": "Get a quote",
+    "quoteProject": "Get a quote",
+    "allServices": "View all services",
+    "allServicesShort": "View all",
+    "unsure": "Not sure which one you need? Tell us your idea",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "menuTitle": "Menu"
+  },
+  "Language": {
+    "label": "Language",
+    "es": "Español",
+    "en": "English",
+    "offerText": "This site is also available in English.",
+    "offerAction": "View in English",
+    "offerDismiss": "Close language notice"
+  },
+  "Channels": {
+    "label": "Contact channels",
+    "whatsapp": "WhatsApp",
+    "discord": "Discord",
+    "email": "Email",
+    "pending": "Channels coming soon"
+  },
+  "Footer": {
+    "legalLabel": "Legal",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "guides": "Guides",
+    "minecraftNotice": "Not an official Minecraft service. Not approved by or associated with Mojang or Microsoft."
   },
   "Home": {
-    "descriptor": "Software, design and video studio.",
-    "status": "Site under construction"
+    "heroLabel": "Software, design and video studio",
+    "heroTitleLine1": "Software, design",
+    "heroTitleLine2": "and video.",
+    "heroTitleAccent": "One studio.",
+    "heroText": "A studio to take your project from an idea to something you can show with pride. We listen, propose and build every part with you.",
+    "heroPrimary": "Get a quote",
+    "heroSecondary": "View services",
+    "servicesId": "services",
+    "servicesLabel": "Services",
+    "servicesTitle": "Five lines, one standard.",
+    "processLabel": "How we work",
+    "faqId": "questions",
+    "faqLabel": "Frequently asked questions",
+    "faqTitle": "Clarity before we start.",
+    "contactId": "contact",
+    "contactTitle": "Let's talk about your project.",
+    "contactText": "Choose the channel you prefer. We review your request and reply with a quote made to fit."
   },
   "NotFound": {
     "metaTitle": "Page not found — Kardenum",

@@ -30,19 +30,90 @@
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 }
 
+/* Shown only when the inline script in the layout decides to offer the other language. */
+@custom-variant lang-offer (html[data-lang-offer] &);
+
+/*
+ * The two surfaces of the site. Pages open and close on ink; content sits on stone.
+ * Each one carries the colors that depend on the background, so components inherit them:
+ * --accent-text is the accent as text (bronze only on ink), --focus-ring always reaches 3:1.
+ */
+@utility surface-ink {
+  background-color: var(--color-ink);
+  color: var(--color-stone);
+  --muted-text: var(--color-ash);
+  --accent-text: var(--color-bronze);
+  --rule: var(--color-line);
+  --focus-ring: var(--color-bronze);
+  --primary-hover: var(--color-stone);
+  --primary-hover-text: var(--color-ink);
+}
+
+@utility surface-stone {
+  background-color: var(--color-stone);
+  color: var(--color-ink);
+  --muted-text: var(--color-graphite);
+  --accent-text: var(--color-bronze-deep);
+  --rule: var(--color-ink);
+  --focus-ring: var(--color-ink);
+  --primary-hover: var(--color-ink);
+  --primary-hover-text: var(--color-stone);
+}
+
+/* Headings and buttons: Archivo at width 125, weight 600, uppercase. */
+@utility type-display {
+  font-stretch: 125%;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Labels, numbering and data: JetBrains Mono, uppercase, wide tracking. */
+@utility type-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
 @layer base {
   html {
+    background-color: var(--color-ink);
     color-scheme: light;
+    scrollbar-color: var(--color-graphite) var(--color-ink);
     -webkit-text-size-adjust: 100%;
   }
 
+  /* The mobile menu is a full-screen dialog: the page behind it does not scroll. */
+  html:has(dialog[open]) {
+    overflow: hidden;
+  }
+
   body {
-    @apply bg-stone font-sans text-ink antialiased;
+    @apply surface-ink font-sans antialiased;
+  }
+
+  ::selection {
+    background-color: var(--color-bronze);
+    color: var(--color-ink);
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-bronze);
+    outline: 2px solid var(--focus-ring, var(--color-bronze));
     outline-offset: 2px;
+  }
+
+  a {
+    text-underline-offset: 0.2em;
+  }
+
+  summary {
+    cursor: pointer;
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
   }
 
   @media (prefers-reduced-motion: reduce) {
