@@ -11,6 +11,8 @@ import {
   footerNotices,
   intlPathnames,
   isAppPathname,
+  builtPathnames,
+  hiddenPathnames,
   isListed,
   languageAlternates,
   localizedPath,
@@ -93,6 +95,17 @@ test("portfolio, guides and service sub-pages stay unlisted while their feature 
   assert.equal(isListed("/guias"), false);
   assert.equal(isListed("/servicios/minecraft/plugins"), false);
   assert.equal(isListed("/servicios/minecraft"), true);
+});
+
+test("a built page behind a feature that is off is hidden: it exists, and it is not public", () => {
+  const hidden = hiddenPathnames();
+  assert.ok(hidden.includes("/servicios/minecraft/plugins"));
+  assert.equal(hidden.length, 6, "the six service sub-pages");
+  for (const pathname of hidden) {
+    assert.ok(builtPathnames().includes(pathname));
+    assert.ok(!publicPathnames().includes(pathname), `${pathname} is in the sitemap`);
+  }
+  assert.deepEqual([...publicPathnames(), ...hidden].sort(), [...builtPathnames()].sort());
 });
 
 test("the sitemap set is exactly the pages that are built and listed", () => {

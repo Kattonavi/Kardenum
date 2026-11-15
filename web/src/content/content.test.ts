@@ -7,9 +7,10 @@ import { homeFaqs, processSteps } from "@/content/home";
 import { linePages } from "@/content/lines";
 import { getPageMeta, getPageName, hasPageMeta } from "@/content/pages";
 import { serviceLines } from "@/content/service-lines";
+import { subpages } from "@/content/subpages";
 import { type AppLocale, locales } from "@/i18n/locales";
 import { MAX_OG_LINE_LENGTH } from "@/lib/seo/metadata";
-import { appPathnames, breadcrumbTrail, routeTable } from "@/routes";
+import { appPathnames, breadcrumbTrail, isBuilt, routeTable } from "@/routes";
 
 const contentDir = path.dirname(fileURLToPath(import.meta.url));
 const webDir = path.join(contentDir, "..", "..");
@@ -175,6 +176,32 @@ test("every page in a breadcrumb trail has a name", () => {
   for (const pathname of appPathnames.filter((p) => routeTable[p].built)) {
     for (const crumb of breadcrumbTrail(pathname)) {
       for (const locale of locales) assert.notEqual(getPageName(crumb)[locale].trim(), "", `${crumb} ${locale}`);
+    }
+  }
+});
+
+test("each service sub-page is the one its line announces, with the sections of the mockup", () => {
+  const announced = serviceLines.flatMap((line) => line.subpages.map((subpage) => subpage.pathname));
+  assert.deepEqual(Object.values(subpages).map((page) => page.pathname).sort(), [...announced].sort());
+
+  const faqIds = Object.values(subpages).flatMap((page) => page.faq.items.map((faq) => faq.id));
+  assert.equal(new Set(faqIds).size, faqIds.length, "a question id is repeated across sub-pages");
+
+  for (const [id, page] of Object.entries(subpages)) {
+    assert.equal(page.id, id);
+    const line = serviceLines.find((candidate) => candidate.id === page.line);
+    assert.ok(line && page.pathname.startsWith(`${line.pathname}/`), `${id} is not inside its line`);
+    assert.equal(page.offer.items.length, 4, `${id}: "what we do" has four items`);
+    assert.equal(page.process.length, 4, `${id}: four steps`);
+    assert.ok(page.deliverables.items.length >= 3, `${id}: what the client receives`);
+    assert.ok(page.faq.items.length >= 3, `${id}: questions`);
+    assert.equal(page.related.items.length, 4, `${id}: four related services`);
+    for (const related of page.related.items) {
+      // spec 004, RF-6: a related service leads to a page that exists, never to this same page.
+      assert.ok(isBuilt(related.pathname), `${id}: ${related.pathname} is not built`);
+      assert.notEqual(related.pathname, page.pathname, `${id} relates to itself`);
+      const owner = serviceLines.find((candidate) => candidate.id === related.line);
+      assert.ok(owner && (related.pathname === owner.pathname || related.pathname.startsWith(`${owner.pathname}/`)), `${id}: ${related.pathname} is not in ${related.line}`);
     }
   }
 });

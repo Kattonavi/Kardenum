@@ -10,9 +10,10 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: true,
   retries: 0,
-  // Against a remote server too many parallel connections exhaust this machine's sockets
-  // (net::ERR_NO_BUFFER_SPACE on Windows): fewer workers there, the default locally.
-  workers: baseURL.startsWith("https://") ? 2 : undefined,
+  // Too many parallel connections exhaust this machine's sockets (net::ERR_NO_BUFFER_SPACE on
+  // Windows): two workers against a remote server and four locally, where the suite reached the
+  // same limit once it passed 600 tests.
+  workers: baseURL.startsWith("https://") ? 2 : 4,
   reporter: [["list"]],
   use: {
     baseURL,

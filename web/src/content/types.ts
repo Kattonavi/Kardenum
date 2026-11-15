@@ -104,6 +104,52 @@ export type LinePageContent = {
   readonly meta: PageMeta;
 };
 
+export type SubpageId = "tiendas-online" | "software-a-la-medida" | "plugins" | "servidores" | "tebex" | "bots";
+
+/** A service named in "related services": its own page when it has one, the page of its line when not. */
+export type RelatedService = {
+  readonly line: ServiceLineId;
+  readonly name: Localized<string>;
+  readonly pathname: AppPathname;
+};
+
+/**
+ * Content of a service sub-page (maquetas B-Sub-*): one service with searches of its own, inside
+ * its line. The works and the guides of the service join the page when the portfolio and the
+ * guides are public.
+ */
+export type SubpageContent = {
+  readonly id: SubpageId;
+  readonly pathname: AppPathname;
+  readonly line: ServiceLineId;
+  readonly hero: {
+    readonly titleLines: Localized<readonly string[]>;
+    /** Last line of the title, in bronze. */
+    readonly titleAccent: Localized<string>;
+    readonly text: Localized<string>;
+    /** Label of the main button. */
+    readonly cta: Localized<string>;
+  };
+  /** "Qué hacemos": four things the studio builds in this service. */
+  readonly offer: {
+    readonly title: Localized<string>;
+    readonly items: readonly { readonly title: Localized<string>; readonly text: Localized<string> }[];
+  };
+  /** "Qué recibes", with an optional group of names (compatibility, technologies). */
+  readonly deliverables: {
+    readonly title: Localized<string>;
+    readonly items: readonly Localized<string>[];
+    readonly chips?: { readonly label: Localized<string>; readonly items: readonly string[] };
+  };
+  /** The four steps of "how we work", worded for this service. */
+  readonly process: readonly { readonly title: Localized<string>; readonly text: Localized<string> }[];
+  /** Title of "Trabajos", shown with the portfolio. */
+  readonly works: { readonly title: Localized<string> };
+  readonly faq: { readonly title: Localized<string>; readonly items: readonly Faq[] };
+  readonly related: { readonly title: Localized<string>; readonly items: readonly RelatedService[] };
+  readonly meta: PageMeta;
+};
+
 /**
  * What can be shown of a project. It is agreed in the quote and written in the contract.
  * - publico: the work and the client's name.

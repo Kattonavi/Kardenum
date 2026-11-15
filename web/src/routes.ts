@@ -25,16 +25,16 @@ export const routeTable = {
   "/": { en: "/", built: true, listed: true },
   "/servicios": { en: "/services", built: true, listed: true },
   "/servicios/desarrollo": { en: "/services/development", built: true, listed: true },
-  "/servicios/desarrollo/tiendas-online": { en: "/services/development/ecommerce", built: false, listed: serviceSubpages },
-  "/servicios/desarrollo/software-a-la-medida": { en: "/services/development/custom-software", built: false, listed: serviceSubpages },
+  "/servicios/desarrollo/tiendas-online": { en: "/services/development/ecommerce", built: true, listed: serviceSubpages },
+  "/servicios/desarrollo/software-a-la-medida": { en: "/services/development/custom-software", built: true, listed: serviceSubpages },
   "/servicios/diseno": { en: "/services/design", built: true, listed: true },
   "/servicios/video": { en: "/services/video", built: true, listed: true },
   "/servicios/minecraft": { en: "/services/minecraft", built: true, listed: true },
-  "/servicios/minecraft/plugins": { en: "/services/minecraft/plugins", built: false, listed: serviceSubpages },
-  "/servicios/minecraft/servidores": { en: "/services/minecraft/servers", built: false, listed: serviceSubpages },
-  "/servicios/minecraft/tebex": { en: "/services/minecraft/tebex", built: false, listed: serviceSubpages },
+  "/servicios/minecraft/plugins": { en: "/services/minecraft/plugins", built: true, listed: serviceSubpages },
+  "/servicios/minecraft/servidores": { en: "/services/minecraft/servers", built: true, listed: serviceSubpages },
+  "/servicios/minecraft/tebex": { en: "/services/minecraft/tebex", built: true, listed: serviceSubpages },
   "/servicios/discord": { en: "/services/discord", built: true, listed: true },
-  "/servicios/discord/bots": { en: "/services/discord/bots", built: false, listed: serviceSubpages },
+  "/servicios/discord/bots": { en: "/services/discord/bots", built: true, listed: serviceSubpages },
   "/portafolio": { en: "/work", built: false, listed: portfolio },
   "/guias": { en: "/guides", built: false, listed: guides },
   "/nosotros": { en: "/about", built: true, listed: true },
@@ -58,6 +58,16 @@ export function isBuilt(pathname: AppPathname): boolean {
 
 export function isListed(pathname: AppPathname): boolean {
   return routeTable[pathname].listed;
+}
+
+/** Every page that exists, public or hidden: the ones the tests visit. */
+export function builtPathnames(): AppPathname[] {
+  return appPathnames.filter(isBuilt);
+}
+
+/** Pages that exist behind a feature that is off: reachable by their address, never linked, listed or indexed. */
+export function hiddenPathnames(): AppPathname[] {
+  return appPathnames.filter((pathname) => isBuilt(pathname) && !isListed(pathname));
 }
 
 /** Pages that exist and are public: the ones that go in the sitemap. */

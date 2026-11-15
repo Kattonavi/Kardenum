@@ -29,16 +29,18 @@ type StackedSectionProps = SectionHeaderProps & {
   id?: string;
   /** The first section of the band has no rule and more room above. */
   first?: boolean;
+  /** Extra room below, for the last section before the closing band. */
+  last?: boolean;
   children: ReactNode;
 };
 
 /** Section with its header on top and the content below. */
-export function StackedSection({ id, first = false, children, ...header }: StackedSectionProps) {
+export function StackedSection({ id, first = false, last = false, children, ...header }: StackedSectionProps) {
   return (
     <section
       id={id}
       aria-labelledby={header.titleId}
-      className={`flex flex-col ${first ? "gap-10 py-22" : "gap-8 border-t border-(--rule) pt-18 pb-22"}`}
+      className={`flex flex-col ${first ? "gap-10 py-22" : `gap-8 border-t border-(--rule) pt-18 ${last ? "pb-24" : "pb-22"}`}`}
     >
       <SectionHeader {...header} />
       {children}
@@ -50,16 +52,18 @@ type SplitSectionProps = SectionHeaderProps & {
   id?: string;
   /** Extra room below, for the last section before the closing band. */
   last?: boolean;
+  /** The same room below as above (sub-pages, maquetas B-Sub-*). */
+  compact?: boolean;
   children: ReactNode;
 };
 
 /** Section with its header on the left and the content on the right; they stack on narrow screens. */
-export function SplitSection({ id, last = false, children, ...header }: SplitSectionProps) {
+export function SplitSection({ id, last = false, compact = false, children, ...header }: SplitSectionProps) {
   return (
     <section
       id={id}
       aria-labelledby={header.titleId}
-      className={`flex flex-wrap items-start gap-x-16 gap-y-8 border-t border-(--rule) pt-18 ${last ? "pb-24" : "pb-22"}`}
+      className={`flex flex-wrap items-start gap-x-16 gap-y-8 border-t border-(--rule) pt-18 ${last ? "pb-24" : compact ? "pb-18" : "pb-22"}`}
     >
       <div className="flex-[1_1_18rem]">
         <SectionHeader {...header} />
@@ -127,13 +131,54 @@ export function ChooserGrid({ options }: { options: readonly ChooserCard[] }) {
 }
 
 /** List with a mark per line: a bronze square for what is included, a dash for what is not. */
-export function MarkedList({ items, mark = "included" }: { items: readonly string[]; mark?: "included" | "excluded" }) {
+export function MarkedList({ items, mark = "included", roomy = false }: { items: readonly string[]; mark?: "included" | "excluded"; roomy?: boolean }) {
   return (
     <ul className="border-t border-mist">
       {items.map((item) => (
-        <li key={item} className="flex items-baseline gap-3.5 border-b border-mist py-3.5 leading-normal">
+        <li key={item} className={`flex items-baseline border-b border-mist leading-normal ${roomy ? "gap-4 py-4" : "gap-3.5 py-3.5"}`}>
           <span aria-hidden="true" className={`shrink-0 ${mark === "included" ? "size-2 bg-bronze" : "h-0.5 w-2 bg-graphite"}`} />
           {item}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** What a service covers, as numbered cards under one rule (maquetas B-Sub-*, "Qué hacemos"). */
+export function NumberedCards({ items }: { items: readonly { title: string; text: string }[] }) {
+  return (
+    <ol className="grid grid-cols-[repeat(auto-fit,minmax(min(250px,100%),1fr))] gap-8 border-t border-(--rule) pt-8">
+      {items.map((item, index) => (
+        <li key={item.title} className="flex flex-col gap-3">
+          <span aria-hidden="true" className="font-mono text-xs tracking-[0.1em]">
+            {String(index + 1).padStart(2, "0")}
+          </span>
+          <span aria-hidden="true" className="h-0.5 w-8 bg-bronze" />
+          <h3 className="leading-[1.4] tracking-[0.1em] type-display">{item.title}</h3>
+          <p className="text-[0.9375rem] leading-normal text-(--muted-text)">{item.text}</p>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+export type RelatedLink = { label: string; name: string; href: AppPathname };
+
+/**
+ * Related services: one cell per service, the whole cell is the link. The cells are measured in
+ * rem (250 px at the default size): a name is one or two long words in capitals, and with larger
+ * text a cell fixed in px would be narrower than its longest word.
+ */
+export function RelatedGrid({ items }: { items: readonly RelatedLink[] }) {
+  return (
+    <ul className="grid grid-cols-[repeat(auto-fit,minmax(min(15.625rem,100%),1fr))] border-t border-l border-t-(--rule) border-l-mist">
+      {items.map((item) => (
+        <li key={`${item.label} ${item.name}`} className="flex min-w-0 border-r border-b border-mist">
+          <AppLink href={item.href} className="flex min-h-35 min-w-0 flex-1 flex-col gap-2.5 p-6 transition-colors duration-150 hover:bg-[#e4e3dd]">
+            <span className="font-mono text-[0.6875rem] tracking-[0.14em] text-(--muted-text) uppercase">{item.label}</span>
+            <span className="leading-[1.4] tracking-[0.08em] type-display">{item.name}</span>
+            <ArrowRightIcon size={18} className="mt-auto" />
+          </AppLink>
         </li>
       ))}
     </ul>

@@ -57,7 +57,12 @@
     "process": "Cómo trabajamos",
     "faq": "Preguntas frecuentes",
     "communityText": "¿Quieres conocernos primero? Únete al servidor de Kardenum en Discord.",
-    "communityAction": "Entrar al servidor"
+    "communityAction": "Entrar al servidor",
+    "offer": "Qué hacemos",
+    "related": "Servicios relacionados",
+    "otherChannels": "Otros canales",
+    "works": "Trabajos",
+    "viewPortfolio": "Ver todo el portafolio"
   },
   "Home": {
     "heroLabel": "Estudio de desarrollo, diseño y video",

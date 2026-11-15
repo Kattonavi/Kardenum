@@ -3,6 +3,7 @@ import type { AppPathname } from "../routes";
 import { privacyDocument, termsDocument } from "./legal";
 import { linePages } from "./lines";
 import { serviceLines } from "./service-lines";
+import { subpages } from "./subpages";
 import type { PageMeta } from "./types";
 
 /**
@@ -76,6 +77,7 @@ export const pageMeta: Partial<Record<AppPathname, PageMeta>> = {
     },
   },
   ...Object.fromEntries(serviceLines.map((line) => [line.pathname, linePages[line.id].meta])),
+  ...Object.fromEntries(Object.values(subpages).map((page) => [page.pathname, page.meta])),
   [privacyDocument.pathname]: privacyDocument.meta,
   [termsDocument.pathname]: termsDocument.meta,
 };
@@ -102,6 +104,7 @@ export const pageNames: Partial<Record<AppPathname, Localized<string>>> = {
   "/legal/privacidad": { es: "Privacidad", en: "Privacy" },
   "/legal/terminos": { es: "Términos", en: "Terms" },
   ...Object.fromEntries(serviceLines.map((line) => [line.pathname, line.name])),
+  ...Object.fromEntries(serviceLines.flatMap((line) => line.subpages.map((subpage) => [subpage.pathname, subpage.label]))),
 };
 
 export function getPageName(pathname: AppPathname): Localized<string> {

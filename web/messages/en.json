@@ -57,7 +57,12 @@
     "process": "How we work",
     "faq": "Frequently asked questions",
     "communityText": "Want to get to know us first? Join the Kardenum server on Discord.",
-    "communityAction": "Join the server"
+    "communityAction": "Join the server",
+    "offer": "What we do",
+    "related": "Related services",
+    "otherChannels": "Other channels",
+    "works": "Work",
+    "viewPortfolio": "See all our work"
   },
   "Home": {
     "heroLabel": "Software, design and video studio",

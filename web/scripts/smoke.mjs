@@ -7,11 +7,24 @@ import { readFileSync } from "node:fs";
 import { homeFaqs } from "@/content/home";
 import { getPageMeta, getPageName } from "@/content/pages";
 import { serviceLines } from "@/content/service-lines";
+import { subpages } from "@/content/subpages";
 import { locales } from "@/i18n/locales";
 import { securityHeaders } from "@/lib/security-headers";
 import { ogImagePath } from "@/lib/seo/metadata";
 import { getSiteUrl } from "@/lib/site-url";
-import { absoluteUrl, breadcrumbTrail, footerNotices, languageAlternates, localizedPath, publicPathnames, routeTable, shortLinkRedirects } from "@/routes";
+import {
+  absoluteUrl,
+  breadcrumbTrail,
+  builtPathnames,
+  footerNotices,
+  hiddenPathnames,
+  isListed,
+  languageAlternates,
+  localizedPath,
+  publicPathnames,
+  routeTable,
+  shortLinkRedirects,
+} from "@/routes";
 import { siteConfig } from "@/site.config";
 
 const args = process.argv.slice(2);
@@ -104,13 +117,17 @@ check(
 check(`GET /es redirect X-Robots-Tag ${noindex ? "has" : "lacks"} noindex`, robotsHeaderOk(esPrefixed.res));
 
 // ---------------------------------------------------------------------------------------------
-// 2. Every public page, in both languages: structure and technical SEO (seo-sitio.md §2).
+// 2. Every built page, in both languages: structure and technical SEO (seo-sitio.md §2).
+//    A page behind a feature that is off is built but hidden: it answers at its address with
+//    noindex even on the open site, it is not in the sitemap and no public page links to it.
 // ---------------------------------------------------------------------------------------------
 const seenTitles = new Set();
 const seenDescriptions = new Set();
+const hiddenPaths = new Set(hiddenPathnames().flatMap((pathname) => locales.map((locale) => localizedPath(pathname, locale))));
 
-for (const pathname of publicPathnames()) {
+for (const pathname of builtPathnames()) {
   const alternates = languageAlternates(pathname);
+  const hidden = !isListed(pathname);
   for (const locale of locales) {
     const path = localizedPath(pathname, locale);
     const label = `[${locale}] ${path}`;
@@ -141,7 +158,12 @@ for (const pathname of publicPathnames()) {
     seenDescriptions.add(description);
 
     const robotsMeta = (metaTag("name", "robots") ?? "").toLowerCase();
-    check(`${label} meta robots ${noindex ? "has" : "lacks"} noindex`, robotsMeta.includes("noindex") === noindex, robotsMeta || "no tag");
+    const pageNoindex = noindex || hidden;
+    check(`${label} meta robots ${pageNoindex ? "has" : "lacks"} noindex${hidden ? " (hidden page)" : ""}`, robotsMeta.includes("noindex") === pageNoindex, robotsMeta || "no tag");
+    if (!hidden) {
+      const linksToHidden = [...rendered(page.body).matchAll(/<a\b[^>]*\bhref="([^"#?]*)/g)].map((match) => match[1]).filter((href) => hiddenPaths.has(href));
+      check(`${label} links to no hidden page`, linksToHidden.length === 0, [...new Set(linksToHidden)].join(", "));
+    }
 
     const canonicals = link("canonical");
     check(`${label} has exactly one canonical, pointing to itself`, canonicals.length === 1 && canonicals[0].attrs.href === alternates[locale], canonicals.map((c) => c.attrs.href).join(", ") || "none");
@@ -227,8 +249,9 @@ const messages = Object.fromEntries(
   locales.map((locale) => [locale, JSON.parse(readFileSync(new URL(`../messages/${locale}.json`, import.meta.url), "utf8"))]),
 );
 const lineByPathname = new Map(serviceLines.map((line) => [line.pathname, line]));
+const subpageByPathname = new Map(Object.values(subpages).map((page) => [page.pathname, page]));
 
-for (const pathname of publicPathnames().filter((candidate) => candidate !== "/")) {
+for (const pathname of builtPathnames().filter((candidate) => candidate !== "/")) {
   for (const locale of locales) {
     const path = localizedPath(pathname, locale);
     const label = `[${locale}] ${path}`;
@@ -262,6 +285,18 @@ for (const pathname of publicPathnames().filter((candidate) => candidate !== "/"
       check(
         `${label} Service: name, url and description of the line`,
         service?.name === line.name[locale] && service?.url === absoluteUrl(path) && service?.description === getPageMeta(pathname).description[locale],
+        service ? service.name : "no Service node",
+      );
+    }
+    const subpage = subpageByPathname.get(pathname);
+    if (subpage) {
+      const service = graph.find((node) => node["@type"] === "Service");
+      const h1 = decode((page.body.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)?.[1] ?? "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
+      const title = [...subpage.hero.titleLines[locale], subpage.hero.titleAccent[locale]].join(" ");
+      check(`${label} h1 is the title of the service`, h1 === title, h1);
+      check(
+        `${label} Service: named as the h1, with its url and description`,
+        service?.name === title.replace(/\.$/, "") && service?.url === absoluteUrl(path) && service?.description === getPageMeta(pathname).description[locale],
         service ? service.name : "no Service node",
       );
     }

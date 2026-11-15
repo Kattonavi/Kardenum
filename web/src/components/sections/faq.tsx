@@ -11,16 +11,18 @@ type FaqSectionProps = {
   items: readonly FaqEntry[];
   /** "home": no rule above. "page": a rule above, as every section after the first. */
   variant: "home" | "page";
+  /** False when another section follows inside the same band. */
+  last?: boolean;
 };
 
 // Questions as native <details>: the answers are in the HTML even when folded, they work
 // without JavaScript and with the keyboard. The first one starts open, as in the mockups.
-export function FaqSection({ id, label, title, titleId, items, variant }: FaqSectionProps) {
+export function FaqSection({ id, label, title, titleId, items, variant, last = true }: FaqSectionProps) {
   return (
     <section
       id={id}
       aria-labelledby={titleId}
-      className={`flex flex-wrap items-start gap-x-16 gap-y-8 pb-24 ${variant === "page" ? "border-t border-(--rule) pt-18" : ""}`}
+      className={`flex flex-wrap items-start gap-x-16 gap-y-8 ${last ? "pb-24" : "pb-22"} ${variant === "page" ? "border-t border-(--rule) pt-18" : ""}`}
     >
       <div className="flex-[1_1_18rem]">
         <SectionHeader label={label} title={title} titleId={titleId} />
