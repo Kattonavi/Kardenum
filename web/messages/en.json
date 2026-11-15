@@ -3,6 +3,10 @@
     "title": "Kardenum — software, design and video studio",
     "description": "Kardenum is a software, design and video studio. Every project is quoted to fit."
   },
+  "Layout": {
+    "skipToContent": "Skip to content",
+    "lines": "Development · Design · Video · Minecraft · Discord"
+  },
   "Home": {
     "descriptor": "Software, design and video studio.",
     "status": "Site under construction"

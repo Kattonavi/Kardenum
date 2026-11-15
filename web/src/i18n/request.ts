@@ -13,6 +13,8 @@ export default getRequestConfig(async ({ locale }) => {
 
   return {
     locale: resolved,
+    // Fixed so builds do not depend on the machine's zone (and do not reveal it in the page payload).
+    timeZone: "UTC",
     messages: (await import(`../../messages/${resolved}.json`)).default,
   };
 });

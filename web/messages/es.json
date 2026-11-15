@@ -3,6 +3,10 @@
     "title": "Kardenum — estudio de desarrollo, diseño y video",
     "description": "Un estudio para llevar tu proyecto de la idea a algo que puedas mostrar con orgullo. Escuchamos, proponemos y construimos contigo cada parte."
   },
+  "Layout": {
+    "skipToContent": "Saltar al contenido",
+    "lines": "Desarrollo · Diseño · Video · Minecraft · Discord"
+  },
   "Home": {
     "descriptor": "Estudio de desarrollo, diseño y video.",
     "status": "Sitio en construcción"

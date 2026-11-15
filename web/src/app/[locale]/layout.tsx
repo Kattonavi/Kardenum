@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { hasLocale } from "next-intl";
+import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
+import { SiteFooter } from "@/components/layout/site-footer";
+import { MAIN_CONTENT_ID, SiteHeader } from "@/components/layout/site-header";
 import { routing } from "@/i18n/routing";
 import { isSiteIndexable } from "@/lib/indexing";
 import { archivo, jetbrainsMono } from "../fonts";
@@ -35,7 +37,18 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
 
   return (
     <html lang={locale} className={`${archivo.variable} ${jetbrainsMono.variable}`}>
-      <body className="min-h-dvh">{children}</body>
+      <body className="flex min-h-dvh flex-col">
+        {/* Gives client components (e.g. next-intl's Link) the locale. messages={null}: no
+            translations are shipped to the browser; client components get only what they need. */}
+        <NextIntlClientProvider messages={null}>
+          <SiteHeader />
+          {/* The only <main> of every page: pages render sections, never their own <main>. */}
+          <main id={MAIN_CONTENT_ID} tabIndex={-1} className="flex flex-1 flex-col focus:outline-none">
+            {children}
+          </main>
+          <SiteFooter />
+        </NextIntlClientProvider>
+      </body>
     </html>
   );
 }

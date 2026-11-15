@@ -66,6 +66,13 @@ check(
   `status ${esPrefixed.res.status} -> ${esPrefixed.res.headers.get("location")}`,
 );
 
+// 2d. Page structure required by the brief: one <header>, one <main>, one <footer> and a single <h1>.
+for (const [label, page] of [["/", home], ["/en", en]]) {
+  const count = (re) => (page.body.match(re) ?? []).length;
+  const ok = count(/<header[\s>]/g) === 1 && count(/<main[\s>]/g) === 1 && count(/<footer[\s>]/g) === 1 && count(/<h1[\s>]/g) === 1;
+  check(`${label} has one header, main, footer and h1`, ok, `header ${count(/<header[\s>]/g)}, main ${count(/<main[\s>]/g)}, footer ${count(/<footer[\s>]/g)}, h1 ${count(/<h1[\s>]/g)}`);
+}
+
 // 3. robots.txt
 const robots = await get("/robots.txt");
 check("GET /robots.txt -> 200", robots.res.status === 200, `status ${robots.res.status}`);
