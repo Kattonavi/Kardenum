@@ -28,7 +28,7 @@ test("analytics loads only when both variables exist", () => {
 });
 
 test("a script address that is not https, or an id that is not an id, stops the build", () => {
-  for (const src of ["http://analytics.example.com/script.js", "//analytics.example.com/script.js", "script.js", "javascript:alert(1)"]) {
+  for (const src of ["http://analytics.example.com/script.js", "//analytics.example.com/script.js", "script.js", "javascript:alert(1)", "https://user:secret@analytics.example.com/script.js"]) {
     assert.throws(() => getAnalytics({ ...configured, UMAMI_SRC: src }), /UMAMI_SRC/, src);
   }
   for (const id of ['abc" onload="x', "a b", "<script>", "x".repeat(65)]) {

@@ -3,7 +3,7 @@
 - **Revisor:** `code-reviewer` (opus · high), contexto fresco. **Fecha:** 2026-11-15.
 - **Alcance:** `git diff 20f367a..1ed1944 -- web/` contra las specs 002 y 003, la Constitución del proyecto y
   `docs/handoff/docs/seo-sitio.md` §2.
-- **Veredicto:** RECHAZADO por un Alto (regresión del propio lote). Corregido en `44a4e8c`.
+- **Veredicto:** RECHAZADO por un Alto (regresión del propio lote). Corregido en `44a4e8c`. **Re-verificación del delta: APROBADO** (2026-11-15).
 
 ## Hallazgos y resolución
 
@@ -25,5 +25,13 @@ escucha · el freno cuenta los pendientes de forma independiente.
 ## Re-verificación del delta
 
 El arreglo del Alto queda cubierto por la prueba con barras reales, que reproduce el defecto en el build anterior y
-pasa en el nuevo. La re-verificación del delta (`1ed1944..44a4e8c`, 30 archivos) se pidió el 2026-11-15 al mismo
-revisor; su resultado se anota aquí debajo.
+pasa en el nuevo. La re-verificación del delta (`1ed1944..44a4e8c`, 30 archivos) la hizo el mismo revisor el 2026-11-15.
+
+**Resultado: APROBADO.** Sin Crítico ni Alto en el delta.
+- El Alto, repetido contra producción con barras visibles: a 1030 px la cabecera mide 1015 px antes y después de abrir
+  el menú, el diálogo se ve (1015 × 800) y cierra. Igual a 1000 y 1024 px; a 1039 y 1050 px la cabecera ya es completa.
+- Revisado sin fallas: controles como enlace hasta que corre el script (teclas modificadoras respetadas), navegación de
+  respaldo por `:target`, `findUnfilled`, rechazo de `SITE_LAUNCH_CHECK=off`, validación de enlaces cortos en el build.
+- Hallazgo nuevo, Medio por confirmar: con Umami Cloud los eventos van a otro origen y `connect-src` los bloquearía.
+  Confirmado por el hilo principal (`gateway.umami.is`) y anotado en el backlog 31; hoy no aplica (sin variables).
+- No verificado: Firefox y WebKit con barras clásicas.

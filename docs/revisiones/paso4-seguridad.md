@@ -210,3 +210,13 @@ de crear subdominios. El `s-maxage` de un año está bien para HTML estático, p
 | `script-src-attr 'none'` (opción estática no considerada) | — | **Aplicado**; las 381 pruebas de navegador pasan sin violaciones. |
 | B1: redirecciones propias de Next y errores tempranos sin cabeceras · B5: sin `security.txt` · B6: React 19.3.1 disponible | Bajo | Backlog 34. |
 | Una sola política con los hashes de todas las páginas (40 scripts, ~2,2 KB, dos compilaciones) | — | Backlog 30. |
+
+## Re-verificación del delta `1ed1944..44a4e8c` (2026-11-15, mismo revisor): sin bloqueantes
+
+- **M1, B2 y B3: resueltos.** En producción `/_next/image` responde 404, `/minecraft` 308 y `/discord` 404 con la
+  invitación pendiente. Por confirmar al lanzar: que Railway exponga sus `RAILWAY_*` durante el build real.
+- **B4: a medias.** `findUnfilled` cubre lo marcado como listo y vacío. Un `SITE_INDEXABLE` mal escrito (`TRUE`, `1`) deja
+  el sitio cerrado sin avisar: sigue Bajo, backlog 34.
+- **`script-src-attr 'none'`** en producción; 0 atributos `on*=` en el HTML servido de cinco páginas.
+- **Bajo nuevo: `UMAMI_SRC` aceptaba cualquier host https y direcciones con usuario y clave.** Corregido lo segundo (el
+  build falla); la lista de hosts permitidos queda para cuando se sepa dónde vive Umami (backlog 31).
