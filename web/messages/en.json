@@ -158,7 +158,11 @@
     "metaTitle": "Page not found — Kardenum",
     "label": "Error 404",
     "title": "This page doesn't exist.",
-    "body": "The link may be mistyped, or the page may have moved.",
-    "home": "Go to the home page"
+    "body": "The link may be misspelled or the page may have moved. From here you can continue:",
+    "home": "Go to the home page",
+    "titleLine": "This page",
+    "titleAccent": "does not exist.",
+    "contact": "Write to us",
+    "linksLabel": "Pages of the site"
   }
 }

@@ -327,7 +327,27 @@ check(`robots.txt X-Robots-Tag ${noindex ? "has" : "lacks"} noindex`, robotsHead
 // 5. Unknown routes: real 404 status AND the brand 404 page in the server HTML
 //    (not Next's empty "__next_error__" shell that only renders with JavaScript).
 // ---------------------------------------------------------------------------------------------
-const brand404 = (body) => !body.includes("__next_error__") && body.includes("Esta página no existe");
+const notFoundText = messages.es.NotFound;
+const brand404 = (body) => {
+  const html = rendered(body);
+  return (
+    !body.includes("__next_error__") &&
+    [/<header[\s>]/g, /<main[\s>]/g, /<footer[\s>]/g, /<h1[\s>]/g].every((landmark) => count(html, landmark) === 1) &&
+    [notFoundText.label, notFoundText.titleLine, notFoundText.titleAccent, notFoundText.home].every((text) => html.includes(text)) &&
+    // A way out in each language.
+    /<a\b[^>]*\bhref="\/"/.test(html) &&
+    /<a\b[^>]*\bhref="\/en"/.test(html)
+  );
+};
+// Every link of the 404 page leads to a page that exists.
+const notFoundPage = await get("/ruta-que-no-existe-smoke");
+const notFoundLinks = [...new Set([...rendered(notFoundPage.body).matchAll(/<a\b[^>]*\bhref="(\/[^"#]*)"/g)].map((match) => match[1]))];
+const deadLinks = [];
+for (const link of notFoundLinks) {
+  const target = await get(link);
+  if (target.res.status !== 200) deadLinks.push(`${link} -> ${target.res.status}`);
+}
+check("the 404 page links only to pages that exist", notFoundLinks.length >= 2 && deadLinks.length === 0, deadLinks.join(", ") || `${notFoundLinks.length} links`);
 for (const pathname of ["/ruta-que-no-existe-smoke", "/en/ruta-que-no-existe-smoke", "/en/a/b", "/de", "/no-existe-smoke.txt", "/og/es/no-existe.png"]) {
   const missing = await get(pathname);
   check(`GET ${pathname} -> 404 with the brand page in HTML`, missing.res.status === 404 && brand404(missing.body), `status ${missing.res.status}`);

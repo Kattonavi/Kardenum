@@ -55,6 +55,7 @@ re-negociar. El lanzamiento (paso 8) depende de datos del fundador, no del códi
 |---|---|---|---|
 | 0 | Paso 1 completo en `main` (6ea6a3e → 8a64095): Next 16.4.6, guardia `SITE_INDEXABLE`, standalone para Railway, marca en `@theme`, Archivo + JetBrains Mono, next-intl (es raíz, en `/en`), 404 global, esqueleto `header`/`main`/`footer`, jsx-a11y completo. Prueba de humo de 28 comprobaciones en verde desde un clon limpio, arrancando con `pnpm start` | — (repo conectado a Railway; primer despliegue verificado con Node 22.23.4 y pnpm 12.5.1) | ~1 h / 4 h |
 | 1 y 2 (parcial) | En producción (6472f58 → 7ec00ec): `site.config.ts`, registro único de rutas con slugs traducidos, modelo de contenido tipado, SEO técnico (metadatos, canonical, hreflang, sitemap con guardia, imágenes OG, JSON-LD, manifest), layout global (desplegable, menú móvil, barra de idioma, pie) e inicio. 43 pruebas unitarias en el build, 68 de humo y 61 e2e (axe sin violaciones) contra Railway. Lighthouse celular en Railway: 99 / 100 / 100 (SEO 100 con el guardia abierto, medido en local) | Páginas de servicios, las 5 líneas, Nosotros, Contacto con cotizador y 404 diseñada (paso 3 del brief): hoy sus enlaces dan el 404 de marca. Revisiones del lote (ui-qa, finish-reviewer, code-reviewer) sin correr | ~1,2 h / 2,5 días |
+| 2 (paso 3 del brief) | En producción (c48dfb7 → ver `git log`): índice de Servicios, las cinco líneas desde una sola plantilla con contenido tipado, Nosotros, Contacto con el cotizador de WhatsApp (spec 002) y 404 diseñada. Menú con estado activo, migas con `BreadcrumbList`, `Service` por línea, aviso de Discord en sus páginas, `/minecraft` (308), enlaces de idioma directos. 63 pruebas unitarias en el build, 408 de humo y 258 e2e (axe sin violaciones en las 18 URL públicas y el 404) | Subpáginas, portafolio, casos y guías (pasos 5 y 6, detrás de flags); legales; inglés definitivo; datos de contacto | ~1,5 h / 2,5 días |
 
 ## Stack
 | Capa | Elección | Por qué / desviación |
@@ -98,7 +99,19 @@ Detalle en `docs/handoff/docs/seo-sitio.md`. Nichos primero (Minecraft y Discord
 - next-intl fijado en 4.14.9 (la 4.15 tiene menos de 30 días); `localeDetection`, `localeCookie` y `alternateLinks`
   apagados: `/` siempre en español, sin cookies, y hreflang desde los metadatos (x-default → inglés) en el paso 4.
 - El 404 es uno solo y bilingüe (español primero, línea en inglés hacia `/en`): `global-not-found` no recibe el
-  idioma. Se aparta de la maqueta B-404, que solo existe en español.
+  idioma. Se aparta de la maqueta B-404, que solo existe en español. Su cabecera y su pie son estáticos (enlaces
+  simples a páginas que existen): el menú compartido depende del contexto de next-intl y, con él, Next entrega su
+  página de error vacía.
+- **WhatsApp lleva al cotizador** (plan §4: "llamado a cotizar con la línea ya preseleccionada"): el botón de
+  WhatsApp del cierre de cada página y del menú móvil abre `/contacto#cotizador`, con la línea de la página elegida.
+  Discord y correo siguen inertes hasta tener el dato.
+- **Cotizador con valores neutros:** arranca en "Todavía no lo tengo claro" y "Sin fecha definida" (la maqueta
+  muestra "Tienda online" y "En uno a tres meses" como ejemplo), para que el mensaje no afirme lo que la persona no
+  eligió. Especificación en `docs/specs/002-cotizador-whatsapp.md`.
+- **Enlaces de idioma directos:** ES / EN y la barra de idioma enlazan a la dirección final de la misma página en el
+  otro idioma (`pathInLocale`), no a `/es/…` ni al inicio.
+- **Nosotros sin migas:** la maqueta no las trae; por eso tampoco lleva `BreadcrumbList` (la prueba de humo exige
+  que las migas visibles y los datos estructurados coincidan).
 - Los textos en inglés del sitio son provisionales hasta escribir el inglés con las palabras clave validadas.
 
 ## Pendientes

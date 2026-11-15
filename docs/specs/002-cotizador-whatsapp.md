@@ -39,5 +39,12 @@ en el navegador: no hay backend y no guarda nada.
 
 | Requisito | Prueba |
 |---|---|
-| RF-2, RF-4, RF-7, RF-8 (lógica) | `web/src/lib/quote.test.ts` |
-| RF-1, RF-2, RF-3, RF-5, RF-6, RF-8, RF-9 (navegador) | `web/e2e/contact.spec.ts` |
+| RF-4, RF-7, RF-8 (lógica) | `web/src/lib/quote.test.ts` |
+| RF-1 a RF-9 (navegador) | `web/e2e/contact.spec.ts` |
+| RF-5 y RF-6 (HTML del servidor) | `web/scripts/smoke.mjs` |
+
+La prueba de RF-4 en navegador tiene dos ramas según `site.config.ts`: con el número pendiente comprueba RF-6
+(no se abre nada); con el número listo comprueba que se abre `wa.me` con el mensaje exacto (la petición se
+intercepta, no sale de la máquina). Mientras el número siga pendiente solo corre la primera. La segunda se ejecutó
+el 2026-11-15 en un clon de descarte con un número ficticio (escritorio y celular, en verde); hay que volver a
+correrla al poner el número real.

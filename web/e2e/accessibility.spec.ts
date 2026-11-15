@@ -7,7 +7,8 @@ import { localizedPath, publicPathnames } from "../src/routes";
 // (keyboard, focus order) is covered by navigation.spec.ts and language.spec.ts.
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice"];
 // Every public page in both languages, from the route registry: a new page is checked without listing it here.
-const PAGES = publicPathnames().flatMap((pathname) => locales.map((locale) => localizedPath(pathname, locale)));
+// Plus the 404 page, which has its own header and footer (it replaces the layout).
+const PAGES = [...publicPathnames().flatMap((pathname) => locales.map((locale) => localizedPath(pathname, locale))), "/pagina-que-no-existe"];
 
 async function expectNoViolations(page: Page, context: string) {
   const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();

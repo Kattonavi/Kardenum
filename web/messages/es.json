@@ -158,7 +158,11 @@
     "metaTitle": "Página no encontrada — Kardenum",
     "label": "Error 404",
     "title": "Esta página no existe.",
-    "body": "Puede que el enlace esté mal escrito o que la página se haya movido.",
-    "home": "Ir al inicio"
+    "body": "Puede que el enlace esté mal escrito o que la página se haya movido. Desde aquí puedes seguir:",
+    "home": "Ir al inicio",
+    "titleLine": "Esta página",
+    "titleAccent": "no existe.",
+    "contact": "Escribirnos",
+    "linksLabel": "Páginas del sitio"
   }
 }
