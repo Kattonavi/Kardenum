@@ -2,8 +2,14 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { use } from "react";
+import { ContactCta } from "@/components/contact/contact-cta";
+import { Faq } from "@/components/home/faq";
+import { Hero } from "@/components/home/hero";
+import { Process } from "@/components/home/process";
+import { ServicesList } from "@/components/home/services-list";
 import { Container } from "@/components/layout/container";
 import { JsonLd } from "@/components/seo/json-ld";
+import { homeFaqs } from "@/content/home";
 import { isAppLocale } from "@/i18n/locales";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/json-ld";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -14,21 +20,26 @@ export async function generateMetadata({ params }: PageProps<"/[locale]">): Prom
   return buildPageMetadata("/", locale);
 }
 
-// Placeholder until the home page is built from maqueta B-Gremio-inicio-v2.
+// Home (maqueta B-Gremio-inicio-v2): hero, the five lines, how we work, questions and the
+// closing band. "Trabajo destacado" joins when the portfolio has content.
 export default function Home({ params }: PageProps<"/[locale]">) {
   const { locale } = use(params);
   if (!isAppLocale(locale)) notFound();
   const t = useTranslations("Home");
+  const cta = useTranslations("ContactCta");
 
   return (
-    <section className="flex flex-1 flex-col justify-center py-24 surface-ink">
+    <>
       <JsonLd nodes={[organizationJsonLd(locale), websiteJsonLd(locale)]} />
-      <Container className="flex flex-col gap-4">
-        <h1 className="text-4xl tracking-[0.01em] type-display">
-          {t("heroTitleLine1")} {t("heroTitleLine2")} <span className="text-bronze">{t("heroTitleAccent")}</span>
-        </h1>
-        <p className="max-w-[34rem] text-lg leading-[1.6] text-(--muted-text)">{t("heroText")}</p>
-      </Container>
-    </section>
+      <Hero contactId={cta("id")} servicesId={t("servicesId")} />
+      <div className="surface-stone">
+        <Container>
+          <ServicesList id={t("servicesId")} locale={locale} />
+          <Process locale={locale} />
+          <Faq id={t("faqId")} locale={locale} items={homeFaqs} />
+        </Container>
+      </div>
+      <ContactCta />
+    </>
   );
 }

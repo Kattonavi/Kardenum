@@ -53,10 +53,12 @@
     "processLabel": "How we work",
     "faqId": "questions",
     "faqLabel": "Frequently asked questions",
-    "faqTitle": "Clarity before we start.",
-    "contactId": "contact",
-    "contactTitle": "Let's talk about your project.",
-    "contactText": "Choose the channel you prefer. We review your request and reply with a quote made to fit."
+    "faqTitle": "Clarity before we start."
+  },
+  "ContactCta": {
+    "id": "contact",
+    "title": "Let's talk about your project.",
+    "text": "Choose the channel you prefer. We review your request and reply with a quote made to fit."
   },
   "NotFound": {
     "metaTitle": "Page not found — Kardenum",

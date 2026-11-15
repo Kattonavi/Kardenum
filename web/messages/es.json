@@ -53,10 +53,12 @@
     "processLabel": "Cómo trabajamos",
     "faqId": "preguntas",
     "faqLabel": "Preguntas frecuentes",
-    "faqTitle": "Claridad antes de empezar.",
-    "contactId": "contacto",
-    "contactTitle": "Hablemos de tu proyecto.",
-    "contactText": "Elige el canal de tu preferencia. Analizamos tu solicitud y respondemos con una cotización a la medida."
+    "faqTitle": "Claridad antes de empezar."
+  },
+  "ContactCta": {
+    "id": "contacto",
+    "title": "Hablemos de tu proyecto.",
+    "text": "Elige el canal de tu preferencia. Analizamos tu solicitud y respondemos con una cotización a la medida."
   },
   "NotFound": {
     "metaTitle": "Página no encontrada — Kardenum",

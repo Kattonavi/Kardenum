@@ -124,6 +124,13 @@
   text-transform: uppercase;
 }
 
+/* The same wide face in sentence case (questions of the FAQ). */
+@utility type-wide {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 600;
+}
+
 /* Labels, numbering and data: JetBrains Mono, uppercase, wide tracking. */
 @utility type-label {
   font-family: var(--font-mono);
@@ -144,6 +151,12 @@
   /* The mobile menu is a full-screen dialog: the page behind it does not scroll. */
   html:has(dialog[open]) {
     overflow: hidden;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 
   body {

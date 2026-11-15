@@ -3,7 +3,9 @@
 // Default expectation is "noindex": the state the site must keep until launch.
 // It reads the route registry and the page texts from src/, so every public page is checked
 // in both languages without listing URLs here. Exits with code 1 if any check fails.
+import { homeFaqs } from "@/content/home";
 import { getPageMeta } from "@/content/pages";
+import { serviceLines } from "@/content/service-lines";
 import { locales } from "@/i18n/locales";
 import { ogImagePath } from "@/lib/seo/metadata";
 import { absoluteUrl, languageAlternates, localizedPath, publicPathnames } from "@/routes";
@@ -168,6 +170,13 @@ for (const locale of locales) {
   check(`[${locale}] Organization: name, url and fixed logo URL`, byType.Organization?.name === siteConfig.name && byType.Organization?.url === absoluteUrl("/") && byType.Organization?.logo === absoluteUrl("/logo.png"));
   check(`[${locale}] WebSite: name and language`, byType.WebSite?.name === siteConfig.name && byType.WebSite?.inLanguage === locale);
   check(`[${locale}] JSON-LD has no bracketed placeholders`, !/"\[[^"]*\]"/.test(scripts[0] ?? ""));
+
+  // The content is in the server HTML: nothing a visitor or a crawler reads depends on JavaScript.
+  const html = decode(page.body);
+  const missingLines = serviceLines.filter((line) => !html.includes(line.name[locale]) || !html.includes(line.summary[locale]));
+  check(`[${locale}] the five service lines are in the HTML`, missingLines.length === 0, missingLines.map((line) => line.id).join(", "));
+  const missingFaqs = homeFaqs.filter((faq) => !html.includes(faq.question[locale]) || !html.includes(faq.answer[locale]));
+  check(`[${locale}] the seven questions and their answers are in the HTML, folded or not`, missingFaqs.length === 0, missingFaqs.map((faq) => faq.id).join(", "));
 }
 const logo = await fetch(new URL("/logo.png", base));
 check("GET /logo.png -> 200 image/png", logo.status === 200 && logo.headers.get("content-type") === "image/png", `status ${logo.status}`);
