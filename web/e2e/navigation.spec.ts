@@ -173,9 +173,8 @@ test.describe("where you are", () => {
   });
 });
 
-test("the menu waits for its script instead of ignoring the first tap", async ({ page }, testInfo) => {
-  // A slow phone: the page is on screen, its scripts are still on their way. A tap on the menu
-  // button now would do nothing and say nothing, so the button is off until it can answer.
+test("before its script runs the header already leads somewhere; then it becomes the menu", async ({ page }, testInfo) => {
+  // A slow phone, or a script that never arrives: the page is on screen without its scripts.
   let release: () => void = () => {};
   const held = new Promise<void>((resolve) => {
     release = resolve;
@@ -186,14 +185,63 @@ test("the menu waits for its script instead of ignoring the first tap", async ({
   });
   await page.goto("/", { waitUntil: "domcontentloaded" });
   const phone = testInfo.project.name === "mobile";
-  const trigger = phone
-    ? page.getByRole("button", { name: "Abrir menú" })
-    : page.getByRole("navigation", { name: "Principal" }).getByRole("button", { name: "Servicios" });
-  await expect(trigger).toBeDisabled();
+  const header = page.getByRole("banner");
+
+  if (phone) {
+    // The menu control is a link to the navigation in the footer.
+    const control = header.getByRole("link", { name: "Ir a la navegación del pie" });
+    await expect(control).toHaveAttribute("href", "#pie");
+    await control.click();
+    const fallback = page.getByRole("contentinfo").getByRole("navigation", { name: "Principal" });
+    await expect(fallback).toBeVisible();
+    await expect(fallback.getByRole("link")).toHaveText(["Servicios", "Nosotros", "Contacto"]);
+    await expect(fallback.getByRole("link", { name: "Nosotros" })).toHaveAttribute("href", "/nosotros");
+  } else {
+    // "Servicios" is a link to the services page.
+    await expect(header.getByRole("link", { name: "Servicios", exact: true })).toHaveAttribute("href", "/servicios");
+  }
 
   release();
-  // click() waits for the button to be on: no race with the script.
-  await trigger.click();
-  if (phone) await expect(page.getByRole("dialog", { name: "Menú" })).toBeVisible();
-  else await expect(trigger).toHaveAttribute("aria-expanded", "true");
+  // The same element is now the button of the menu (found by its role: no race with the script).
+  if (phone) {
+    await header.getByRole("button", { name: "Abrir menú" }).click();
+    await expect(page.getByRole("dialog", { name: "Menú" })).toBeVisible();
+  } else {
+    const trigger = page.getByRole("navigation", { name: "Principal" }).getByRole("button", { name: "Servicios" });
+    await trigger.click();
+    await expect(trigger).toHaveAttribute("aria-expanded", "true");
+    await expect(page).toHaveURL(/\/$/);
+  }
+});
+
+test("the footer is a navigation too: the five lines are links", async ({ page }) => {
+  await page.goto("/nosotros");
+  const lines = page.getByRole("contentinfo").getByRole("navigation", { name: "Líneas de servicio" }).getByRole("link");
+  await expect(lines).toHaveText(["Desarrollo", "Diseño", "Video", "Minecraft", "Discord"]);
+  await expect(lines.nth(3)).toHaveAttribute("href", "/servicios/minecraft");
+  // The navigation for when the menu cannot open stays out of the way otherwise.
+  await expect(page.getByRole("contentinfo").getByRole("navigation", { name: "Principal" })).toBeHidden();
+
+  await page.goto("/en/about");
+  await expect(page.getByRole("contentinfo").getByRole("navigation", { name: "Service lines" }).getByRole("link").first()).toHaveAttribute("href", "/en/services/development");
+});
+
+test.describe("without JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("every main page can be reached from the header and the footer", async ({ page }, testInfo) => {
+    await page.goto("/legal/privacidad");
+    const header = page.getByRole("banner");
+    if (testInfo.project.name === "mobile") {
+      await header.getByRole("link", { name: "Ir a la navegación del pie" }).click();
+      const fallback = page.getByRole("contentinfo").getByRole("navigation", { name: "Principal" });
+      await expect(fallback).toBeVisible();
+      await fallback.getByRole("link", { name: "Contacto" }).click();
+      await expect(page).toHaveURL(/\/contacto$/);
+    } else {
+      await header.getByRole("link", { name: "Servicios", exact: true }).click();
+      await expect(page).toHaveURL(/\/servicios$/);
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText("Cinco líneas, un mismo criterio.");
+    }
+  });
 });

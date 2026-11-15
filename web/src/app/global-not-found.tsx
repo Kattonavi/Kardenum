@@ -4,6 +4,7 @@ import en from "../../messages/en.json";
 import es from "../../messages/es.json";
 import { KardenumSymbol } from "@/components/brand/kardenum-symbol";
 import { Container } from "@/components/layout/container";
+import { AnalyticsScript } from "@/components/seo/analytics-script";
 import { buttonClass } from "@/components/ui/button";
 import { ArrowRightIcon } from "@/components/ui/icons";
 import { TitleLines } from "@/components/ui/title-lines";
@@ -69,7 +70,7 @@ export default function GlobalNotFound() {
             <nav aria-label={es.Nav.label} className="flex items-center justify-between gap-x-3 border-b border-line py-4 @5xl:gap-x-8 @5xl:py-6">
               <Link href="/" aria-label={es.Layout.homeLink} className="inline-flex min-h-11 items-center gap-2.5 @5xl:gap-3">
                 <KardenumSymbol size={26} variant="negative" className="size-[1.375rem] @5xl:size-[1.625rem]" />
-                <span className="text-[0.9375rem] tracking-[0.16em] type-display whitespace-nowrap @5xl:text-lg @max-[15rem]:hidden">Kardenum</span>
+                <span className="text-[0.9375rem] tracking-[0.16em] type-display whitespace-nowrap @5xl:text-lg @max-[22.5rem]:hidden">Kardenum</span>
               </Link>
               <div className="flex items-center gap-2 @5xl:gap-7">
                 {available("/servicios") ? (
@@ -169,9 +170,27 @@ export default function GlobalNotFound() {
                   <KardenumSymbol size={18} variant="negative" />
                   <span className="text-sm tracking-[0.16em] type-display">Kardenum</span>
                 </span>
-                <span className="font-mono text-xs tracking-[0.1em] text-(--muted-text) uppercase">
-                  {serviceLines.map((line) => line.shortName.es).join(" · ")}
-                </span>
+                <nav aria-label={es.Footer.linesLabel}>
+                  <ul className="flex flex-wrap items-center font-mono text-xs tracking-[0.1em] text-(--muted-text) uppercase">
+                    {serviceLines
+                      .filter((line) => available(line.pathname))
+                      .map((line, index, lines) => (
+                        <li key={line.id} className="flex items-center">
+                          <Link
+                            href={href(line.pathname)}
+                            className="inline-flex min-h-11 min-w-11 items-center justify-center transition-colors duration-150 hover:text-stone"
+                          >
+                            {line.shortName.es}
+                          </Link>
+                          {index < lines.length - 1 ? (
+                            <span aria-hidden="true" className="px-1">
+                              ·
+                            </span>
+                          ) : null}
+                        </li>
+                      ))}
+                  </ul>
+                </nav>
                 <div className="flex flex-wrap items-center gap-x-5 font-mono text-xs tracking-[0.1em] text-(--muted-text) uppercase">
                   {legalLinks.length > 0 ? (
                     <nav aria-label={es.Footer.legalLabel} className="flex flex-wrap gap-x-5">
@@ -193,6 +212,7 @@ export default function GlobalNotFound() {
             </div>
           </Container>
         </footer>
+        <AnalyticsScript />
       </body>
     </html>
   );

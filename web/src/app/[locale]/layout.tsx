@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { AnalyticsScript } from "@/components/seo/analytics-script";
 import { MAIN_CONTENT_ID, SiteHeader } from "@/components/layout/site-header";
 import { routing } from "@/i18n/routing";
 import { brand } from "@/lib/brand";
@@ -54,6 +55,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
           </main>
           <SiteFooter locale={locale} />
         </NextIntlClientProvider>
+        <AnalyticsScript />
       </body>
     </html>
   );

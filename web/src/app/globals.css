@@ -151,6 +151,10 @@
   /* The mobile menu is a full-screen dialog: the page behind it does not scroll. */
   html:has(dialog[open]) {
     overflow: hidden;
+    /* The room of the scrollbar is kept while the page does not scroll: otherwise the page gets
+       wider under the open menu, and a header measured by its width could change layout there.
+       Only while the menu is open: always on, it would make every size in vw a little smaller. */
+    scrollbar-gutter: stable;
   }
 
   @media (prefers-reduced-motion: no-preference) {

@@ -196,7 +196,10 @@ for (const locale of locales) {
   const byType = Object.fromEntries(graph.map((node) => [node["@type"], node]));
   check(`[${locale}] JSON-LD is one valid document with Organization and WebSite`, valid && Boolean(byType.Organization) && Boolean(byType.WebSite), `types: ${Object.keys(byType).join(", ") || "none"}`);
   check(`[${locale}] Organization: name, url and fixed logo URL`, byType.Organization?.name === siteConfig.name && byType.Organization?.url === absoluteUrl("/") && byType.Organization?.logo === absoluteUrl("/logo.png"));
-  check(`[${locale}] WebSite: name and language`, byType.WebSite?.name === siteConfig.name && byType.WebSite?.inLanguage === locale);
+  check(
+    `[${locale}] WebSite: one node for both languages`,
+    byType.WebSite?.name === siteConfig.name && byType.WebSite?.["@id"] === absoluteUrl("/#website") && locales.every((language) => byType.WebSite?.inLanguage?.includes(language)),
+  );
   check(`[${locale}] JSON-LD has no bracketed placeholders`, !/"\[[^"]*\]"/.test(scripts[0] ?? ""));
 
   // The content is in the server HTML: nothing a visitor or a crawler reads depends on JavaScript.
@@ -245,11 +248,11 @@ for (const pathname of publicPathnames().filter((candidate) => candidate !== "/"
     const visibleTrail = html.includes(`<nav aria-label="${messages[locale].Sections.breadcrumb}"`);
     const items = breadcrumb?.itemListElement ?? [];
     check(
-      `${label} breadcrumb: visible trail and BreadcrumbList agree`,
-      visibleTrail === Boolean(breadcrumb) &&
-        (!breadcrumb ||
-          (items.length === trail.length &&
-            trail.every((crumb, index) => items[index]?.position === index + 1 && items[index]?.item === absoluteUrl(localizedPath(crumb, locale)) && items[index]?.name === getPageName(crumb)[locale]))),
+      `${label} breadcrumb: visible trail and BreadcrumbList, both present and saying the same`,
+      visibleTrail &&
+        Boolean(breadcrumb) &&
+        (items.length === trail.length &&
+            trail.every((crumb, index) => items[index]?.position === index + 1 && items[index]?.item === absoluteUrl(localizedPath(crumb, locale)) && items[index]?.name === getPageName(crumb)[locale])),
       breadcrumb ? items.map((item) => item.name).join(" > ") : "no breadcrumb",
     );
 
@@ -392,7 +395,16 @@ if (assetPath) {
 // ---------------------------------------------------------------------------------------------
 // 7. Security headers on every kind of response, whatever the indexing state (seo-sitio.md §2.7).
 // ---------------------------------------------------------------------------------------------
-const expectedHeaders = securityHeaders();
+// The analytics script is loaded only when the server was built with both of its variables; the
+// content policy must then allow that origin, and no other origin otherwise. Read from the page
+// itself, so this works whatever the variables of the shell running the test.
+const analyticsTag = home.body.match(/<script\b[^>]*\bdata-website-id="([^"]*)"[^>]*>/);
+const analyticsSrc = analyticsTag?.[0].match(/\bsrc="([^"]*)"/)?.[1];
+const expectedHeaders = securityHeaders({
+  NODE_ENV: "production",
+  ...(analyticsTag && analyticsSrc ? { UMAMI_SRC: decode(analyticsSrc), UMAMI_WEBSITE_ID: analyticsTag[1] } : {}),
+});
+check(`analytics: ${analyticsTag ? `loads ${analyticsSrc}` : "not configured, nothing is loaded"}`, !analyticsTag || Boolean(analyticsSrc?.startsWith("https://")));
 const responses = [
   ["page /", home.res],
   ["page /en/services/minecraft", (await get("/en/services/minecraft")).res],

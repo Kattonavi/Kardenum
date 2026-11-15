@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { type KeyboardEvent, type MouseEvent, useEffect, useId, useRef, useState } from "react";
 import { KardenumSymbol } from "@/components/brand/kardenum-symbol";
 import { ChannelLink } from "@/components/contact/channel-link";
 import { AppLink } from "@/components/ui/app-link";
@@ -16,11 +16,15 @@ type MobileMenuProps = {
   locale: AppLocale;
   lines: NavLine[];
   showPortfolio: boolean;
+  /** id of the site footer: where the menu control leads while its script has not run. */
+  footerId: string;
   /** `href` replaces the link of the channel itself (WhatsApp leads to the quote form). */
   channels: { channel: ContactChannel; label: string; href?: string }[];
   languageNames: Record<AppLocale, string>;
   labels: {
     open: string;
+    /** Name of the control before its script runs, when it is a link to the footer navigation. */
+    footerNav: string;
     close: string;
     menu: string;
     nav: string;
@@ -43,11 +47,18 @@ const itemClass =
 /**
  * Full-screen menu for phones (maqueta B-Movil-menu). A native modal <dialog> gives the
  * focus trap, Escape to close, an inert page behind and focus back on the button for free.
+ *
+ * The control that opens it comes from the server as a link to the footer, where the
+ * navigation also lives: if the script is late or never loads, the tap still leads somewhere.
+ * Once the script runs, the same element becomes the menu button.
+ *
+ * Only that control is hidden in the full header. The dialog is never inside an element the
+ * layout can hide: an open modal dialog that stops being displayed leaves the page inert.
  */
-export function MobileMenu({ locale, lines, showPortfolio, channels, languageNames, labels }: MobileMenuProps) {
+export function MobileMenu({ locale, lines, showPortfolio, footerId, channels, languageNames, labels }: MobileMenuProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
-  const openRef = useRef<HTMLButtonElement>(null);
+  const openRef = useRef<HTMLAnchorElement>(null);
   const [servicesOpen, setServicesOpen] = useState(true);
   const servicesId = useId();
   const hydrated = useHydrated();
@@ -57,6 +68,17 @@ export function MobileMenu({ locale, lines, showPortfolio, channels, languageNam
     closeRef.current?.focus();
   }
   const close = () => dialogRef.current?.close();
+
+  function onControlClick(event: MouseEvent<HTMLAnchorElement>) {
+    event.preventDefault();
+    open();
+  }
+  // A button also answers to the space bar; a link does not.
+  function onControlKeyDown(event: KeyboardEvent<HTMLAnchorElement>) {
+    if (event.key !== " ") return;
+    event.preventDefault();
+    open();
+  }
 
   // The menu belongs to the compact header: if the layout switches to the full one (the button
   // that opens it is no longer rendered), close it. The switch is a container query, so the
@@ -71,18 +93,18 @@ export function MobileMenu({ locale, lines, showPortfolio, channels, languageNam
 
   return (
     <>
-      <button
+      <a
         ref={openRef}
-        type="button"
-        // The menu opens through its script: until it runs the button says so instead of ignoring the tap.
-        disabled={!hydrated}
-        aria-haspopup="dialog"
-        aria-label={labels.open}
-        onClick={open}
-        className="inline-flex size-11 cursor-pointer items-center justify-center border border-line transition-colors duration-150 hover:border-stone"
+        href={`#${footerId}`}
+        role={hydrated ? "button" : undefined}
+        aria-haspopup={hydrated ? "dialog" : undefined}
+        aria-label={hydrated ? labels.open : labels.footerNav}
+        onClick={onControlClick}
+        onKeyDown={onControlKeyDown}
+        className="inline-flex size-11 cursor-pointer items-center justify-center border border-line transition-colors duration-150 hover:border-stone @5xl:hidden"
       >
         <MenuIcon size={22} />
-      </button>
+      </a>
 
       <dialog
         ref={dialogRef}

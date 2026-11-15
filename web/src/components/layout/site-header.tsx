@@ -30,7 +30,7 @@ const navLinkClass =
  */
 export async function SiteHeader({ locale }: { locale: AppLocale }) {
   const offered = otherLocale(locale);
-  const [t, nav, language, offer, channels, contact] = await Promise.all([
+  const [t, nav, language, offer, channels, contact, footer] = await Promise.all([
     getTranslations({ locale, namespace: "Layout" }),
     getTranslations({ locale, namespace: "Nav" }),
     getTranslations({ locale, namespace: "Language" }),
@@ -38,6 +38,7 @@ export async function SiteHeader({ locale }: { locale: AppLocale }) {
     getTranslations({ locale: offered, namespace: "Language" }),
     getTranslations({ locale, namespace: "Channels" }),
     getTranslations({ locale, namespace: "ContactPage" }),
+    getTranslations({ locale, namespace: "Footer" }),
   ]);
   const lines = getNavLines(locale);
   const showPortfolio = isListed("/portafolio");
@@ -93,11 +94,12 @@ export async function SiteHeader({ locale }: { locale: AppLocale }) {
               >
                 {nav("quote")}
               </NavLink>
-              <div className="@5xl:hidden">
-                <MobileMenu
-                  locale={locale}
-                  lines={lines}
-                  showPortfolio={showPortfolio}
+              {/* The menu hides its own control in the full header; its dialog must never be inside a hidden element. */}
+              <MobileMenu
+                locale={locale}
+                lines={lines}
+                showPortfolio={showPortfolio}
+                footerId={footer("id")}
                   languageNames={languageNames}
                   channels={contactChannels.map((channel) => ({
                     channel,
@@ -106,6 +108,7 @@ export async function SiteHeader({ locale }: { locale: AppLocale }) {
                   }))}
                   labels={{
                     open: nav("openMenu"),
+                    footerNav: nav("footerNav"),
                     close: nav("closeMenu"),
                     menu: nav("menuTitle"),
                     nav: nav("label"),
@@ -119,7 +122,6 @@ export async function SiteHeader({ locale }: { locale: AppLocale }) {
                     channels: channels("label"),
                   }}
                 />
-              </div>
             </div>
           </nav>
         </Container>

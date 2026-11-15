@@ -46,6 +46,8 @@ test("the content policy only lets the site load from itself", () => {
   for (const [directive, sources] of Object.entries(policy)) {
     for (const source of sources) assert.match(source, /^'(self|none|unsafe-inline)'$/, `${directive}: ${source}`);
   }
+  // Inline scripts are allowed as blocks, never as handlers in attributes.
+  assert.deepEqual(policy["script-src-attr"], ["'none'"]);
 });
 
 test("inline code is allowed for scripts only, and code is never evaluated in production", () => {

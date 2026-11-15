@@ -2,24 +2,32 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { ContactCta } from "@/components/contact/contact-cta";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { Container } from "@/components/layout/container";
 import { SectionHeader, SplitSection } from "@/components/sections/content";
 import { PageHero } from "@/components/sections/page-hero";
+import { JsonLd } from "@/components/seo/json-ld";
+import { getPageName } from "@/content/pages";
 import { isAppLocale } from "@/i18n/locales";
+import { breadcrumbJsonLd } from "@/lib/seo/json-ld";
 import { buildPageMetadata } from "@/lib/seo/metadata";
+import { breadcrumbTrail } from "@/routes";
+
+const PATHNAME = "/nosotros";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/nosotros">): Promise<Metadata> {
   const { locale } = await params;
   if (!isAppLocale(locale)) notFound();
-  return buildPageMetadata("/nosotros", locale);
+  return buildPageMetadata(PATHNAME, locale);
 }
 
 // About (maqueta B-Nosotros): the idea behind the name, three principles and the warranty.
 // There is no team section and the country is not mentioned, on purpose.
+// The mockup has no breadcrumbs; the SEO plan asks for them on every inner page and ranks above it.
 export default async function AboutPage({ params }: PageProps<"/[locale]/nosotros">) {
   const { locale } = await params;
   if (!isAppLocale(locale)) notFound();
-  const t = await getTranslations({ locale, namespace: "AboutPage" });
+  const [t, sections] = await Promise.all([getTranslations({ locale, namespace: "AboutPage" }), getTranslations({ locale, namespace: "Sections" })]);
   const principles = [
     { number: "01", title: t("principle1Title"), text: t("principle1Text") },
     { number: "02", title: t("principle2Title"), text: t("principle2Text") },
@@ -28,7 +36,15 @@ export default async function AboutPage({ params }: PageProps<"/[locale]/nosotro
 
   return (
     <>
-      <PageHero label={t("label")} titleLines={[t("titleLine")]} titleAccent={t("titleAccent")} text={t("text")} spacing="pt-18 pb-16" />
+      <JsonLd nodes={[breadcrumbJsonLd(locale, breadcrumbTrail(PATHNAME).map((pathname) => ({ name: getPageName(pathname)[locale], pathname })))]} />
+      <PageHero
+        label={t("label")}
+        titleLines={[t("titleLine")]}
+        titleAccent={t("titleAccent")}
+        text={t("text")}
+        spacing="pt-10 pb-16"
+        before={<Breadcrumbs pathname={PATHNAME} locale={locale} label={sections("breadcrumb")} />}
+      />
 
       <div className="surface-stone">
         <Container>

@@ -98,8 +98,9 @@ export async function LegalPage<SectionId extends string>({ document, data, para
             </nav>
 
             <article className="flex max-w-[46rem] min-w-0 flex-[3_1_36rem] flex-col gap-11">
-              {showParagraphs(data.intro, locale).map((paragraph) => (
-                <p key={paragraph} className="text-lg leading-[1.7]">
+              {showParagraphs(data.intro, locale).map((paragraph, index) => (
+                // By position: two paragraphs may say the same.
+                <p key={index} className="text-lg leading-[1.7]">
                   {paragraph}
                 </p>
               ))}
@@ -109,8 +110,8 @@ export async function LegalPage<SectionId extends string>({ document, data, para
                     <span className="font-mono text-[0.75em] font-medium tracking-[0.1em] text-(--muted-text)">{entry.number} · </span>
                     {entry.title}
                   </h2>
-                  {entry.paragraphs.map((paragraph) => (
-                    <p key={paragraph} className="text-[1.0625rem] leading-[1.7]">
+                  {entry.paragraphs.map((paragraph, index) => (
+                    <p key={index} className="text-[1.0625rem] leading-[1.7]">
                       {paragraph}
                     </p>
                   ))}

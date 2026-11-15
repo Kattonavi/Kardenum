@@ -134,6 +134,7 @@ export default async function ContactPage({ params }: PageProps<"/[locale]/conta
                 submitNote: t("submitNote"),
                 pendingNote: t("pendingNote"),
                 noScript: t("noScript"),
+                privacy: t("privacyLink"),
                 previewRegion: t("previewRegion"),
                 previewLabel: t("previewLabel"),
                 previewName: t("previewName"),

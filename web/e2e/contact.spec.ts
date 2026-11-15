@@ -312,3 +312,16 @@ test("the form cannot be used before its script runs, so nothing typed is erased
   await expect(form.preview).toContainText("Una idea escrita pronto.");
   await expect(form.preview).toContainText("Línea: Video y animación");
 });
+
+test("the note that nothing is stored links to the privacy policy", async ({ page }) => {
+  await page.goto("/contacto");
+  const form = quoteForm(page);
+  await expect(form.section.getByText("Este formulario no guarda tus datos.", { exact: false })).toBeVisible();
+  const policy = form.section.getByRole("link", { name: "Política de privacidad" });
+  await expect(policy).toHaveAttribute("href", "/legal/privacidad");
+  // There is no consent checkbox: the form sends nothing to the site (docs/specs/002, exception to confirm with the lawyer).
+  await expect(form.section.getByRole("checkbox")).toHaveCount(0);
+
+  await page.goto("/en/contact");
+  await expect(page.getByRole("region", { name: "Tell us what you need." }).getByRole("link", { name: "Privacy policy" })).toHaveAttribute("href", "/en/legal/privacy");
+});

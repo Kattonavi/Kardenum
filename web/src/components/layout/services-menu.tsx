@@ -1,6 +1,6 @@
 "use client";
 
-import { type FocusEvent, useEffect, useId, useRef, useState } from "react";
+import { type FocusEvent, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent, useEffect, useId, useRef, useState } from "react";
 import { AppLink } from "@/components/ui/app-link";
 import { ArrowRightIcon, ChevronDownIcon } from "@/components/ui/icons";
 import { usePathname } from "@/i18n/navigation";
@@ -16,6 +16,8 @@ type ServicesMenuProps = {
 
 /**
  * "Servicios" in the desktop menu: a disclosure (button + panel), not an ARIA menu.
+ * It comes from the server as a link to the services page and its script turns it into the
+ * button of the panel: if the script is late or never loads, the click still leads there.
  * Tab moves through the links in order, Escape closes and returns focus to the button,
  * and it closes when focus or a click lands outside. The panel is in the HTML even when
  * closed, so its links are there without JavaScript-rendered content.
@@ -23,7 +25,7 @@ type ServicesMenuProps = {
 export function ServicesMenu({ label, lines, allServicesLabel, unsureLabel }: ServicesMenuProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
+  const buttonRef = useRef<HTMLAnchorElement>(null);
   const panelId = useId();
   const hydrated = useHydrated();
   // Underlined, as in the mockups, while the visitor is anywhere inside the services section.
@@ -55,24 +57,38 @@ export function ServicesMenu({ label, lines, allServicesLabel, unsureLabel }: Se
   }
 
   const close = () => setOpen(false);
+  const toggle = () => setOpen((value) => !value);
+
+  function onTriggerClick(event: ReactMouseEvent<HTMLAnchorElement>) {
+    // With a modifier key it stays a link: open the services page in a new tab or window.
+    if (event.metaKey || event.ctrlKey || event.shiftKey) return;
+    event.preventDefault();
+    toggle();
+  }
+  // A button also answers to the space bar; a link does not.
+  function onTriggerKeyDown(event: ReactKeyboardEvent<HTMLAnchorElement>) {
+    if (event.key !== " ") return;
+    event.preventDefault();
+    toggle();
+  }
 
   return (
     <div ref={rootRef} onBlur={onBlur}>
-      <button
+      <AppLink
         ref={buttonRef}
-        type="button"
-        // Opens through its script; off until it runs (the panel's links are in the HTML either way).
-        disabled={!hydrated}
-        aria-expanded={open}
-        aria-controls={panelId}
-        onClick={() => setOpen((value) => !value)}
+        href="/servicios"
+        role={hydrated ? "button" : undefined}
+        aria-expanded={hydrated ? open : undefined}
+        aria-controls={hydrated ? panelId : undefined}
+        onClick={onTriggerClick}
+        onKeyDown={onTriggerKeyDown}
         className={`inline-flex min-h-11 cursor-pointer items-center gap-2 border-b-2 text-[0.9375rem] transition-colors duration-150 hover:text-(--accent-text) ${
           open || inSection ? "border-bronze" : "border-transparent"
         }`}
       >
         {label}
         <ChevronDownIcon size={14} className={`transition-transform duration-150 ${open ? "rotate-180" : ""}`} />
-      </button>
+      </AppLink>
 
       <div id={panelId} hidden={!open} className="absolute inset-x-0 top-full z-40 border border-ink surface-stone">
         <ul className="grid grid-cols-5">

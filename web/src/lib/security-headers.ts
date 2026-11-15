@@ -1,3 +1,6 @@
+import { getAnalytics } from "./analytics";
+import type { Env } from "./indexing";
+
 /**
  * Security headers sent with every response (seo-sitio.md §2.7, "Confianza").
  * They are static: set once in next.config.ts, the same for every page, so pages stay prerendered.
@@ -5,9 +8,8 @@
 export type ResponseHeader = { readonly key: string; readonly value: string };
 
 /**
- * Two years of HTTPS only for this host. `includeSubDomains` and `preload` are left out on
- * purpose: they bind every future subdomain of the domain and are slow to undo, so they are a
- * decision for the launch, not a default.
+ * Two years of HTTPS only for this host. Without `includeSubDomains` and `preload`, by decision
+ * of the founder (2026-11-15): they bind every future subdomain of the domain and are slow to undo.
  */
 export const STRICT_TRANSPORT_SECURITY = "max-age=63072000";
 
@@ -23,16 +25,23 @@ export const PERMISSIONS_POLICY = "camera=(), microphone=(), geolocation=(), bro
  * Measured on 2026-11-15 (Next 16.4.6): with script-src 'self' alone no page hydrates, with or
  * without experimental.sri. Styles need no such concession: there are no inline styles.
  * What keeps inline scripts safe here is that the site renders no content written by visitors.
+ *
+ * The only other origin ever allowed is the analytics one, for scripts and connections, and only
+ * when UMAMI_SRC and UMAMI_WEBSITE_ID exist (src/lib/analytics.ts).
  */
-export function contentSecurityPolicy(env: { readonly NODE_ENV?: string } = process.env): string {
+export function contentSecurityPolicy(env: Env = process.env): string {
+  const analytics = getAnalytics(env);
+  const analyticsOrigin = analytics ? [analytics.origin] : [];
   const directives: Record<string, readonly string[]> = {
     "default-src": ["'self'"],
     // `next dev` evaluates code to refresh modules; a production build never does.
-    "script-src": ["'self'", "'unsafe-inline'", ...(env.NODE_ENV === "development" ? ["'unsafe-eval'"] : [])],
+    "script-src": ["'self'", "'unsafe-inline'", ...(env.NODE_ENV === "development" ? ["'unsafe-eval'"] : []), ...analyticsOrigin],
+    // 'unsafe-inline' above is for <script> blocks only: handlers written in attributes (onclick="…") stay forbidden.
+    "script-src-attr": ["'none'"],
     "style-src": ["'self'"],
     "img-src": ["'self'"],
     "font-src": ["'self'"],
-    "connect-src": ["'self'"],
+    "connect-src": ["'self'", ...analyticsOrigin],
     "object-src": ["'none'"],
     "base-uri": ["'self'"],
     "form-action": ["'self'"],
@@ -43,7 +52,7 @@ export function contentSecurityPolicy(env: { readonly NODE_ENV?: string } = proc
     .join("; ");
 }
 
-export function securityHeaders(env: { readonly NODE_ENV?: string } = process.env): ResponseHeader[] {
+export function securityHeaders(env: Env = process.env): ResponseHeader[] {
   return [
     { key: "Content-Security-Policy", value: contentSecurityPolicy(env) },
     { key: "Strict-Transport-Security", value: STRICT_TRANSPORT_SECURITY },

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { assertLaunchReady, findPending, getLaunchBlockers } from "@/lib/launch";
+import { assertLaunchReady, findPending, findUnfilled, getLaunchBlockers } from "@/lib/launch";
 import { type SiteConfig, siteConfig } from "@/site.config";
 
 /** The same configuration with every pending value filled in: what the launch needs. */
@@ -105,4 +105,46 @@ test("SITE_LAUNCH_CHECK=off skips the check (local verification only)", () => {
   assert.doesNotThrow(() => assertLaunchReady({ SITE_INDEXABLE: "true", SITE_LAUNCH_CHECK: "off" }, siteConfig));
   // Only the exact value "off" skips it.
   assert.throws(() => assertLaunchReady({ SITE_INDEXABLE: "true", SITE_LAUNCH_CHECK: "false" }, withPending("contact.email")), /contact\.email/);
+});
+
+/** `readyConfig` with one value replaced, by its path. */
+function withValue(path: string, value: unknown): SiteConfig {
+  const config = structuredClone(readyConfig) as unknown as Record<string, unknown>;
+  const keys = path.split(".");
+  let node = config;
+  for (const key of keys.slice(0, -1)) node = node[key] as Record<string, unknown>;
+  const last = keys.at(-1);
+  assert.ok(last && last in node, `unknown path in the fixture: ${path}`);
+  node[last] = value;
+  return config as unknown as SiteConfig;
+}
+
+test("a value marked ready that says nothing still blocks the launch", () => {
+  const holes: [string, unknown][] = [
+    ["legal.owner.phone", { status: "ready", value: "" }],
+    ["legal.owner.name", { status: "ready", value: "   " }],
+    ["legal.owner.address", { status: "ready", value: "[ciudad y dirección]" }],
+    ["contact.email", { status: "ready", value: "[correo@kardenum.com]" }],
+    ["legal.privacy.intro", { status: "ready", value: { es: ["Aplica a quien nos escribe."], en: [] } }],
+    ["legal.terms.sections.law", { status: "ready", value: { es: ["Ley aplicable.", " "], en: ["Governing law."] } }],
+    ["legal.privacy.sections.data", { status: "ready", value: { es: ["[Los datos que llegan…]"], en: ["The data that arrives."] } }],
+  ];
+  for (const [path, value] of holes) {
+    const config = withValue(path, value);
+    assert.deepEqual(findUnfilled(config), [path]);
+    assert.throws(() => assertLaunchReady(open, config), new RegExp(`${path.replaceAll(".", "\.")} is marked ready but is empty`));
+  }
+  // Real values pass: text with brackets inside it is not a note left behind.
+  const real = withValue("legal.privacy.intro", { status: "ready", value: { es: ["Esta política [versión 1] aplica a todos."], en: ["This policy applies to everyone."] } });
+  assert.deepEqual(findUnfilled(real), []);
+  assert.doesNotThrow(() => assertLaunchReady(open, real));
+});
+
+test("SITE_LAUNCH_CHECK=off cannot skip the check on Railway or in CI", () => {
+  const skipped = { SITE_INDEXABLE: "true", SITE_LAUNCH_CHECK: "off" };
+  assert.throws(() => assertLaunchReady({ ...skipped, RAILWAY_ENVIRONMENT_NAME: "production" }, siteConfig), /local verification only and RAILWAY_ENVIRONMENT_NAME is set/);
+  assert.throws(() => assertLaunchReady({ ...skipped, RAILWAY_SERVICE_ID: "x" }, readyConfig), /local verification only/);
+  assert.throws(() => assertLaunchReady({ ...skipped, CI: "true" }, readyConfig), /local verification only and CI is set/);
+  // A closed site never fails, wherever it is built and whatever the switch says.
+  assert.doesNotThrow(() => assertLaunchReady({ SITE_INDEXABLE: "false", SITE_LAUNCH_CHECK: "off", RAILWAY_ENVIRONMENT_NAME: "production" }, siteConfig));
 });

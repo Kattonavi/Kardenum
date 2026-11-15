@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, useId, useState, useSyncExternalStore } from "react";
+import { AppLink } from "@/components/ui/app-link";
 import { buttonClass } from "@/components/ui/button";
 import { ArrowRightIcon } from "@/components/ui/icons";
 import {
@@ -38,6 +39,8 @@ type QuoteFormProps = {
     submitNote: string;
     pendingNote: string;
     noScript: string;
+    /** Text of the link to the privacy policy, next to the note that says nothing is stored. */
+    privacy: string;
     previewRegion: string;
     previewLabel: string;
     previewName: string;
@@ -206,10 +209,18 @@ export function QuoteForm({ lines, deadlines, defaultDeadline, unsure, whatsappN
             {labels.submit}
             <ArrowRightIcon size={16} />
           </button>
-          <p id={ids.note} className="max-w-[22rem] text-sm leading-normal text-(--muted-text)">
-            {labels.submitNote}
-            {whatsappNumber === null ? <span className="mt-1 block type-label">[{labels.pendingNote}]</span> : null}
-          </p>
+          <div className="flex max-w-[22rem] flex-col">
+            <p id={ids.note} className="text-sm leading-normal text-(--muted-text)">
+              {labels.submitNote}
+              {whatsappNumber === null ? <span className="mt-1 block type-label">[{labels.pendingNote}]</span> : null}
+            </p>
+            <AppLink
+              href="/legal/privacidad"
+              className="inline-flex min-h-11 w-fit items-center text-sm underline transition-colors duration-150 hover:text-(--accent-text)"
+            >
+              {labels.privacy}
+            </AppLink>
+          </div>
           {/* Without JavaScript the form stays off: say why. */}
           <noscript>
             <p className="basis-full text-sm leading-normal">{labels.noScript}</p>

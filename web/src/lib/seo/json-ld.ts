@@ -20,7 +20,6 @@ export function organizationJsonLd(locale: AppLocale, config: SiteConfig = siteC
     name: config.name,
     url: absoluteUrl("/"),
     logo: absoluteUrl("/logo.png"),
-    description: config.descriptor[locale],
     knowsLanguage: [...locales],
     ...(config.profiles.length > 0 ? { sameAs: [...config.profiles] } : {}),
     ...(email.status === "ready"
@@ -36,13 +35,14 @@ export function organizationJsonLd(locale: AppLocale, config: SiteConfig = siteC
   };
 }
 
-export function websiteJsonLd(locale: AppLocale, config: SiteConfig = siteConfig): JsonLdNode {
+/** One site in two languages: the same node, with the same @id, on both home pages. */
+export function websiteJsonLd(config: SiteConfig = siteConfig): JsonLdNode {
   return {
     "@type": "WebSite",
-    "@id": absoluteUrl(`${localizedPath("/", locale)}#website`),
+    "@id": absoluteUrl("/#website"),
     name: config.name,
-    url: absoluteUrl(localizedPath("/", locale)),
-    inLanguage: locale,
+    url: absoluteUrl("/"),
+    inLanguage: [...locales],
     publisher: { "@id": organizationId() },
   };
 }
@@ -74,7 +74,12 @@ export function serviceJsonLd(
     url: absoluteUrl(localizedPath(service.pathname, locale)),
     // Named here too: the full Organization node lives on the home page, and each page is read on its own.
     provider: { "@type": "Organization", "@id": organizationId(), name: config.name, url: absoluteUrl("/") },
-    availableLanguage: locales.map((language) => LANGUAGE_NAME[language]),
+    // schema.org: the languages belong to the channel through which the service is requested, not to Service.
+    availableChannel: {
+      "@type": "ServiceChannel",
+      serviceUrl: absoluteUrl(localizedPath("/contacto", locale)),
+      availableLanguage: locales.map((language) => LANGUAGE_NAME[language]),
+    },
   };
 }
 

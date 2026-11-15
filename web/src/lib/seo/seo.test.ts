@@ -86,7 +86,7 @@ test("Organization leaves pending data out instead of publishing placeholders", 
   assert.equal("contactPoint" in organization, false);
   assert.equal("sameAs" in organization, false);
   // No bracketed placeholder ("[correo@kardenum.com]") inside any string of the document.
-  assert.doesNotMatch(serializeJsonLd([organization, websiteJsonLd("es")]), /"\[[^"]*\]"|correo@|pending/);
+  assert.doesNotMatch(serializeJsonLd([organization, websiteJsonLd()]), /"\[[^"]*\]"|correo@|pending/);
 });
 
 test("Organization includes e-mail and profiles once they exist", () => {
@@ -105,11 +105,22 @@ test("Organization includes e-mail and profiles once they exist", () => {
   });
 });
 
-test("WebSite declares the site name and the language of each version", () => {
-  assert.equal(websiteJsonLd("es").inLanguage, "es");
-  assert.equal(websiteJsonLd("es").url, "https://kardenum.com");
-  assert.equal(websiteJsonLd("en").url, "https://kardenum.com/en");
-  assert.deepEqual(websiteJsonLd("en").publisher, { "@id": "https://kardenum.com/#organization" });
+test("WebSite is one node for the two languages, published by the organization", () => {
+  const website = websiteJsonLd();
+  assert.equal(website["@id"], "https://kardenum.com/#website");
+  assert.equal(website.url, "https://kardenum.com");
+  assert.deepEqual(website.inLanguage, ["es", "en"]);
+  assert.deepEqual(website.publisher, { "@id": "https://kardenum.com/#organization" });
+});
+
+test("Organization says the same in both languages: one entity, one description of it", () => {
+  assert.deepEqual(organizationJsonLd("es"), organizationJsonLd("en"));
+});
+
+test("the languages of a service hang from its channel, where schema.org defines them", () => {
+  const service = serviceJsonLd("en", { name: "Minecraft", description: "Plugins.", pathname: "/servicios/minecraft" });
+  assert.equal("availableLanguage" in service, false);
+  assert.deepEqual(service.availableChannel, { "@type": "ServiceChannel", serviceUrl: "https://kardenum.com/en/contact", availableLanguage: ["Spanish", "English"] });
 });
 
 test("BreadcrumbList numbers the path and uses the URLs of the page's language", () => {

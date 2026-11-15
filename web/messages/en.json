@@ -15,7 +15,8 @@
     "unsure": "Not sure which one you need? Tell us your idea",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
-    "menuTitle": "Menu"
+    "menuTitle": "Menu",
+    "footerNav": "Go to the footer navigation"
   },
   "Language": {
     "label": "Language",
@@ -38,7 +39,9 @@
     "terms": "Terms",
     "guides": "Guides",
     "minecraftNotice": "Not an official Minecraft service. Not approved by or associated with Mojang or Microsoft.",
-    "discordNotice": "Kardenum is not affiliated with or endorsed by Discord."
+    "discordNotice": "Kardenum is not affiliated with or endorsed by Discord.",
+    "id": "footer",
+    "linesLabel": "Service lines"
   },
   "Sections": {
     "breadcrumb": "Breadcrumb",
@@ -153,7 +156,8 @@
     "after2Title": "We clarify what is missing",
     "after2Text": "If we need more details, we write to you on the same channel.",
     "after3Title": "We send you the quote",
-    "after3Text": "A proposal made to fit, with scope, deliverables and warranty."
+    "after3Text": "A proposal made to fit, with scope, deliverables and warranty.",
+    "privacyLink": "Privacy policy"
   },
   "Legal": {
     "label": "Legal",

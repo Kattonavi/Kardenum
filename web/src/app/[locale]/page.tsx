@@ -31,7 +31,7 @@ export default function Home({ params }: PageProps<"/[locale]">) {
 
   return (
     <>
-      <JsonLd nodes={[organizationJsonLd(locale), websiteJsonLd(locale)]} />
+      <JsonLd nodes={[organizationJsonLd(locale), websiteJsonLd()]} />
       <Hero contactId={cta("id")} servicesId={sections("servicesId")} />
       <div className="surface-stone">
         <Container>

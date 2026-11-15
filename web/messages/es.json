@@ -15,7 +15,8 @@
     "unsure": "¿No sabes cuál necesitas? Cuéntanos tu idea",
     "openMenu": "Abrir menú",
     "closeMenu": "Cerrar menú",
-    "menuTitle": "Menú"
+    "menuTitle": "Menú",
+    "footerNav": "Ir a la navegación del pie"
   },
   "Language": {
     "label": "Idioma",
@@ -38,7 +39,9 @@
     "terms": "Términos",
     "guides": "Guías",
     "minecraftNotice": "No es un servicio oficial de Minecraft. No está aprobado por Mojang ni por Microsoft, ni asociado con ellos.",
-    "discordNotice": "Kardenum no está afiliado a Discord ni cuenta con su respaldo."
+    "discordNotice": "Kardenum no está afiliado a Discord ni cuenta con su respaldo.",
+    "id": "pie",
+    "linesLabel": "Líneas de servicio"
   },
   "Sections": {
     "breadcrumb": "Ruta",
@@ -153,7 +156,8 @@
     "after2Title": "Aclaramos lo que falte",
     "after2Text": "Si necesitamos más detalles, te escribimos por el mismo canal.",
     "after3Title": "Te enviamos la cotización",
-    "after3Text": "Una propuesta a la medida, con alcance, entregables y garantía."
+    "after3Text": "Una propuesta a la medida, con alcance, entregables y garantía.",
+    "privacyLink": "Política de privacidad"
   },
   "Legal": {
     "label": "Legal",
