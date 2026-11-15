@@ -1,9 +1,11 @@
 export default function Home() {
   return (
-    <main className="mx-auto flex min-h-dvh max-w-3xl flex-col justify-center gap-4 px-6">
-      <h1 className="text-4xl font-semibold uppercase tracking-wider">Kardenum</h1>
-      <p className="text-lg text-[#B5B4AE]">Estudio de desarrollo, diseño y video.</p>
-      <p className="text-sm text-[#B5B4AE]">Sitio en construcción.</p>
+    <main className="flex min-h-dvh flex-col justify-center bg-ink px-6 text-stone">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
+        <h1 className="text-4xl font-semibold tracking-[0.06em] uppercase font-stretch-[125%]">Kardenum</h1>
+        <p className="text-lg text-ash">Estudio de desarrollo, diseño y video.</p>
+        <p className="font-mono text-xs tracking-[0.14em] text-ash uppercase">Sitio en construcción</p>
+      </div>
     </main>
   );
 }

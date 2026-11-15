@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { isSiteIndexable } from "@/lib/indexing";
+import { archivo, jetbrainsMono } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -11,8 +12,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="es">
-      <body className="min-h-dvh bg-[#111110] text-[#F4F4F1] antialiased">{children}</body>
+    <html lang="es" className={`${archivo.variable} ${jetbrainsMono.variable}`}>
+      <body className="min-h-dvh">{children}</body>
     </html>
   );
 }

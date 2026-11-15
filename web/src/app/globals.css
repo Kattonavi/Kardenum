@@ -1,1 +1,58 @@
 @import "tailwindcss";
+
+/*
+ * Kardenum brand tokens (docs/handoff/docs/identidad-visual.md).
+ * The default Tailwind palette is removed on purpose: only brand colors exist,
+ * so an off-brand color cannot slip into a component.
+ *
+ * Contrast rules for the accent:
+ * - bronze (#B8923A) is valid as TEXT only on ink (6.5:1). On stone it is for lines and shapes only (2.7:1).
+ * - text in the accent on a light background uses bronze-deep (#7A5C14, 5.7:1).
+ * - the primary button is bronze with ink text. One accent per screen.
+ */
+@theme {
+  --color-*: initial;
+  --color-ink: #111110; /* Tinta: dark background, text on light */
+  --color-stone: #f4f4f1; /* Piedra: light background, text on dark */
+  --color-mist: #d9d8d2; /* Niebla: borders and lines on light */
+  --color-graphite: #55544f; /* Grafito: secondary text on light */
+  --color-ash: #b5b4ae; /* Gris claro: secondary text on dark */
+  --color-line: #3a3936; /* Línea oscura: borders and lines on dark */
+  --color-bronze: #b8923a; /* Bronce: accent */
+  --color-bronze-deep: #7a5c14; /* Bronce oscuro: accent text and hover on light */
+  --color-white: #ffffff;
+  --color-black: #000000;
+}
+
+/* Fonts come from next/font (src/app/fonts.ts) as CSS variables on <html>. */
+@theme inline {
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-stone font-sans text-ink antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-bronze);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
