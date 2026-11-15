@@ -3,7 +3,8 @@ import { KardenumSymbol } from "@/components/brand/kardenum-symbol";
 import { AppLink } from "@/components/ui/app-link";
 import { type AppLocale, otherLocale } from "@/i18n/locales";
 import { contactChannels, quoteFormHref } from "@/lib/contact";
-import { isListed } from "@/routes";
+import { builtEntries, entryLinks } from "@/lib/entries";
+import { entryLinkKey, isListed } from "@/routes";
 import { Container } from "./container";
 import { LanguageBar } from "./language-bar";
 import { LocaleSwitcher } from "./locale-switcher";
@@ -43,6 +44,11 @@ export async function SiteHeader({ locale }: { locale: AppLocale }) {
   const lines = getNavLines(locale);
   const showPortfolio = isListed("/portafolio");
   const languageNames = { es: language("es"), en: language("en") };
+  // Only entries that are built (published cases); private ones never get here.
+  const entries = entryLinks();
+  const portfolioEntries = builtEntries()
+    .filter((entry) => entry.collection === "/portafolio/[slug]")
+    .map((entry) => entryLinkKey(locale, entry.slug[locale]));
 
   return (
     <>
@@ -60,6 +66,7 @@ export async function SiteHeader({ locale }: { locale: AppLocale }) {
           text={offer("offerText")}
           action={offer("offerAction")}
           dismissLabel={offer("offerDismiss")}
+          entries={entries}
         />
         <Container>
           <nav aria-label={nav("label")} className="relative flex items-center justify-between gap-x-3 border-b border-line py-4 @5xl:gap-x-8 @5xl:py-6">
@@ -74,7 +81,7 @@ export async function SiteHeader({ locale }: { locale: AppLocale }) {
                 <ServicesMenu label={nav("services")} lines={lines} allServicesLabel={nav("allServices")} unsureLabel={nav("unsure")} />
               </div>
               {showPortfolio ? (
-                <NavLink href="/portafolio" className={`${navLinkClass} @max-5xl:hidden`}>
+                <NavLink href="/portafolio" sectionEntries={portfolioEntries} className={`${navLinkClass} @max-5xl:hidden`}>
                   {nav("portfolio")}
                 </NavLink>
               ) : null}
@@ -83,7 +90,7 @@ export async function SiteHeader({ locale }: { locale: AppLocale }) {
               </NavLink>
               {/* Below 22.5rem (360 px) there is no room for it next to the logo: the language choice stays inside the menu. */}
               <div className="@max-[22.5rem]:hidden">
-                <LocaleSwitcher locale={locale} label={language("label")} names={languageNames} variant="compact" />
+                <LocaleSwitcher locale={locale} label={language("label")} names={languageNames} variant="compact" entries={entries} />
               </div>
               {/* Filled in bronze on the Contact page itself (maqueta B-Contacto). */}
               <NavLink
@@ -101,6 +108,7 @@ export async function SiteHeader({ locale }: { locale: AppLocale }) {
                 showPortfolio={showPortfolio}
                 footerId={footer("id")}
                   languageNames={languageNames}
+                  entries={entries}
                   channels={contactChannels.map((channel) => ({
                     channel,
                     label: channels(channel),

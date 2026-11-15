@@ -8,6 +8,7 @@ import { buttonClass } from "@/components/ui/button";
 import { ChevronDownIcon, CloseIcon, MenuIcon } from "@/components/ui/icons";
 import type { AppLocale } from "@/i18n/locales";
 import type { ContactChannel } from "@/lib/contact";
+import type { EntryLinks } from "@/routes";
 import { useHydrated } from "@/lib/use-hydrated";
 import { LocaleSwitcher } from "./locale-switcher";
 import type { NavLine } from "./nav-data";
@@ -21,6 +22,8 @@ type MobileMenuProps = {
   /** `href` replaces the link of the channel itself (WhatsApp leads to the quote form). */
   channels: { channel: ContactChannel; label: string; href?: string }[];
   languageNames: Record<AppLocale, string>;
+  /** Addresses of the collection entries in each language, for ES / EN. */
+  entries: EntryLinks;
   labels: {
     open: string;
     /** Name of the control before its script runs, when it is a link to the footer navigation. */
@@ -55,7 +58,7 @@ const itemClass =
  * Only that control is hidden in the full header. The dialog is never inside an element the
  * layout can hide: an open modal dialog that stops being displayed leaves the page inert.
  */
-export function MobileMenu({ locale, lines, showPortfolio, footerId, channels, languageNames, labels }: MobileMenuProps) {
+export function MobileMenu({ locale, lines, showPortfolio, footerId, channels, languageNames, entries, labels }: MobileMenuProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const openRef = useRef<HTMLAnchorElement>(null);
@@ -183,7 +186,7 @@ export function MobileMenu({ locale, lines, showPortfolio, footerId, channels, l
           </nav>
 
           <div className="pt-6">
-            <LocaleSwitcher locale={locale} label={labels.language} names={languageNames} variant="buttons" />
+            <LocaleSwitcher locale={locale} label={labels.language} names={languageNames} variant="buttons" entries={entries} />
           </div>
 
           <div className="mt-auto flex flex-col gap-4 pt-10">

@@ -9,12 +9,17 @@ import { getPageMeta, getPageName } from "@/content/pages";
 import { serviceLines } from "@/content/service-lines";
 import { subpages } from "@/content/subpages";
 import { locales } from "@/i18n/locales";
+import { builtEntries, hiddenEntries, isEntryListed, pathsOfEntry, publicEntries } from "@/lib/entries";
 import { securityHeaders } from "@/lib/security-headers";
 import { ogImagePath } from "@/lib/seo/metadata";
 import { getSiteUrl } from "@/lib/site-url";
 import {
   absoluteUrl,
+  alternatesOf,
   breadcrumbTrail,
+  collectionPathnames,
+  collectionTable,
+  entryPath,
   builtPathnames,
   footerNotices,
   hiddenPathnames,
@@ -123,7 +128,11 @@ check(`GET /es redirect X-Robots-Tag ${noindex ? "has" : "lacks"} noindex`, robo
 // ---------------------------------------------------------------------------------------------
 const seenTitles = new Set();
 const seenDescriptions = new Set();
-const hiddenPaths = new Set(hiddenPathnames().flatMap((pathname) => locales.map((locale) => localizedPath(pathname, locale))));
+const hiddenPaths = new Set([
+  ...hiddenPathnames().flatMap((pathname) => locales.map((locale) => localizedPath(pathname, locale))),
+  // Entries of a hidden collection (portfolio cases while the portfolio is off).
+  ...hiddenEntries().flatMap((entry) => Object.values(pathsOfEntry(entry))),
+]);
 
 for (const pathname of builtPathnames()) {
   const alternates = languageAlternates(pathname);
@@ -199,6 +208,104 @@ for (const pathname of builtPathnames()) {
     check(`${label} social image ${imagePath} -> 200 image/png`, image.status === 200 && image.headers.get("content-type") === "image/png" && bytes > 10_000, `status ${image.status}, ${bytes} bytes`);
 
     check(`${label} theme-color and manifest are declared`, Boolean(metaTag("name", "theme-color")) && link("manifest").length === 1);
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
+// 2b. Every built entry of a collection (portfolio cases), in both languages: the same checks as
+//     a page, with the entry's own slug in each language. An entry of a hidden collection answers
+//     with noindex even on the open site, and no public page links to it.
+// ---------------------------------------------------------------------------------------------
+const entryMessages = Object.fromEntries(
+  locales.map((locale) => [locale, JSON.parse(readFileSync(new URL(`../messages/${locale}.json`, import.meta.url), "utf8"))]),
+);
+for (const entry of builtEntries()) {
+  const paths = pathsOfEntry(entry);
+  const alternates = alternatesOf(paths);
+  const hidden = !isEntryListed(entry);
+  const index = collectionTable[entry.collection].index;
+  for (const locale of locales) {
+    const path = paths[locale];
+    const label = `[${locale}] ${path}`;
+    const page = await get(path);
+    const tags = headTags(page.body);
+    const link = (rel, extra = () => true) => tags.filter((t) => t.name === "link" && t.attrs.rel === rel && extra(t.attrs));
+    const metaTag = (key, value) => tags.find((t) => t.name === "meta" && t.attrs[key] === value)?.attrs.content;
+    const html = rendered(page.body);
+
+    check(`${label} -> 200 without redirect`, page.res.status === 200 && !page.res.headers.has("location"), `status ${page.res.status}`);
+    check(`${label} is <html lang="${locale}">`, new RegExp(`<html[^>]*\\blang="${locale}"`).test(page.body));
+    check(`${label} X-Robots-Tag ${noindex ? "has" : "lacks"} noindex`, robotsHeaderOk(page.res));
+    const structure = {
+      header: count(page.body, /<header[\s>]/g),
+      main: count(page.body, /<main[\s>]/g),
+      footer: count(page.body, /<footer[\s>]/g),
+      h1: count(page.body, /<h1[\s>]/g),
+    };
+    check(`${label} has one header, main, footer and h1`, Object.values(structure).every((n) => n === 1), JSON.stringify(structure));
+
+    const title = decode(page.body.match(/<title>([^<]*)<\/title>/)?.[1] ?? "");
+    check(`${label} title is the entry's own`, title === entry.meta.title[locale], title);
+    const description = metaTag("name", "description") ?? "";
+    check(`${label} description is the entry's own`, description === entry.meta.description[locale], `${description.length} chars`);
+    check(`${label} title and description are unique on the site`, !seenTitles.has(title) && !seenDescriptions.has(description));
+    seenTitles.add(title);
+    seenDescriptions.add(description);
+
+    const robotsMeta = (metaTag("name", "robots") ?? "").toLowerCase();
+    const pageNoindex = noindex || hidden;
+    check(`${label} meta robots ${pageNoindex ? "has" : "lacks"} noindex${hidden ? " (hidden entry)" : ""}`, robotsMeta.includes("noindex") === pageNoindex, robotsMeta || "no tag");
+    if (!hidden) {
+      const linksToHidden = [...html.matchAll(/<a\b[^>]*\bhref="([^"#?]*)/g)].map((match) => match[1]).filter((href) => hiddenPaths.has(href));
+      check(`${label} links to no hidden page`, linksToHidden.length === 0, [...new Set(linksToHidden)].join(", "));
+    }
+
+    const canonicals = link("canonical");
+    check(`${label} has exactly one canonical, pointing to itself`, canonicals.length === 1 && canonicals[0].attrs.href === alternates[locale], canonicals.map((c) => c.attrs.href).join(", ") || "none");
+    const hreflang = Object.fromEntries(link("alternate", (a) => "hreflang" in a).map((t) => [t.attrs.hreflang, t.attrs.href]));
+    check(
+      `${label} hreflang es, en and x-default (English), with the slug of each language`,
+      Object.keys(hreflang).length === 3 && hreflang.es === alternates.es && hreflang.en === alternates.en && hreflang["x-default"] === alternates.en,
+      JSON.stringify(hreflang),
+    );
+    const languageLinks = [...page.body.matchAll(/<a\b[^>]*\bhreflang="(es|en)"[^>]*>/gi)].map(([tag, language]) => ({
+      language,
+      href: decode(tag.match(/\bhref="([^"]*)"/)?.[1] ?? ""),
+    }));
+    const wrongLinks = languageLinks.filter((item) => item.href !== paths[item.language]);
+    check(
+      `${label} language links go to this entry in each language, without redirect`,
+      wrongLinks.length === 0 && locales.every((language) => languageLinks.some((item) => item.language === language)),
+      wrongLinks.length > 0 ? wrongLinks.map((item) => `${item.language}: ${item.href}`).join(", ") : `${languageLinks.length} links`,
+    );
+    check(`${label} og:url is the canonical`, metaTag("property", "og:url") === alternates[locale], metaTag("property", "og:url") ?? "none");
+    check(`${label} og:image is the social image of its index`, metaTag("property", "og:image") === absoluteUrl(ogImagePath(index, locale)), metaTag("property", "og:image") ?? "none");
+
+    // Visible trail (Home › index › entry) and its BreadcrumbList, saying the same.
+    const scripts = [...page.body.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+    let graph = [];
+    try {
+      graph = scripts.flatMap((script) => JSON.parse(script)["@graph"] ?? []);
+    } catch {
+      check(`${label} JSON-LD parses`, false);
+    }
+    const items = graph.find((node) => node["@type"] === "BreadcrumbList")?.itemListElement ?? [];
+    const expected = [
+      ...breadcrumbTrail(index).map((crumb) => ({ name: getPageName(crumb)[locale], item: absoluteUrl(localizedPath(crumb, locale)) })),
+      { name: entry.name, item: absoluteUrl(path) },
+    ];
+    const navStart = html.indexOf(`<nav aria-label="${entryMessages[locale].Sections.breadcrumb}"`);
+    const navHtml = navStart === -1 ? "" : html.slice(navStart, html.indexOf("</nav>", navStart));
+    const visible = [...navHtml.matchAll(/<li>([\s\S]*?)<\/li>/g)].map((match) => match[1].replace(/<[^>]+>/g, "").trim()).filter(Boolean);
+    check(
+      `${label} breadcrumb: visible trail and BreadcrumbList, both present and saying the same`,
+      items.length === expected.length &&
+        expected.every((crumb, position) => items[position]?.position === position + 1 && items[position]?.name === crumb.name && items[position]?.item === crumb.item) &&
+        visible.length === expected.length &&
+        expected.every((crumb, position) => visible[position] === crumb.name),
+      `${items.map((item) => item.name).join(" > ")} | visible: ${visible.join(" > ")}`,
+    );
+    check(`${label} JSON-LD has no bracketed placeholders`, !scripts.some((script) => /"\[[^"]*\]"/.test(script)));
   }
 }
 
@@ -376,8 +483,11 @@ if (noindex) {
   check("robots.txt points to the sitemap", robots.body.includes(`Sitemap: ${absoluteUrl("/sitemap.xml")}`), robotsOneLine);
   check("GET /sitemap.xml -> 200 XML", sitemap.res.status === 200 && (sitemap.res.headers.get("content-type") ?? "").includes("xml"), `status ${sitemap.res.status}`);
   const locs = [...sitemap.body.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => decode(m[1]));
-  const expected = publicPathnames().flatMap((pathname) => locales.map((locale) => absoluteUrl(localizedPath(pathname, locale))));
-  check("sitemap lists exactly the public pages in both languages", locs.length === expected.length && expected.every((url) => locs.includes(url)), `${locs.length} urls`);
+  const expected = [
+    ...publicPathnames().flatMap((pathname) => locales.map((locale) => absoluteUrl(localizedPath(pathname, locale)))),
+    ...publicEntries().flatMap((entry) => Object.values(pathsOfEntry(entry)).map((path) => absoluteUrl(path))),
+  ];
+  check("sitemap lists exactly the public pages and entries in both languages", locs.length === expected.length && expected.every((url) => locs.includes(url)), `${locs.length} urls`);
   const xDefault = count(sitemap.body, /hreflang="x-default"/g);
   check("sitemap entries carry es, en and x-default alternatives", xDefault === expected.length && count(sitemap.body, /hreflang="es"/g) === expected.length, `${xDefault} x-default links`);
 }
@@ -408,7 +518,16 @@ for (const link of notFoundLinks) {
   if (target.res.status !== 200) deadLinks.push(`${link} -> ${target.res.status}`);
 }
 check("the 404 page links only to pages that exist", notFoundLinks.length >= 2 && deadLinks.length === 0, deadLinks.join(", ") || `${notFoundLinks.length} links`);
-for (const pathname of ["/ruta-que-no-existe-smoke", "/en/ruta-que-no-existe-smoke", "/en/a/b", "/de", "/no-existe-smoke.txt", "/og/es/no-existe.png"]) {
+// A slug that does not exist in a collection, and the slug of one language under the other
+// prefix (skipped for an entry whose slug is the same in both languages: it is the same page).
+const unknownSlug = { es: "no-existe-smoke", en: "no-existe-smoke" };
+const entryProbes = [
+  ...collectionPathnames.flatMap((collection) => locales.map((locale) => entryPath(collection, unknownSlug, locale))),
+  ...builtEntries()
+    .filter((entry) => entry.slug.es !== entry.slug.en)
+    .flatMap((entry) => locales.map((locale) => entryPath(entry.collection, { es: entry.slug.en, en: entry.slug.es }, locale))),
+];
+for (const pathname of ["/ruta-que-no-existe-smoke", "/en/ruta-que-no-existe-smoke", "/en/a/b", "/de", "/no-existe-smoke.txt", "/og/es/no-existe.png", ...entryProbes]) {
   const missing = await get(pathname);
   check(`GET ${pathname} -> 404 with the brand page in HTML`, missing.res.status === 404 && brand404(missing.body), `status ${missing.res.status}`);
   if (pathname === "/ruta-que-no-existe-smoke") {

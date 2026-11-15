@@ -1,4 +1,4 @@
-import { type AppLocale, locales, xDefaultLocale } from "./i18n/locales";
+import { type AppLocale, isAppLocale, locales, xDefaultLocale } from "./i18n/locales";
 import type { Env } from "./lib/indexing";
 import { getSiteUrl } from "./lib/site-url";
 import { type SiteConfig, siteConfig } from "./site.config";
@@ -35,7 +35,7 @@ export const routeTable = {
   "/servicios/minecraft/tebex": { en: "/services/minecraft/tebex", built: true, listed: serviceSubpages },
   "/servicios/discord": { en: "/services/discord", built: true, listed: true },
   "/servicios/discord/bots": { en: "/services/discord/bots", built: true, listed: serviceSubpages },
-  "/portafolio": { en: "/work", built: false, listed: portfolio },
+  "/portafolio": { en: "/work", built: true, listed: portfolio },
   "/guias": { en: "/guides", built: false, listed: guides },
   "/nosotros": { en: "/about", built: true, listed: true },
   "/contacto": { en: "/contact", built: true, listed: true },
@@ -164,10 +164,87 @@ export function shortLinkRedirects(config: SiteConfig = siteConfig): ShortLinkRe
 
 export type LanguageAlternates = Record<AppLocale | "x-default", string>;
 
+/** Address of a page in each language, as the visitor sees it. */
+export type LocalizedPaths = Readonly<Record<AppLocale, string>>;
+
+/** hreflang set of a page from its address in each language: one URL per language plus x-default. */
+export function alternatesOf(paths: LocalizedPaths, env: Env = process.env): LanguageAlternates {
+  const byLocale = Object.fromEntries(locales.map((locale) => [locale, absoluteUrl(paths[locale], env)])) as Record<AppLocale, string>;
+  return { ...byLocale, "x-default": byLocale[xDefaultLocale] };
+}
+
 /** hreflang set of a route: one URL per language plus x-default. The same on every language version. */
 export function languageAlternates(pathname: AppPathname, env: Env = process.env): LanguageAlternates {
-  const byLocale = Object.fromEntries(
-    locales.map((locale) => [locale, absoluteUrl(localizedPath(pathname, locale), env)]),
-  ) as Record<AppLocale, string>;
-  return { ...byLocale, "x-default": byLocale[xDefaultLocale] };
+  return alternatesOf(routePaths(pathname), env);
+}
+
+/** Address of a route in each language. */
+export function routePaths(pathname: AppPathname): LocalizedPaths {
+  return Object.fromEntries(locales.map((locale) => [locale, localizedPath(pathname, locale)])) as Record<AppLocale, string>;
+}
+
+// ---------------------------------------------------------------------------------------------
+// Collections: one template, one page per entry, with its own slug in each language
+// (/portafolio/kardenum <-> /en/work/kardenum). The templates stay out of `routeTable`, so
+// `AppPathname` (and AppLink) only ever names fixed pages. The entries themselves come from the
+// content and are listed in src/lib/entries.ts, a server module: this file reaches the browser.
+// ---------------------------------------------------------------------------------------------
+
+type CollectionDefinition = {
+  /** English template, without the /en prefix. */
+  readonly en: string;
+  /** Fixed page that lists the entries: their parent in breadcrumbs and the flag that makes them public. */
+  readonly index: AppPathname;
+};
+
+/** The key is the Spanish template, which is also the folder under src/app/[locale]. */
+export const collectionTable = {
+  "/portafolio/[slug]": { en: "/work/[slug]", index: "/portafolio" },
+} as const satisfies Record<string, CollectionDefinition>;
+
+export type CollectionPathname = keyof typeof collectionTable;
+
+export const collectionPathnames = Object.keys(collectionTable) as CollectionPathname[];
+
+/** Translated templates in the shape next-intl expects; src/i18n/routing.ts adds them to the fixed ones. */
+export const intlCollectionPathnames = Object.fromEntries(
+  collectionPathnames.map((template) => [template, { es: template, en: collectionTable[template].en }]),
+) as Record<CollectionPathname, Record<AppLocale, string>>;
+
+/** Address of an entry in a language, as the visitor sees it: the single source for links, sitemap, canonical and tests. */
+export function entryPath(collection: CollectionPathname, slug: Readonly<Record<AppLocale, string>>, locale: AppLocale): string {
+  const template = locale === "es" ? collection : `/en${collectionTable[collection].en}`;
+  return template.replace("[slug]", slug[locale]);
+}
+
+/** Address of an entry in each language. */
+export function entryPaths(collection: CollectionPathname, slug: Readonly<Record<AppLocale, string>>): LocalizedPaths {
+  return Object.fromEntries(locales.map((locale) => [locale, entryPath(collection, slug, locale)])) as Record<AppLocale, string>;
+}
+
+/**
+ * Addresses in each language of the entries that are built, by language and slug ("en/kardenum").
+ * The header gets it from the server: on an entry page the path does not say which entry is on
+ * screen, its `slug` parameter does (useParams).
+ */
+export type EntryLinks = Readonly<Record<string, LocalizedPaths>>;
+
+export function entryLinkKey(locale: AppLocale, slug: string): string {
+  return `${locale}/${slug}`;
+}
+
+/** Route parameters as useParams() returns them. */
+export type RouteParams = Readonly<Record<string, string | string[] | undefined>>;
+
+/**
+ * Address of the page on screen in `target`: the same entry when an entry is on screen,
+ * otherwise the same fixed page (pathInLocale).
+ */
+export function languageHref(pathname: string, params: RouteParams | null, entries: EntryLinks, target: AppLocale): string {
+  const { locale, slug } = params ?? {};
+  if (typeof locale === "string" && typeof slug === "string" && isAppLocale(locale)) {
+    const entry = entries[entryLinkKey(locale, slug)];
+    if (entry) return entry[target];
+  }
+  return pathInLocale(pathname, target);
 }

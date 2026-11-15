@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { usePathname } from "@/i18n/navigation";
 import { type AppLocale, locales } from "@/i18n/locales";
 import { rememberLanguage } from "@/lib/language-choice";
-import { pathInLocale } from "@/routes";
+import { type EntryLinks, languageHref } from "@/routes";
 
 type LocaleSwitcherProps = {
   locale: AppLocale;
@@ -13,6 +14,8 @@ type LocaleSwitcherProps = {
   /** Language names in their own language: { es: "Español", en: "English" }. */
   names: Record<AppLocale, string>;
   variant: "compact" | "buttons";
+  /** Addresses of the collection entries in each language: on an entry page the path does not say which one is on screen. */
+  entries: EntryLinks;
 };
 
 /**
@@ -20,8 +23,9 @@ type LocaleSwitcherProps = {
  * at its final address, and the choice is remembered, so the language bar stops offering
  * the other version.
  */
-export function LocaleSwitcher({ locale, label, names, variant }: LocaleSwitcherProps) {
+export function LocaleSwitcher({ locale, label, names, variant, entries }: LocaleSwitcherProps) {
   const pathname = usePathname();
+  const params = useParams();
 
   if (variant === "buttons") {
     return (
@@ -31,7 +35,7 @@ export function LocaleSwitcher({ locale, label, names, variant }: LocaleSwitcher
           return (
             <Link
               key={option}
-              href={pathInLocale(pathname, option)}
+              href={languageHref(pathname, params, entries, option)}
               lang={option}
               hrefLang={option}
               aria-current={current ? "true" : undefined}
@@ -60,7 +64,7 @@ export function LocaleSwitcher({ locale, label, names, variant }: LocaleSwitcher
               </span>
             ) : null}
             <Link
-              href={pathInLocale(pathname, option)}
+              href={languageHref(pathname, params, entries, option)}
               lang={option}
               hrefLang={option}
               title={names[option]}

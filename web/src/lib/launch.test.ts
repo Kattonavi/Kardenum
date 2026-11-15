@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { assertLaunchReady, findPending, findUnfilled, getLaunchBlockers } from "@/lib/launch";
+import { portfolioCases } from "@/content/cases";
+import type { PortfolioCase, ShownCase } from "@/content/types";
+import { casePendingKeys, visibleCases } from "@/lib/portfolio";
 import { type SiteConfig, siteConfig } from "@/site.config";
 
 /** The same configuration with every pending value filled in: what the launch needs. */
@@ -147,4 +150,40 @@ test("SITE_LAUNCH_CHECK=off cannot skip the check on Railway or in CI", () => {
   assert.throws(() => assertLaunchReady({ ...skipped, CI: "true" }, readyConfig), /local verification only and CI is set/);
   // A closed site never fails, wherever it is built and whatever the switch says.
   assert.doesNotThrow(() => assertLaunchReady({ SITE_INDEXABLE: "false", SITE_LAUNCH_CHECK: "off", RAILWAY_ENVIRONMENT_NAME: "production" }, siteConfig));
+});
+
+// docs/specs/005-portafolio-y-casos.md, RF-7: the pending data of the cases only counts with the portfolio on.
+const portfolioOn = (config: SiteConfig): SiteConfig => ({ ...config, features: { ...config.features, portfolio: true } });
+const portfolioOff = (config: SiteConfig): SiteConfig => ({ ...config, features: { ...config.features, portfolio: false } });
+
+/** The real cases with every pending value replaced by a ready one: what the launch with the portfolio needs. */
+const readyCases: PortfolioCase[] = visibleCases(portfolioCases).map(
+  (item): ShownCase => ({
+    ...item,
+    year: 2026,
+    cover: { kind: "mark", alt: { es: "Logo", en: "Logo" } },
+    hero: { kind: "mark", alt: { es: "Logo", en: "Logo" } },
+    challenge: { es: "Reto.", en: "Challenge." },
+    work: [{ es: "Algo.", en: "Something." }],
+    result: { es: "Resultado.", en: "Result." },
+    pieces: item.pieces.filter((piece) => piece.kind !== "pending"),
+  }),
+);
+
+test("with the portfolio on, an indexable build fails while a published case has pending data, naming each one", () => {
+  const pending = visibleCases(portfolioCases).flatMap(casePendingKeys);
+  if (pending.length === 0) return;
+  assert.throws(
+    () => assertLaunchReady(open, portfolioOn(readyConfig), portfolioCases),
+    (error: Error) => pending.every((key) => error.message.includes(`site.config.ts portfolio.${key} is still pending`)),
+  );
+  assert.doesNotThrow(() => assertLaunchReady(open, portfolioOn(readyConfig), readyCases));
+});
+
+test("with the portfolio off, the pending data of the cases does not stop the launch", () => {
+  assert.doesNotThrow(() => assertLaunchReady(open, portfolioOff(readyConfig), portfolioCases));
+  // A closed site never fails for it either, portfolio on or off.
+  assert.doesNotThrow(() => assertLaunchReady(closed, portfolioOn(readyConfig), portfolioCases));
+  // The data of siteConfig keeps its own count: the cases add nothing to it.
+  assert.deepEqual(getLaunchBlockers(portfolioOn(readyConfig), {}), []);
 });

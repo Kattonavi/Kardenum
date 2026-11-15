@@ -1,5 +1,6 @@
 import type { Localized } from "../i18n/locales";
 import type { AppPathname } from "../routes";
+import type { PortfolioPendingKey } from "../site.config";
 
 /**
  * Typed content model. Content lives in the repo: adding a case or a guide is adding a file.
@@ -163,15 +164,77 @@ export type CaseClient =
   | { readonly kind: "reserved" }
   | { readonly kind: "own" };
 
-export type PortfolioCase = {
+/**
+ * A value of a case that does not exist yet. Its bracketed note lives in site.config.ts
+ * (`portfolioPending`, regla 6 de la Constitución): content files never carry brackets.
+ */
+export type PendingRef = { readonly pending: PortfolioPendingKey };
+
+/** A value of a case, or the reference to its note while it is pending. */
+export type CaseValue<T> = T | PendingRef;
+
+/**
+ * Picture of a case: one of its own compositions or an image.
+ * - mark: the brand symbol of the case, drawn by the site (Kardenum).
+ * - image: a file of src/assets/cases, by its id in src/components/portfolio/case-images.ts.
+ */
+export type CaseVisual =
+  | { readonly kind: "mark"; readonly alt: Localized<string> }
+  | { readonly kind: "image"; readonly image: string; readonly alt: Localized<string> };
+
+/** One piece of the gallery (4:3): a picture, a composition of the case, or a pending one. */
+export type CasePiece =
+  | CaseVisual
+  | { readonly kind: "palette"; readonly title: Localized<string>; readonly colors: readonly string[] }
+  | {
+      readonly kind: "typeface";
+      readonly title: Localized<string>;
+      /** Name of the display face, set in it. */
+      readonly name: string;
+      readonly sample: string;
+      /** Second face, with its sample, in the mono face. */
+      readonly secondary: string;
+    }
+  | { readonly kind: "pending"; readonly ref: PendingRef };
+
+/** What every published case carries (maquetas B-Portafolio and B-Caso). */
+type CaseContent = {
+  /** Internal id: the file name and the prefix of its pending data in site.config.ts. */
+  readonly id: string;
   readonly slug: Localized<string>;
-  readonly title: Localized<string>;
+  readonly name: string;
+  /** The sentence under the name on the case page. */
   readonly summary: Localized<string>;
+  /** What was done, for the card; the card adds who it was for ("Proyecto propio"). */
+  readonly cardText: Localized<string>;
   readonly lines: readonly ServiceLineId[];
-  readonly year: number;
-  readonly client: CaseClient;
-  readonly visibilidad: CaseVisibility;
+  readonly year: CaseValue<number>;
+  /** Picture of the card (4:3). */
+  readonly cover: CaseValue<CaseVisual>;
+  /** Main picture of the case page (16:9). */
+  readonly hero: CaseValue<CaseVisual>;
+  readonly challenge: CaseValue<Localized<string>>;
+  /** "Qué hicimos". */
+  readonly work: CaseValue<readonly Localized<string>[]>;
+  readonly result: CaseValue<Localized<string>>;
+  readonly pieces: readonly CasePiece[];
+  /** Title and description of the case page (about 60 and 150 characters). */
+  readonly meta: { readonly title: Localized<string>; readonly description: Localized<string> };
 };
+
+/**
+ * A case of the portfolio, by what can be shown of it (plan-sitio-web.md §5):
+ * - publico: the work and the client's name, or "Proyecto propio";
+ * - reservado: the work without the name: the type has no field where a name could go;
+ * - privado: only what the studio needs to count it. No content fits in it, and it is never generated.
+ */
+export type PortfolioCase =
+  | (CaseContent & { readonly visibilidad: "publico"; readonly client: Exclude<CaseClient, { readonly kind: "reserved" }> })
+  | (CaseContent & { readonly visibilidad: "reservado"; readonly client: Extract<CaseClient, { readonly kind: "reserved" }> })
+  | { readonly visibilidad: "privado"; readonly id: string; readonly lines: readonly ServiceLineId[]; readonly year: number };
+
+/** A case that is published (publico or reservado). */
+export type ShownCase = Exclude<PortfolioCase, { readonly visibilidad: "privado" }>;
 
 export type Guide = {
   readonly slug: Localized<string>;

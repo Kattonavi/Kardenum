@@ -10,7 +10,8 @@ import {
 import { buildPageMetadata, ogImageName, ogImagePath } from "@/lib/seo/metadata";
 import { buildSitemapEntries } from "@/lib/seo/sitemap";
 import { hasPageMeta } from "@/content/pages";
-import { appPathnames, publicPathnames } from "@/routes";
+import { publicEntries } from "@/lib/entries";
+import { appPathnames, isListed, publicPathnames } from "@/routes";
 import { type SiteConfig, siteConfig } from "@/site.config";
 
 // These tests describe the production origin: ignore the SITE_URL of the machine running them.
@@ -63,7 +64,8 @@ test("a page without texts cannot get metadata by accident", (t) => {
 
 test("the sitemap lists every public page in both languages with its alternatives", () => {
   const entries = buildSitemapEntries();
-  assert.equal(entries.length, publicPathnames().length * 2);
+  // Pages plus the public entries of the collections (portfolio cases once the portfolio is on).
+  assert.equal(entries.length, (publicPathnames().length + publicEntries().length) * 2);
   const home = entries.find((entry) => entry.url === "https://kardenum.com");
   assert.ok(home);
   assert.deepEqual(home.alternates?.languages, {
@@ -72,9 +74,13 @@ test("the sitemap lists every public page in both languages with its alternative
     "x-default": "https://kardenum.com/en",
   });
   assert.ok(entries.some((entry) => entry.url === "https://kardenum.com/en"));
+  // Hidden sections are not in the sitemap; each one follows its flag, as in routes.test.ts.
+  const { portfolio, guides } = siteConfig.features;
   for (const entry of entries) {
-    assert.doesNotMatch(entry.url, /portafolio|\/work|guias|guides/, "hidden sections are not in the sitemap");
+    if (!portfolio) assert.doesNotMatch(entry.url, /portafolio|\/work/, "the portfolio is hidden: not in the sitemap");
+    if (!guides) assert.doesNotMatch(entry.url, /guias|guides/, "the guides are hidden: not in the sitemap");
   }
+  assert.equal(entries.some((entry) => entry.url.endsWith("/portafolio")), portfolio && isListed("/portafolio"));
 });
 
 test("Organization leaves pending data out instead of publishing placeholders", () => {

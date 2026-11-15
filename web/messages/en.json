@@ -94,6 +94,26 @@
     "guidanceText": "That is the usual case. Tell us what you want to achieve and we recommend the path that truly fits.",
     "guidanceAction": "Tell us your idea"
   },
+  "Portfolio": {
+    "label": "Work",
+    "titleLine1": "Work we",
+    "titleLine2": "can show.",
+    "text": "Every project appears here with the client's permission. Private projects are not published.",
+    "projects": "Projects",
+    "filterLabel": "Filter by service line",
+    "all": "All",
+    "ownProject": "Own project",
+    "reservedClient": "Reserved client",
+    "about": "About the project",
+    "lines": "Lines",
+    "year": "Year",
+    "client": "Client",
+    "challenge": "The challenge",
+    "work": "What we did",
+    "result": "Result",
+    "pieces": "Pieces",
+    "next": "Next project"
+  },
   "AboutPage": {
     "label": "About",
     "titleLine": "Several crafts.",

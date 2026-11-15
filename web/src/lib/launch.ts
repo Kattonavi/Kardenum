@@ -1,5 +1,8 @@
 import { type Env, isSiteIndexable } from "./indexing";
+import { portfolioLaunchBlockers } from "./portfolio";
 import { getSiteUrl } from "./site-url";
+import { portfolioCases } from "../content/cases";
+import type { PortfolioCase } from "../content/types";
 import { type SiteConfig, siteConfig } from "../site.config";
 
 /**
@@ -59,15 +62,17 @@ export function getLaunchBlockers(config: SiteConfig = siteConfig, env: Env = pr
  * SITE_LAUNCH_CHECK=off skips it, for local verification of an indexable build only: on
  * Railway or in CI the switch itself fails the build, so copying it there cannot publish an
  * indexable site with placeholders.
+ * With the portfolio on, the pending data of its published cases blocks the launch too
+ * (spec 005, RF-7); with it off, it does not.
  */
-export function assertLaunchReady(env: Env = process.env, config: SiteConfig = siteConfig): void {
+export function assertLaunchReady(env: Env = process.env, config: SiteConfig = siteConfig, cases: readonly PortfolioCase[] = portfolioCases): void {
   if (!isSiteIndexable(env)) return;
   if (env.SITE_LAUNCH_CHECK === "off") {
     const deploying = Object.keys(env).find((name) => name === "CI" || name.startsWith("RAILWAY_"));
     if (deploying) throw new Error(`SITE_LAUNCH_CHECK=off is for local verification only and ${deploying} is set: remove it from this environment.`);
     return;
   }
-  const blockers = getLaunchBlockers(config, env);
+  const blockers = [...getLaunchBlockers(config, env), ...portfolioLaunchBlockers(config, cases)];
   if (blockers.length > 0) {
     throw new Error(`SITE_INDEXABLE=true but the site is not ready to launch: ${blockers.join("; ")}. Fix them or keep SITE_INDEXABLE=false.`);
   }

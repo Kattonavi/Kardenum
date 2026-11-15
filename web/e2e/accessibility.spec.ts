@@ -2,6 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { type Page } from "@playwright/test";
 import { locales } from "../src/i18n/locales";
 import { builtPathnames, localizedPath } from "../src/routes";
+import { builtEntries, pathsOfEntry } from "../src/lib/entries";
 import { doubleTextSize, expect, sidewaysOverflow, test } from "./helpers";
 
 // BRIEF.md → "Accesibilidad (WCAG 2.1 AA)". axe finds roughly half of the problems; the rest
@@ -9,7 +10,12 @@ import { doubleTextSize, expect, sidewaysOverflow, test } from "./helpers";
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice"];
 // Every built page in both languages, public or hidden behind a feature, from the route registry: a new page
 // is checked without listing it here. Plus the 404 page, which has its own header and footer (it replaces the layout).
-const PAGES = [...builtPathnames().flatMap((pathname) => locales.map((locale) => localizedPath(pathname, locale))), "/pagina-que-no-existe"];
+// The entries of the collections (portfolio cases) are pages too.
+const PAGES = [
+  ...builtPathnames().flatMap((pathname) => locales.map((locale) => localizedPath(pathname, locale))),
+  ...builtEntries().flatMap((entry) => locales.map((locale) => pathsOfEntry(entry)[locale])),
+  "/pagina-que-no-existe",
+];
 
 async function expectNoViolations(page: Page, context: string) {
   const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();

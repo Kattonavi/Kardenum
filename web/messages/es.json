@@ -94,6 +94,26 @@
     "guidanceText": "Es lo habitual. Cuéntanos qué quieres lograr y te recomendamos el camino que realmente conviene.",
     "guidanceAction": "Cuéntanos tu idea"
   },
+  "Portfolio": {
+    "label": "Portafolio",
+    "titleLine1": "Trabajo que",
+    "titleLine2": "podemos mostrar.",
+    "text": "Cada proyecto aparece aquí con permiso del cliente. Los proyectos privados no se publican.",
+    "projects": "Proyectos",
+    "filterLabel": "Filtrar por línea de servicio",
+    "all": "Todos",
+    "ownProject": "Proyecto propio",
+    "reservedClient": "Cliente reservado",
+    "about": "Sobre el proyecto",
+    "lines": "Líneas",
+    "year": "Año",
+    "client": "Cliente",
+    "challenge": "El reto",
+    "work": "Qué hicimos",
+    "result": "Resultado",
+    "pieces": "Piezas",
+    "next": "Siguiente proyecto"
+  },
   "AboutPage": {
     "label": "Nosotros",
     "titleLine": "Varios oficios.",

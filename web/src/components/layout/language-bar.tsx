@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { ArrowRightIcon, CloseIcon } from "@/components/ui/icons";
 import { usePathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/locales";
 import { hideLanguageOffer, rememberLanguage } from "@/lib/language-choice";
 import { useHydrated } from "@/lib/use-hydrated";
-import { pathInLocale } from "@/routes";
+import { type EntryLinks, languageHref } from "@/routes";
 import { Container } from "./container";
 
 type LanguageBarProps = {
@@ -18,6 +19,8 @@ type LanguageBarProps = {
   text: string;
   action: string;
   dismissLabel: string;
+  /** Addresses of the collection entries in each language (see LocaleSwitcher). */
+  entries: EntryLinks;
 };
 
 /**
@@ -25,8 +28,9 @@ type LanguageBarProps = {
  * It is rendered on every page but stays hidden unless the inline script in the layout
  * marked <html> before the first paint, so it never shifts the page.
  */
-export function LanguageBar({ locale, offered, regionLabel, text, action, dismissLabel }: LanguageBarProps) {
+export function LanguageBar({ locale, offered, regionLabel, text, action, dismissLabel, entries }: LanguageBarProps) {
   const pathname = usePathname();
+  const params = useParams();
   const hydrated = useHydrated();
 
   function dismiss() {
@@ -40,7 +44,7 @@ export function LanguageBar({ locale, offered, regionLabel, text, action, dismis
         <p className="text-[0.9375rem] leading-normal">{text}</p>
         <div className="flex min-w-0 flex-wrap items-center gap-2">
           <Link
-            href={pathInLocale(pathname, offered)}
+            href={languageHref(pathname, params, entries, offered)}
             hrefLang={offered}
             onClick={() => rememberLanguage(offered)}
             className="inline-flex min-h-11 items-center gap-2 border border-ink px-4 text-xs tracking-[0.12em] type-display transition-colors duration-150 hover:bg-ink hover:text-stone"

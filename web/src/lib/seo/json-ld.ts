@@ -49,16 +49,18 @@ export function websiteJsonLd(config: SiteConfig = siteConfig): JsonLdNode {
 
 export type Crumb = { readonly name: string; readonly pathname: AppPathname };
 
-/** Path of an inner page, from the home page down to the page itself. */
-export function breadcrumbJsonLd(locale: AppLocale, crumbs: readonly Crumb[]): JsonLdNode {
+/**
+ * Path of an inner page, from the home page down to the page itself. A collection entry (a
+ * portfolio case) is not a route: it comes last, with its address in the page's language.
+ */
+export function breadcrumbJsonLd(locale: AppLocale, crumbs: readonly Crumb[], entry?: { readonly name: string; readonly path: string }): JsonLdNode {
+  const items = [
+    ...crumbs.map((crumb) => ({ name: crumb.name, item: absoluteUrl(localizedPath(crumb.pathname, locale)) })),
+    ...(entry ? [{ name: entry.name, item: absoluteUrl(entry.path) }] : []),
+  ];
   return {
     "@type": "BreadcrumbList",
-    itemListElement: crumbs.map((crumb, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: crumb.name,
-      item: absoluteUrl(localizedPath(crumb.pathname, locale)),
-    })),
+    itemListElement: items.map((crumb, index) => ({ "@type": "ListItem", position: index + 1, name: crumb.name, item: crumb.item })),
   };
 }
 

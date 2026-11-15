@@ -9,10 +9,12 @@ type BreadcrumbsProps = {
   locale: AppLocale;
   /** Accessible name of the navigation, e.g. "Ruta". */
   label: string;
+  /** A collection entry under `pathname` (a portfolio case): it closes the trail as the page on screen. */
+  entry?: { readonly name: string };
 };
 
 /** Path of an inner page, from the home page down (maquetas B-Linea-*). Sits on the ink band. */
-export function Breadcrumbs({ pathname, locale, label }: BreadcrumbsProps) {
+export function Breadcrumbs({ pathname, locale, label, entry }: BreadcrumbsProps) {
   const trail = breadcrumbTrail(pathname);
 
   return (
@@ -20,7 +22,7 @@ export function Breadcrumbs({ pathname, locale, label }: BreadcrumbsProps) {
       <ol className="flex flex-wrap items-center gap-x-2.5 gap-y-1 font-mono text-xs tracking-[0.1em] uppercase">
         {trail.map((crumb, index) => {
           const name = getPageName(crumb)[locale];
-          const last = index === trail.length - 1;
+          const last = !entry && index === trail.length - 1;
           return (
             <Fragment key={crumb}>
               <li>
@@ -45,6 +47,18 @@ export function Breadcrumbs({ pathname, locale, label }: BreadcrumbsProps) {
             </Fragment>
           );
         })}
+        {entry ? (
+          <>
+            <li aria-hidden="true" className="text-graphite">
+              /
+            </li>
+            <li>
+              <span aria-current="page" className="inline-flex min-h-11 items-center">
+                {entry.name}
+              </span>
+            </li>
+          </>
+        ) : null}
       </ol>
     </nav>
   );

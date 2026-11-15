@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import { isSiteIndexable, NOINDEX_DIRECTIVE } from "./src/lib/indexing";
 import { assertLaunchReady } from "./src/lib/launch";
+import { assertPortfolioReady } from "./src/lib/portfolio";
 import { securityHeaders } from "./src/lib/security-headers";
 import { getSiteUrl } from "./src/lib/site-url";
 import { shortLinkRedirects } from "./src/routes";
@@ -12,6 +13,9 @@ getSiteUrl();
 
 // The site cannot become indexable with placeholder data (contact or legal) or outside the production domain.
 assertLaunchReady();
+
+// With the portfolio on, every service line needs at least one published case, open site or not (spec 005, RF-7).
+assertPortfolioReady();
 
 // Short links are answered in src/proxy.ts, which is loaded with the first request: a wrong
 // address in site.config.ts must stop the build here, not the site there.

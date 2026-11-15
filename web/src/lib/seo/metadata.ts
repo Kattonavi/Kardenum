@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { getPageMeta } from "../../content/pages";
-import { type AppLocale, locales } from "../../i18n/locales";
-import { type AppPathname, absoluteUrl, intlPathnames, isListed, languageAlternates } from "../../routes";
+import { type AppLocale, type Localized, locales } from "../../i18n/locales";
+import { type AppPathname, absoluteUrl, alternatesOf, collectionTable, intlPathnames, isListed, type LocalizedPaths, routePaths } from "../../routes";
+import { type Entry, isEntryListed, pathsOfEntry } from "../entries";
 import { siteConfig } from "../../site.config";
 import { type Env, isSiteIndexable } from "../indexing";
 
@@ -40,20 +41,24 @@ export function ogImagePath(pathname: AppPathname, locale: AppLocale): string {
   return `/og/${locale}/${ogImageName(pathname, locale)}`;
 }
 
-/**
- * Metadata of a page in one language: unique title and description, its own canonical,
- * hreflang (es, en and x-default pointing to English) and the social image.
- * Every page calls this from generateMetadata; nothing here is inherited from the layout,
- * so a page can never end up with another page's canonical.
- */
-export function buildPageMetadata(pathname: AppPathname, locale: AppLocale, env: Env = process.env): Metadata {
-  const meta = getPageMeta(pathname);
-  const title = meta.title[locale];
-  const description = meta.description[locale];
-  const alternates = languageAlternates(pathname, env);
+/** What the metadata of a page is made of, for fixed pages and collection entries alike. */
+type PageDescriptor = {
+  readonly paths: LocalizedPaths;
+  readonly title: Localized<string>;
+  readonly description: Localized<string>;
+  /** Public: indexable once the site is. Hidden pages stay noindex even after launch. */
+  readonly listed: boolean;
+  /** Path of the social image in each language. */
+  readonly image: LocalizedPaths;
+};
+
+function buildMetadata(page: PageDescriptor, locale: AppLocale, env: Env): Metadata {
+  const title = page.title[locale];
+  const description = page.description[locale];
+  const alternates = alternatesOf(page.paths, env);
   const canonical = alternates[locale];
-  const image = absoluteUrl(ogImagePath(pathname, locale), env);
-  const indexable = isSiteIndexable(env) && isListed(pathname);
+  const image = absoluteUrl(page.image[locale], env);
+  const indexable = isSiteIndexable(env) && page.listed;
 
   return {
     title,
@@ -73,4 +78,35 @@ export function buildPageMetadata(pathname: AppPathname, locale: AppLocale, env:
     },
     twitter: { card: "summary_large_image", title, description, images: [image] },
   };
+}
+
+const imagesOf = (pathname: AppPathname): LocalizedPaths =>
+  Object.fromEntries(locales.map((locale) => [locale, ogImagePath(pathname, locale)])) as Record<AppLocale, string>;
+
+/**
+ * Metadata of a page in one language: unique title and description, its own canonical,
+ * hreflang (es, en and x-default pointing to English) and the social image.
+ * Every page calls this from generateMetadata; nothing here is inherited from the layout,
+ * so a page can never end up with another page's canonical.
+ */
+export function buildPageMetadata(pathname: AppPathname, locale: AppLocale, env: Env = process.env): Metadata {
+  const meta = getPageMeta(pathname);
+  return buildMetadata(
+    { paths: routePaths(pathname), title: meta.title, description: meta.description, listed: isListed(pathname), image: imagesOf(pathname) },
+    locale,
+    env,
+  );
+}
+
+/**
+ * Metadata of a collection entry (a portfolio case): the same rules, with the entry's own address
+ * in each language. Its social image is the one of the collection's index (spec 005).
+ */
+export function buildEntryMetadata(entry: Entry, locale: AppLocale, env: Env = process.env): Metadata {
+  const index = collectionTable[entry.collection].index;
+  return buildMetadata(
+    { paths: pathsOfEntry(entry), title: entry.meta.title, description: entry.meta.description, listed: isEntryListed(entry), image: imagesOf(index) },
+    locale,
+    env,
+  );
 }

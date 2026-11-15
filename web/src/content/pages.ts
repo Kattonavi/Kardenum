@@ -76,6 +76,20 @@ export const pageMeta: Partial<Record<AppPathname, PageMeta>> = {
       en: { label: "Contact", lines: ["Let's talk about"], accent: "your project." },
     },
   },
+  "/portafolio": {
+    title: {
+      es: "Portafolio: trabajo que podemos mostrar — Kardenum",
+      en: "Our work: projects we can show — Kardenum",
+    },
+    description: {
+      es: "Proyectos de desarrollo, diseño, video, Minecraft y Discord, publicados con permiso del cliente. Filtra por línea de servicio y cotiza el tuyo.",
+      en: "Development, design, video, Minecraft and Discord projects, published with the client's permission. Filter by service line and get a quote for yours.",
+    },
+    og: {
+      es: { label: "Portafolio", lines: ["Trabajo que"], accent: "podemos mostrar." },
+      en: { label: "Work", lines: ["Work we"], accent: "can show." },
+    },
+  },
   ...Object.fromEntries(serviceLines.map((line) => [line.pathname, linePages[line.id].meta])),
   ...Object.fromEntries(Object.values(subpages).map((page) => [page.pathname, page.meta])),
   [privacyDocument.pathname]: privacyDocument.meta,
@@ -101,6 +115,7 @@ export const pageNames: Partial<Record<AppPathname, Localized<string>>> = {
   "/servicios": { es: "Servicios", en: "Services" },
   "/nosotros": { es: "Nosotros", en: "About" },
   "/contacto": { es: "Contacto", en: "Contact" },
+  "/portafolio": { es: "Portafolio", en: "Work" },
   "/legal/privacidad": { es: "Privacidad", en: "Privacy" },
   "/legal/terminos": { es: "Términos", en: "Terms" },
   ...Object.fromEntries(serviceLines.map((line) => [line.pathname, line.name])),
