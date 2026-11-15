@@ -42,8 +42,9 @@ re-negociar. El lanzamiento (paso 8) depende de datos del fundador, no del códi
   1. ~~next-intl con Cache Components~~ Resuelto el 2026-11-15: todo sale `○`/`●`. Para que el 404 llegue con HTML
      completo, las rutas desconocidas no coinciden con nada (`dynamicParams = false`, sin catch-all) y responde
      `global-not-found.tsx` (experimental). Cache Components queda apagado porque no admite `dynamicParams`.
-  2. Push directo a `main` sin CI: un build verde pero roto en ejecución llega a producción. Mitigación: `pnpm smoke`
-     contra la URL de Railway tras cada despliegue; CI en el paso 7.
+  2. Push directo a `main` sin CI (decisión del fundador, 2026-11-15: así hasta el lanzamiento; después, `main`
+     protegida, CI y `staging`). Mitigación: antes de cada push, clon limpio con build, humo y e2e; después, humo y
+     e2e contra la URL de Railway.
   3. Datos pendientes (correo, WhatsApp, Discord, legales) frenan el lanzamiento: van en `site.config.ts` como
      reemplazos, nunca inventados.
 - **Contenido:** textos en las maquetas (`docs/handoff/maquetas/`); inglés por escribir · **Marca:** completa en
@@ -52,12 +53,14 @@ re-negociar. El lanzamiento (paso 8) depende de datos del fundador, no del códi
 ## Avance
 | Rebanada | Hecho | Falta | Horas usadas / apetito |
 |---|---|---|---|
-| 0 | Paso 1 completo en `main` (6ea6a3e → 8a64095): Next 16.4.6, guardia `SITE_INDEXABLE`, standalone para Railway, marca en `@theme`, Archivo + JetBrains Mono, next-intl (es raíz, en `/en`), 404 global, esqueleto `header`/`main`/`footer`, jsx-a11y completo. Prueba de humo de 28 comprobaciones en verde desde un clon limpio, arrancando con `pnpm start` | Conectar el repo a Railway (fundador), leer el log del primer build y correr `pnpm smoke` contra la URL de Railway | ~1 h / 4 h |
+| 0 | Paso 1 completo en `main` (6ea6a3e → 8a64095): Next 16.4.6, guardia `SITE_INDEXABLE`, standalone para Railway, marca en `@theme`, Archivo + JetBrains Mono, next-intl (es raíz, en `/en`), 404 global, esqueleto `header`/`main`/`footer`, jsx-a11y completo. Prueba de humo de 28 comprobaciones en verde desde un clon limpio, arrancando con `pnpm start` | — (repo conectado a Railway; primer despliegue verificado con Node 22.23.4 y pnpm 12.5.1) | ~1 h / 4 h |
+| 1 y 2 (parcial) | En producción (6472f58 → 7ec00ec): `site.config.ts`, registro único de rutas con slugs traducidos, modelo de contenido tipado, SEO técnico (metadatos, canonical, hreflang, sitemap con guardia, imágenes OG, JSON-LD, manifest), layout global (desplegable, menú móvil, barra de idioma, pie) e inicio. 43 pruebas unitarias en el build, 68 de humo y 61 e2e (axe sin violaciones) contra Railway. Lighthouse celular en Railway: 99 / 100 / 100 (SEO 100 con el guardia abierto, medido en local) | Páginas de servicios, las 5 líneas, Nosotros, Contacto con cotizador y 404 diseñada (paso 3 del brief): hoy sus enlaces dan el 404 de marca. Revisiones del lote (ui-qa, finish-reviewer, code-reviewer) sin correr | ~2,5 h / 2,5 días |
 
 ## Stack
 | Capa | Elección | Por qué / desviación |
 |---|---|---|
-| Frontend | Next.js 16.4.6 (App Router, Turbopack, Cache Components), TS strict, Tailwind 4.3, next-intl 4 | Brief |
+| Frontend | Next.js 16.4.6 (App Router, Turbopack; Cache Components apagado), TS strict, Tailwind 4.3, next-intl 4.14.9 | Brief |
+| Pruebas | `node --test` (unitarias, dentro del build), Playwright + axe (e2e), prueba de humo propia | Desviación: sin Vitest mientras toda versión de Vite con más de 30 días tenga el aviso crítico de RCE del 2026-11-10 |
 | UI | Sin shadcn ni librería de componentes o animaciones | Desviación del default: el brief pide dependencias mínimas |
 | Backend / BD / Auth / Pagos | Ninguno en v1 | Brief |
 | Otros | `next/font` (Archivo, JetBrains Mono), `next/image`, `next/og`, Umami sin cookies | Brief |
@@ -73,6 +76,19 @@ Detalle en `docs/handoff/docs/seo-sitio.md`. Nichos primero (Minecraft y Discord
 
 ## Decisiones tomadas por defecto
 - El paquete del handoff vive en `docs/handoff/` (lo sugería su `LEEME.md`).
+- **Una sola fuente del dominio:** `https://kardenum.com` en `site.config.ts`. Canonical, hreflang, sitemap, JSON-LD
+  e imágenes OG salen de ahí también antes del lanzamiento (en la URL de Railway apuntan al dominio final).
+- **Raíz sin barra final:** `https://kardenum.com`, como la escribe Next, en canonical, hreflang, sitemap y JSON-LD.
+- **Pie con el aviso de Minecraft en todo el sitio** (plan-sitio-web.md §6 y pedido del fundador); el de Discord se
+  suma en sus páginas.
+- **Canales de contacto pendientes:** se muestran sin enlace y con la nota `[Canales por activar]`. Un build con
+  `SITE_INDEXABLE=true` falla mientras falte alguno (`src/lib/launch.ts`).
+- **Barra de idioma:** cookie propia `kardenum_lang`, decidida antes del primer pintado
+  (`docs/specs/001-barra-de-idioma.md`).
+- **Fuentes de respaldo medidas** (Arial y Roboto ajustadas a Archivo) para que el cambio de fuente no mueva la página.
+- **Inglés provisional:** traducción fiel de los textos aprobados; se reescribe con las palabras clave validadas.
+- **Diseño:** se implementan las maquetas tal cual. Choque anotado: Impeccable prohíbe las etiquetas pequeñas sobre
+  los títulos y las maquetas aprobadas las llevan; decide el fundador en la revisión del lote.
 - Node 22 (`engines.node: 22.x`), igual al de la máquina donde se verifica el build.
 - La guardia se lee en el build (fail-closed: solo `"true"` abre). Al lanzar, comprobar `/robots.txt` tras el cambio.
 - Favicon y `apple-icon` desde el paquete del logo (`kardenum-favicon.svg`, `-180.png`).

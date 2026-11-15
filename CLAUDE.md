@@ -28,6 +28,8 @@ Este archivo solo agrega o endurece; nunca relaja.
 | Build (puerta) | `pnpm build` |
 | Arrancar el build | `pnpm start` (puerto `PORT`, 3000 por defecto) |
 | Prueba de humo | `pnpm smoke http://localhost:3000` · `pnpm smoke https://web-production-f1d7c246.up.railway.app` |
+| Unitarias | `pnpm test` (`node --test`; también corren dentro de `pnpm build`) |
+| Navegador (e2e + axe) | `E2E_BASE_URL=http://127.0.0.1:3000 pnpm test:e2e` (o la URL de Railway) |
 | Tipos / Lint | `pnpm typecheck` · `pnpm lint` |
 
 ## Reglas específicas del proyecto
@@ -37,3 +39,8 @@ Este archivo solo agrega o endurece; nunca relaja.
   No crear un workspace de pnpm en la raíz.
 - Leer la guía de `web/node_modules/next/dist/docs/` antes de usar una API de Next (lo pide `web/AGENTS.md`).
 - La configuración del servicio de Railway vive en el panel; no agregar `.railway/railway.ts` sin acordarlo.
+- **Una página nueva** se registra en `web/src/routes.ts` (`built: true`), lleva sus textos en
+  `web/src/content/pages.ts` y llama a `buildPageMetadata` en `generateMetadata`. Así entra sola al sitemap, al
+  hreflang, a las imágenes OG y a la prueba de humo.
+- Los componentes de cliente reciben sus textos como props: el provider no envía mensajes al navegador.
+- Código con barras invertidas (regex) se escribe con Write/Edit, nunca con heredoc de Bash.

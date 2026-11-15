@@ -88,7 +88,7 @@ Lo que no aplique a la superficie real del proyecto se saca a **No aplica** con 
 - [ ] Healthcheck (`/api/health` en Next, `/actuator/health` en Spring). · **resp:** railway-devops · **evidencia:** pendiente · **nota:** desviación del brief: el healthcheck de Railway ya apunta a `/` (200 en español)
 - [ ] Dominio propio con HTTPS; redirección `www` ↔ raíz definida (una sola canónica). · **resp:** railway-devops · **evidencia:** pendiente
 - [ ] Variables en Railway (nunca en el repo). Referencias entre servicios con variables de Railway. · **resp:** railway-devops · **evidencia:** pendiente
-- [ ] Deploy desde GitHub (rama `main` → production) con **Wait for CI** activado: `ci.yml` (typecheck, lint, test, build) corre en push a `main` y, si falla, Railway no despliega. `main` protegida (PR obligatorio, CI verde). Detalle y esqueleto en [ci-cd.md](ci-cd.md). · **resp:** railway-devops · **evidencia:** pendiente · **nota:** choca con el brief (push directo a main despliega); decide el fundador
+- [ ] Deploy desde GitHub (rama `main` → production) con **Wait for CI** activado: `ci.yml` (typecheck, lint, test, build) corre en push a `main` y, si falla, Railway no despliega. `main` protegida (PR obligatorio, CI verde). Detalle y esqueleto en [ci-cd.md](ci-cd.md). · **resp:** railway-devops · **evidencia:** pendiente · **nota:** decidido por el fundador el 2026-11-15: push directo a `main` hasta el lanzamiento; después, `main` protegida y CI
 - [ ] 1 monitor externo gratuito (UptimeRobot o Better Stack) sobre la home y `/api/health`, con aviso por correo. El healthcheck de Railway solo corre al desplegar: no vigila. · **resp:** railway-devops · **evidencia:** pendiente
 - [ ] Rotación de secretos documentada y probada (tras el incidente de Railway del 2026-10-21: rotar todo lo que vivía en variables de Railway). · **resp:** railway-devops · **evidencia:** pendiente
 - [ ] **Staging** separado con su propia BD; PR previews si el plan lo permite. · **resp:** railway-devops · **evidencia:** pendiente · **nota:** desviación del brief: staging después del lanzamiento y sin BD
@@ -98,8 +98,8 @@ Lo que no aplique a la superficie real del proyecto se saca a **No aplica** con 
 ## ci-cd
 - [ ] PR: `typecheck` + `lint` + `test` + `build`: sí · **resp:** hilo principal · **evidencia:** pendiente
 - [ ] Secretos y dependencias: gitleaks + `audit` prod · **resp:** hilo principal · **evidencia:** pendiente
-- [ ] `main` protegida (PR + CI verde): sí · **resp:** hilo principal · **evidencia:** pendiente · **nota:** choca con el brief hasta el lanzamiento; decide el fundador
-- [ ] Railway **Wait for CI**: sí · **resp:** hilo principal · **evidencia:** pendiente · **nota:** choca con el brief (push directo a main despliega); decide el fundador
+- [ ] `main` protegida (PR + CI verde): sí · **resp:** hilo principal · **evidencia:** pendiente · **nota:** decidido por el fundador el 2026-11-15: después del lanzamiento
+- [ ] Railway **Wait for CI**: sí · **resp:** hilo principal · **evidencia:** pendiente · **nota:** decidido por el fundador el 2026-11-15: push directo a `main` hasta el lanzamiento; después, `main` protegida y CI
 - [ ] Verificación tras desplegar: scripteada · **resp:** hilo principal · **evidencia:** pendiente
 - [ ] Versión y release: Conventional Commits + `release-please` · **resp:** hilo principal · **evidencia:** pendiente
 - [ ] Actualizaciones: Renovate/Dependabot semanal agrupado + cooldown 3-5 d · **resp:** hilo principal · **evidencia:** pendiente
