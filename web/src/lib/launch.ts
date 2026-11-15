@@ -3,15 +3,25 @@ import { getSiteUrl } from "./site-url";
 import { type SiteConfig, siteConfig } from "../site.config";
 
 /**
+ * Every value of the configuration that is still a placeholder, by its path
+ * ("contact.email", "legal.privacy.sections.rights"). The whole object is walked instead of
+ * listing fields, so a value added later cannot be left out of the launch check.
+ */
+export function findPending(value: unknown, path = ""): string[] {
+  if (!value || typeof value !== "object") return [];
+  if ("status" in value && value.status === "pending") return [path];
+  return Object.entries(value).flatMap(([key, child]) => findPending(child, path ? `${path}.${key}` : key));
+}
+
+/**
  * What still blocks the launch:
- * - contact data that is a placeholder (a visitor must never see "[correo@kardenum.com]"),
+ * - data that is a placeholder: contact channels and legal data and texts (a visitor must never
+ *   see "[correo@kardenum.com]" or "[Nombre o razón social]"),
  * - a SITE_URL that is not the production domain (canonical URLs and the sitemap would
  *   point search engines to a temporary address).
  */
 export function getLaunchBlockers(config: SiteConfig = siteConfig, env: Env = process.env): string[] {
-  const blockers = Object.entries(config.contact)
-    .filter(([, value]) => value.status === "pending")
-    .map(([key]) => `site.config.ts contact.${key} is still pending`);
+  const blockers = findPending(config).map((path) => `site.config.ts ${path} is still pending`);
 
   const siteUrl = getSiteUrl(env);
   if (siteUrl !== config.url) blockers.push(`SITE_URL is ${siteUrl} and must be ${config.url}`);

@@ -155,6 +155,12 @@
     "after3Title": "Te enviamos la cotización",
     "after3Text": "Una propuesta a la medida, con alcance, entregables y garantía."
   },
+  "Legal": {
+    "label": "Legal",
+    "contents": "Contenido",
+    "effectiveFrom": "Vigente desde",
+    "updated": "Última actualización"
+  },
   "NotFound": {
     "metaTitle": "Página no encontrada — Kardenum",
     "label": "Error 404",

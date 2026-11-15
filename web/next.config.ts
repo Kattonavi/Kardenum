@@ -9,7 +9,7 @@ import { shortLinkRedirects } from "./src/routes";
 // Fail at once on a malformed SITE_URL: every absolute URL of the site is built from it.
 getSiteUrl();
 
-// The site cannot become indexable with placeholder contact data or outside the production domain.
+// The site cannot become indexable with placeholder data (contact or legal) or outside the production domain.
 assertLaunchReady();
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");

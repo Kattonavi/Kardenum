@@ -1,5 +1,6 @@
 import type { Localized } from "../i18n/locales";
 import type { AppPathname } from "../routes";
+import { privacyDocument, termsDocument } from "./legal";
 import { linePages } from "./lines";
 import { serviceLines } from "./service-lines";
 import type { PageMeta } from "./types";
@@ -75,6 +76,8 @@ export const pageMeta: Partial<Record<AppPathname, PageMeta>> = {
     },
   },
   ...Object.fromEntries(serviceLines.map((line) => [line.pathname, linePages[line.id].meta])),
+  [privacyDocument.pathname]: privacyDocument.meta,
+  [termsDocument.pathname]: termsDocument.meta,
 };
 
 export function getPageMeta(pathname: AppPathname): PageMeta {
@@ -96,6 +99,8 @@ export const pageNames: Partial<Record<AppPathname, Localized<string>>> = {
   "/servicios": { es: "Servicios", en: "Services" },
   "/nosotros": { es: "Nosotros", en: "About" },
   "/contacto": { es: "Contacto", en: "Contact" },
+  "/legal/privacidad": { es: "Privacidad", en: "Privacy" },
+  "/legal/terminos": { es: "Términos", en: "Terms" },
   ...Object.fromEntries(serviceLines.map((line) => [line.pathname, line.name])),
 };
 

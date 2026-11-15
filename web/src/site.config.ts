@@ -4,16 +4,40 @@ import type { Localized } from "./i18n/locales";
  * Brand name and data of the studio, in one place.
  *
  * Data that does not exist yet is `pending`: it is shown as a bracketed placeholder and is never
- * invented. When a value is defined, replace it with `{ status: "ready", value: "..." }`.
- * A build with SITE_INDEXABLE=true fails while any contact value is pending (src/lib/launch.ts).
+ * invented. When a value is defined, replace it with `{ status: "ready", value: ... }`.
+ * A build with SITE_INDEXABLE=true fails while ANY value here is pending (src/lib/launch.ts).
  */
 export type Pending = { readonly status: "pending"; readonly placeholder: string };
 export type Ready<T> = { readonly status: "ready"; readonly value: T };
 export type Provided<T> = Pending | Ready<T>;
 
+/** Pending value whose placeholder is shown in the language of the page (legal pages). */
+export type PendingLocalized = { readonly status: "pending"; readonly placeholder: Localized<string> };
+export type ProvidedLocalized<T> = PendingLocalized | Ready<T>;
+/** A legal text: once written, its paragraphs in each language. */
+export type ProvidedText = ProvidedLocalized<Localized<readonly string[]>>;
+
 function pending(placeholder: string): Pending {
   return { status: "pending", placeholder };
 }
+
+function pendingIn(es: string, en: string): PendingLocalized {
+  return { status: "pending", placeholder: { es, en } };
+}
+
+/** Sections of each legal page whose text is written by the studio; the first section of both is built from `legal.owner`. */
+export type PrivacySectionId = "data" | "purposes" | "rights" | "exercise" | "contact" | "analytics" | "retention";
+export type TermsSectionId = "purpose" | "quotes" | "intellectualProperty" | "portfolio" | "links" | "liability" | "law";
+
+export type LegalDocumentData<SectionId extends string> = {
+  /** Date the document comes into force, as YYYY-MM-DD. */
+  readonly effectiveDate: ProvidedLocalized<string>;
+  /** Date of the last change, as YYYY-MM-DD. */
+  readonly updatedDate: ProvidedLocalized<string>;
+  /** Opening paragraph: who the document applies to and what it explains. */
+  readonly intro: ProvidedText;
+  readonly sections: Readonly<Record<SectionId, ProvidedText>>;
+};
 
 export type SiteConfig = {
   readonly name: string;
@@ -31,6 +55,27 @@ export type SiteConfig = {
     readonly whatsapp: Provided<string>;
     /** Permanent invite URL to the studio's Discord server (also the target of /discord). */
     readonly discordInvite: Provided<string>;
+  };
+  /**
+   * Legal pages (docs/specs/003-paginas-legales.md, maquetas B-Legal-*). The mockups give the
+   * structure and the section titles; who answers for the site, the dates and the text of each
+   * section do not exist yet. They are written by the studio (or its lawyer), never by the site.
+   */
+  readonly legal: {
+    /** Who answers for the site. Filled once, used in the first section of both pages. */
+    readonly owner: {
+      /** Name or company name. */
+      readonly name: ProvidedLocalized<string>;
+      /** Identification of the person or company. */
+      readonly identification: ProvidedLocalized<string>;
+      /** City and address of the registered office. */
+      readonly address: ProvidedLocalized<string>;
+      /** E-mail for legal matters (it may be the contact one). */
+      readonly email: ProvidedLocalized<string>;
+      readonly phone: ProvidedLocalized<string>;
+    };
+    readonly privacy: LegalDocumentData<PrivacySectionId>;
+    readonly terms: LegalDocumentData<TermsSectionId>;
   };
   /** Official profiles for JSON-LD `sameAs`. Only real, existing profiles. */
   readonly profiles: readonly string[];
@@ -55,6 +100,87 @@ export const siteConfig: SiteConfig = {
     email: pending("[correo@kardenum.com]"),
     whatsapp: pending("[WhatsApp]"),
     discordInvite: pending("[Discord]"),
+  },
+  // Every bracket below is a note from the approved mockups about what goes there (the English
+  // ones are their translation). Replace each with { status: "ready", value: ... }.
+  legal: {
+    owner: {
+      name: pendingIn("[Nombre o razón social]", "[Name or company name]"),
+      identification: pendingIn("[identificación]", "[identification]"),
+      address: pendingIn("[ciudad y dirección]", "[city and address]"),
+      email: pendingIn("[correo]", "[e-mail]"),
+      phone: pendingIn("[teléfono]", "[phone]"),
+    },
+    privacy: {
+      effectiveDate: pendingIn("[fecha]", "[date]"),
+      updatedDate: pendingIn("[fecha]", "[date]"),
+      intro: pendingIn(
+        "[Introducción: a quién aplica esta política y qué explica. Dos frases.]",
+        "[Introduction: who this policy applies to and what it explains. Two sentences.]",
+      ),
+      sections: {
+        data: pendingIn(
+          "[Los datos que llegan por los canales de contacto: nombre, medio de contacto y lo que nos cuentas de tu proyecto. Si el sitio usa analítica, qué datos de navegación registra.]",
+          "[The data that arrives through the contact channels: name, means of contact and what you tell us about your project. If the site uses analytics, which browsing data it records.]",
+        ),
+        purposes: pendingIn(
+          "[Responder tus solicitudes, preparar cotizaciones y prestar el servicio contratado.]",
+          "[Answering your requests, preparing quotes and providing the contracted service.]",
+        ),
+        rights: pendingIn(
+          "[Conocer, actualizar, rectificar y suprimir tus datos, y revocar la autorización, según la Ley 1581 de 2012.]",
+          "[Knowing, updating, correcting and deleting your data, and withdrawing the authorization, under Law 1581 of 2012.]",
+        ),
+        exercise: pendingIn(
+          "[A qué correo escribir, qué incluir en la solicitud y en cuánto tiempo respondemos.]",
+          "[Which e-mail to write to, what to include in the request and how long we take to answer.]",
+        ),
+        contact: pendingIn("[Persona o área responsable y su contacto.]", "[Person or area in charge and their contact.]"),
+        analytics: pendingIn(
+          "[Qué herramienta de analítica se usa. Con Umami no se usan cookies.]",
+          "[Which analytics tool is used. With Umami no cookies are used.]",
+        ),
+        retention: pendingIn(
+          "[Desde cuándo rige esta política y por cuánto tiempo se conservan los datos.]",
+          "[Since when this policy applies and how long the data is kept.]",
+        ),
+      },
+    },
+    terms: {
+      effectiveDate: pendingIn("[fecha]", "[date]"),
+      updatedDate: pendingIn("[fecha]", "[date]"),
+      intro: pendingIn(
+        "[Introducción: qué regulan estos términos y a quién aplican. Dos frases.]",
+        "[Introduction: what these terms govern and who they apply to. Two sentences.]",
+      ),
+      sections: {
+        purpose: pendingIn(
+          "[El sitio es informativo: presenta los servicios del estudio. Ningún precio se publica; todo se cotiza a la medida.]",
+          "[The site is informative: it presents the services of the studio. No price is published; everything is quoted to fit.]",
+        ),
+        quotes: pendingIn(
+          "[Las condiciones de cada servicio (pagos, revisiones, garantía, entrega de derechos y confidencialidad) van en la cotización o el contrato que acepta cada cliente.]",
+          "[The conditions of each service (payments, revisions, warranty, transfer of rights and confidentiality) go in the quote or the contract each client accepts.]",
+        ),
+        intellectualProperty: pendingIn(
+          "[De quién son los textos, el diseño, la marca y el código de este sitio.]",
+          "[Who owns the texts, the design, the brand and the code of this site.]",
+        ),
+        portfolio: pendingIn(
+          "[Los proyectos se muestran con autorización del cliente, según el nivel acordado: público, reservado o privado.]",
+          "[Projects are shown with the client's authorization, at the agreed level: public, reserved or private.]",
+        ),
+        links: pendingIn(
+          "[El estudio no responde por el contenido de sitios de terceros enlazados desde aquí.]",
+          "[The studio is not responsible for the content of third-party sites linked from here.]",
+        ),
+        liability: pendingIn(
+          "[Alcance de la responsabilidad del estudio por el uso de la información del sitio.]",
+          "[Scope of the studio's liability for the use of the information on the site.]",
+        ),
+        law: pendingIn("[Ley que rige estos términos y cómo se avisan los cambios.]", "[Law that governs these terms and how changes are announced.]"),
+      },
+    },
   },
   profiles: [],
   features: {

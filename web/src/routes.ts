@@ -39,8 +39,8 @@ export const routeTable = {
   "/guias": { en: "/guides", built: false, listed: guides },
   "/nosotros": { en: "/about", built: true, listed: true },
   "/contacto": { en: "/contact", built: true, listed: true },
-  "/legal/privacidad": { en: "/legal/privacy", built: false, listed: true },
-  "/legal/terminos": { en: "/legal/terms", built: false, listed: true },
+  "/legal/privacidad": { en: "/legal/privacy", built: true, listed: true },
+  "/legal/terminos": { en: "/legal/terms", built: true, listed: true },
 } as const satisfies Record<string, RouteDefinition>;
 
 export type AppPathname = keyof typeof routeTable;

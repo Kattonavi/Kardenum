@@ -30,7 +30,7 @@ hreflang, a las imágenes para redes y a la prueba de humo.
 
 | Variable | Valor hoy | Para qué |
 |---|---|---|
-| `SITE_INDEXABLE` | `false` | Solo el valor exacto `true` deja indexar el sitio. Se lee en el build: cambiarla exige un despliegue nuevo. Guardia en `src/lib/indexing.ts`. Con `true`, el build falla mientras `site.config.ts` tenga datos de contacto pendientes o `SITE_URL` no sea `https://kardenum.com` (`src/lib/launch.ts`). |
+| `SITE_INDEXABLE` | `false` | Solo el valor exacto `true` deja indexar el sitio. Se lee en el build: cambiarla exige un despliegue nuevo. Guardia en `src/lib/indexing.ts`. Con `true`, el build falla mientras `site.config.ts` tenga cualquier valor pendiente (contacto, datos y textos legales) o `SITE_URL` no sea `https://kardenum.com` (`src/lib/launch.ts`). |
 | `SITE_URL` | sin definir = `https://kardenum.com` | Origen de todas las URL absolutas: canonical, hreflang, `og:image`, sitemap y JSON-LD. Antes de tener el dominio se pone la dirección de Railway. Solo el origen, sin ruta. Se lee en el build. |
 | `NEXT_TELEMETRY_DISABLED` | `1` | Sin telemetría de Next.js. |
 | `SITE_LAUNCH_CHECK` | sin definir | Solo para pruebas locales: `off` permite compilar con `SITE_INDEXABLE=true` aunque falten datos. No se define en Railway. |

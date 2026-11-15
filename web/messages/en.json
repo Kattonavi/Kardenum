@@ -155,6 +155,12 @@
     "after3Title": "We send you the quote",
     "after3Text": "A proposal made to fit, with scope, deliverables and warranty."
   },
+  "Legal": {
+    "label": "Legal",
+    "contents": "Contents",
+    "effectiveFrom": "In force since",
+    "updated": "Last updated"
+  },
   "NotFound": {
     "metaTitle": "Page not found — Kardenum",
     "label": "Error 404",

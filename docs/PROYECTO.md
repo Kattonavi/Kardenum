@@ -85,6 +85,10 @@ Detalle en `docs/handoff/docs/seo-sitio.md`. Nichos primero (Minecraft y Discord
   suma en sus páginas.
 - **Canales de contacto pendientes:** se muestran sin enlace y con la nota `[Canales por activar]`. Un build con
   `SITE_INDEXABLE=true` falla mientras falte alguno (`src/lib/launch.ts`).
+- **Páginas legales con lo pendiente entre corchetes (decisión del fundador, 2026-11-15):** Privacidad y Términos
+  llevan la estructura y los títulos de sus maquetas; responsable, fechas y texto de cada sección están en
+  `site.config.ts` como pendientes. El freno de lanzamiento recorre toda la configuración: con un solo valor pendiente
+  (contacto o legal), el build indexable falla y los nombra. Spec: `docs/specs/003-paginas-legales.md`.
 - **Barra de idioma:** cookie propia `kardenum_lang`, decidida antes del primer pintado
   (`docs/specs/001-barra-de-idioma.md`).
 - **Fuentes de respaldo medidas** (Arial y Roboto ajustadas a Archivo) para que el cambio de fuente no mueva la página.
