@@ -1,0 +1,679 @@
+EVIDENCIA DEL LOTE: paso 4 del brief (SEO tecnico y confianza) + decisiones del fundador del 2026-11-15
+(cabecera al 200 %, paginas legales con freno de lanzamiento, cabeceras de seguridad y CSP, /discord)
+Commit verificado: 1ed1944c34d27ec25367908c1db3f180b485e035 2026-11-15T16:16:15-05:00 fix(web): script-only controls wait for their script; short links carry the site headers
+Lote: 6 commits desde 20f367a
+  1ed1944 fix(web): script-only controls wait for their script; short links carry the site headers
+  8b86f64 feat(web): /discord short link for the invitation, self-contained Service provider
+  ce9473a feat(web): static Content-Security-Policy; browser tests fail on any violation
+  4b07cba feat(web): security headers on every response and no X-Powered-By
+  528d60e feat(web): privacy and terms pages; the launch check covers every pending value
+  f4c6812 fix(web): text at 200 % keeps the header usable and every text grows (WCAG 1.4.4)
+Generado: 2026-11-15T21:27Z.
+
+== 1. Puerta de clon limpio del commit final (clone -> install --frozen-lockfile -> build -> start -> smoke -> e2e)
+# tests 84
+# pass 84
+# fail 0
+# skipped 0
+Route (app)
+┌ ○ /_not-found
+├   /[locale]
+│ ├ ● /es
+│ └ ● /en
+├   /[locale]/contacto
+│ ├ ● /es/contacto
+│ └ ● /en/contacto
+├   /[locale]/legal/privacidad
+│ ├ ● /es/legal/privacidad
+│ └ ● /en/legal/privacidad
+├   /[locale]/legal/terminos
+│ ├ ● /es/legal/terminos
+│ └ ● /en/legal/terminos
+├   /[locale]/nosotros
+│ ├ ● /es/nosotros
+│ └ ● /en/nosotros
+├   /[locale]/servicios
+│ ├ ● /es/servicios
+│ └ ● /en/servicios
+├   /[locale]/servicios/desarrollo
+│ ├ ● /es/servicios/desarrollo
+│ └ ● /en/servicios/desarrollo
+├   /[locale]/servicios/discord
+│ ├ ● /es/servicios/discord
+│ └ ● /en/servicios/discord
+├   /[locale]/servicios/diseno
+│ ├ ● /es/servicios/diseno
+│ └ ● /en/servicios/diseno
+├   /[locale]/servicios/minecraft
+│ ├ ● /es/servicios/minecraft
+│ └ ● /en/servicios/minecraft
+├   /[locale]/servicios/video
+│ ├ ● /es/servicios/video
+│ └ ● /en/servicios/video
+├ ○ /apple-icon.png
+├ ○ /icon.svg
+├ ○ /manifest.webmanifest
+├   /og/[locale]/[image]
+│ ├ ● /og/es/inicio.png
+│ ├ ● /og/en/home.png
+│ ├ ● /og/es/servicios.png
+│ └ ● [+19 more paths]
+├ ○ /robots.txt
+└ ○ /sitemap.xml
+ƒ Proxy (Middleware)
+○  (Static)  prerendered as static content
+●  (SSG)     prerendered as static HTML (uses generateStaticParams)
+-- smoke (local, clon limpio)
+Site origin expected in canonical, hreflang, sitemap and JSON-LD: https://kardenum.com
+OK: all 509 checks passed (noindex) on http://127.0.0.1:4710
+-- e2e (local, clon limpio)
+  14 skipped
+  374 passed (52.8s)
+
+== 2. Produccion (Railway, SITE_URL = su propia direccion)
+$ pnpm smoke https://web-production-f1d7c246.up.railway.app --expect=noindex --site-url=self
+Site origin expected in canonical, hreflang, sitemap and JSON-LD: https://web-production-f1d7c246.up.railway.app
+OK: all 509 checks passed (noindex) on https://web-production-f1d7c246.up.railway.app
+$ E2E_BASE_URL=https://web-production-f1d7c246.up.railway.app pnpm test:e2e   (cada prueba falla ante una violacion de CSP)
+  14 skipped
+  374 passed (3.4m)
+
+== 3. Build indexable del mismo commit (SITE_INDEXABLE=true, SITE_LAUNCH_CHECK=off, solo en local)
+$ pnpm smoke http://127.0.0.1:4712 --expect=indexable   (las cabeceras de seguridad siguen con el sitio abierto; sitemap con las 22 URL)
+OK: all 511 checks passed (indexable) on http://127.0.0.1:4712
+-- Lighthouse 13.6.0, celular, con la CSP activa
+== p4-contacto-es.json | http://127.0.0.1:4712/contacto | lighthouse 13.6.0
+  scores: {'performance': 100, 'accessibility': 100, 'best-practices': 100, 'seo': 100, 'agentic-browsing': 100}
+  first-contentful-paint: 0.8 s
+  largest-contentful-paint: 0.8 s
+  total-blocking-time: 30 ms
+  cumulative-layout-shift: 0
+  speed-index: 0.8 s
+== p4-inicio-es.json | http://127.0.0.1:4712/ | lighthouse 13.6.0
+  scores: {'performance': 100, 'accessibility': 100, 'best-practices': 100, 'seo': 100, 'agentic-browsing': 100}
+  first-contentful-paint: 0.8 s
+  largest-contentful-paint: 0.8 s
+  total-blocking-time: 30 ms
+  cumulative-layout-shift: 0
+  speed-index: 0.8 s
+== p4-privacidad-es.json | http://127.0.0.1:4712/legal/privacidad | lighthouse 13.6.0
+  scores: {'performance': 100, 'accessibility': 100, 'best-practices': 100, 'seo': 100, 'agentic-browsing': 100}
+  first-contentful-paint: 0.8 s
+  largest-contentful-paint: 0.8 s
+  total-blocking-time: 30 ms
+  cumulative-layout-shift: 0
+  speed-index: 0.8 s
+== p4-terms-en.json | http://127.0.0.1:4712/en/legal/terms | lighthouse 13.6.0
+  scores: {'performance': 100, 'accessibility': 100, 'best-practices': 100, 'seo': 100, 'agentic-browsing': 100}
+  first-contentful-paint: 0.8 s
+  largest-contentful-paint: 0.8 s
+  total-blocking-time: 40 ms
+  cumulative-layout-shift: 0
+  speed-index: 0.8 s
+
+== 4. Freno de lanzamiento de punta a punta: build indexable con la configuracion real (commit 528d60e)
+$ SITE_INDEXABLE=true SITE_URL=https://kardenum.com pnpm build  -> exit 1
+valores pendientes nombrados en el error: 28 (3 de contacto, 25 legales)
+SITE_INDEXABLE=true but the site is not ready to launch: site.config.ts contact.email is still pending; site.config.ts contact.whatsapp is still pending; site.config.ts contact.discordInvite is still pending; site.config.ts legal.owner.name is still pending; site.config.ts legal.owner.identification is still pending
+
+== 5. Texto al 200 % (WCAG 1.4.4)
+Prueba e2e en cada pagina y el 404, a 1280 y 390: raiz al 200 %, el texto mas pequeno >= 22 px, sin desborde, controles de la cabecera en pantalla, el menu abre y cierra.
+pruebas de 200 % ejecutadas contra produccion: 46
+Antes del arreglo (produccion en e3937f0): las 38 combinaciones fallaban (texto de la cabecera en px, 15 px).
+A tamano normal no cambio nada: alto y ancho de 19 paginas en 4 anchos, produccion anterior vs build nuevo:
+  paginas comparadas: 19 | anchos: ['320', '390', '768', '1280'] | diferencias: 0
+
+== 6. Laboratorio de CSP (Next 16.4.6, paginas estaticas; la politica se inyecta en el documento con Playwright)
+strict = script-src 'self' | inline-scripts = script-src 'self' 'unsafe-inline' con style-src 'self' | hashes = un hash por script en linea de ESA pagina
+
+===== variant: strict
+  /                        inline scripts in HTML:  5 | violations:  5 | hydrated: NO (control still off)
+      - Executing inline script violates the following Content Security Policy directive 'script-src 'self''. Either t
+  /contacto                inline scripts in HTML:  4 | violations:  4 | hydrated: NO (control still off)
+      - Executing inline script violates the following Content Security Policy directive 'script-src 'self''. Either t
+  /servicios/minecraft     inline scripts in HTML:  5 | violations:  5 | hydrated: NO (control still off)
+      - Executing inline script violates the following Content Security Policy directive 'script-src 'self''. Either t
+  /en/legal/privacy        inline scripts in HTML:  4 | violations:  4 | hydrated: NO (control still off)
+      - Executing inline script violates the following Content Security Policy directive 'script-src 'self''. Either t
+  /pagina-que-no-existe    inline scripts in HTML:  3 | violations:  3 | hydrated: ?
+      - Executing inline script violates the following Content Security Policy directive 'script-src 'self''. Either t
+
+===== variant: inline-scripts
+  /                        inline scripts in HTML:  5 | violations:  0 | hydrated: yes
+  /contacto                inline scripts in HTML:  4 | violations:  0 | hydrated: yes
+  /servicios/minecraft     inline scripts in HTML:  5 | violations:  0 | hydrated: yes
+  /en/legal/privacy        inline scripts in HTML:  4 | violations:  0 | hydrated: yes
+  /pagina-que-no-existe    inline scripts in HTML:  3 | violations:  0 | hydrated: ?
+
+===== variant: hashes
+  /                        inline scripts in HTML:  5 | violations:  0 | hydrated: yes
+  /contacto                inline scripts in HTML:  4 | violations:  0 | hydrated: yes
+  /servicios/minecraft     inline scripts in HTML:  5 | violations:  0 | hydrated: yes
+  /en/legal/privacy        inline scripts in HTML:  4 | violations:  0 | hydrated: yes
+  /pagina-que-no-existe    inline scripts in HTML:  3 | violations:  0 | hydrated: ?
+Con experimental.sri (build de prueba en un clon): 6 de 15 <script> reciben integrity, quedan 4 scripts en linea ejecutables y 'strict' sigue sin hidratar.
+
+== 7. /discord con una invitacion ficticia (clon de descarte, nunca versionada)
+PASS  GET /discord redirects (307) to https://discord.gg/ejemplo-ficticio  (status 307 -> https://discord.gg/ejemplo-ficticio)
+PASS  short link /discord: security headers (6)
+PASS  short link /discord: does not say what it is built with
+OK: all 511 checks passed (noindex) on http://127.0.0.1:4711
+
+== 8. Fallo intermitente investigado en la puerta del commit 8b86f64
+1 de 372: [mobile] language.spec 'the phone menu offers the same page in the other language' (servidor recien arrancado).
+Causa: clic en el boton del menu antes de la hidratacion. Arreglo en el producto (1ed1944): controles apagados hasta hidratar + prueba que retiene los scripts.
+Repeticion de la prueba original: 40 de 40 con el servidor caliente; puerta de 1ed1944: 374 de 374.
+
+== 9. Smoke completo en produccion (cada comprobacion)
+PASS  GET / -> 200  (status 200)
+PASS  GET / has no Location header
+PASS  GET / is <html lang="es">
+PASS  GET / X-Robots-Tag has noindex  (noindex, nofollow)
+PASS  GET / (Accept-Language: en) -> 200 without redirect  (status 200)
+PASS  GET / (language cookies set to en) -> 200 without redirect  (status 200)
+PASS  GET / sets no cookie
+PASS  GET /es redirects permanently (308) to /  (status 308 -> /)
+PASS  GET /es redirect X-Robots-Tag has noindex
+PASS  [es] / -> 200 without redirect  (status 200)
+PASS  [es] / is <html lang="es">
+PASS  [es] / X-Robots-Tag has noindex
+PASS  [es] / has one header, main, footer and h1  ({"header":1,"main":1,"footer":1,"h1":1})
+PASS  [es] / title is the page's own  (Kardenum — estudio de desarrollo, diseño y video)
+PASS  [es] / description is the page's own  (145 chars)
+PASS  [es] / title and description are unique on the site
+PASS  [es] / meta robots has noindex  (noindex, nofollow)
+PASS  [es] / has exactly one canonical, pointing to itself  (https://web-production-f1d7c246.up.railway.app)
+PASS  [es] / hreflang es, en and x-default (English)  ({"es":"https://web-production-f1d7c246.up.railway.app","en":"https://web-production-f1d7c246.up.railway.app/en","x-default":"https://web-production-f1d7c246.up.railway.app/en"})
+PASS  [es] / language links go to this page in each language, without redirect  (5 links)
+PASS  [es] / og:url is the canonical  (https://web-production-f1d7c246.up.railway.app)
+PASS  [es] / og:site_name and twitter card
+PASS  [es] / og:image is the page's social image  (https://web-production-f1d7c246.up.railway.app/og/es/inicio.png)
+PASS  [es] / social image /og/es/inicio.png -> 200 image/png  (status 200, 50445 bytes)
+PASS  [es] / theme-color and manifest are declared
+PASS  [en] /en -> 200 without redirect  (status 200)
+PASS  [en] /en is <html lang="en">
+PASS  [en] /en X-Robots-Tag has noindex
+PASS  [en] /en has one header, main, footer and h1  ({"header":1,"main":1,"footer":1,"h1":1})
+PASS  [en] /en title is the page's own  (Kardenum — software, design and video studio)
+PASS  [en] /en description is the page's own  (140 chars)
+PASS  [en] /en title and description are unique on the site
+PASS  [en] /en meta robots has noindex  (noindex, nofollow)
+PASS  [en] /en has exactly one canonical, pointing to itself  (https://web-production-f1d7c246.up.railway.app/en)
+PASS  [en] /en hreflang es, en and x-default (English)  ({"es":"https://web-production-f1d7c246.up.railway.app","en":"https://web-production-f1d7c246.up.railway.app/en","x-default":"https://web-production-f1d7c246.up.railway.app/en"})
+PASS  [en] /en language links go to this page in each language, without redirect  (5 links)
+PASS  [en] /en og:url is the canonical  (https://web-production-f1d7c246.up.railway.app/en)
+PASS  [en] /en og:site_name and twitter card
+PASS  [en] /en og:image is the page's social image  (https://web-production-f1d7c246.up.railway.app/og/en/home.png)
+PASS  [en] /en social image /og/en/home.png -> 200 image/png  (status 200, 48656 bytes)
+PASS  [en] /en theme-color and manifest are declared
+PASS  [es] /servicios -> 200 without redirect  (status 200)
+PASS  [es] /servicios is <html lang="es">
+PASS  [es] /servicios X-Robots-Tag has noindex
+PASS  [es] /servicios has one header, main, footer and h1  ({"header":1,"main":1,"footer":1,"h1":1})
+PASS  [es] /servicios title is the page's own  (Servicios de desarrollo, diseño y video — Kardenum)
+PASS  [es] /servicios description is the page's own  (150 chars)
+PASS  [es] /servicios title and description are unique on the site
+PASS  [es] /servicios meta robots has noindex  (noindex, nofollow)
+PASS  [es] /servicios has exactly one canonical, pointing to itself  (https://web-production-f1d7c246.up.railway.app/servicios)
+PASS  [es] /servicios hreflang es, en and x-default (English)  ({"es":"https://web-production-f1d7c246.up.railway.app/servicios","en":"https://web-production-f1d7c246.up.railway.app/en/services","x-default":"https://web-production-f1d7c246.up.railway.app/en/services"})
+PASS  [es] /servicios language links go to this page in each language, without redirect  (5 links)
+PASS  [es] /servicios og:url is the canonical  (https://web-production-f1d7c246.up.railway.app/servicios)
+PASS  [es] /servicios og:site_name and twitter card
+PASS  [es] /servicios og:image is the page's social image  (https://web-production-f1d7c246.up.railway.app/og/es/servicios.png)
+PASS  [es] /servicios social image /og/es/servicios.png -> 200 image/png  (status 200, 38334 bytes)
+PASS  [es] /servicios theme-color and manifest are declared
+PASS  [en] /en/services -> 200 without redirect  (status 200)
+PASS  [en] /en/services is <html lang="en">
+PASS  [en] /en/services X-Robots-Tag has noindex
+PASS  [en] /en/services has one header, main, footer and h1  ({"header":1,"main":1,"footer":1,"h1":1})
+PASS  [en] /en/services title is the page's own  (Software, design and video services — Kardenum)
+PASS  [en] /en/services description is the page's own  (151 chars)
+PASS  [en] /en/services title and description are unique on the site
+PASS  [en] /en/services meta robots has noindex  (noindex, nofollow)
+PASS  [en] /en/services has exactly one canonical, pointing to itself  (https://web-production-f1d7c246.up.railway.app/en/services)
+PASS  [en] /en/services hreflang es, en and x-default (English)  ({"es":"https://web-production-f1d7c246.up.railway.app/servicios","en":"https://web-production-f1d7c246.up.railway.app/en/services","x-default":"https://web-production-f1d7c246.up.railway.app/en/services"})
+PASS  [en] /en/services language links go to this page in each language, without redirect  (5 links)
+PASS  [en] /en/services og:url is the canonical  (https://web-production-f1d7c246.up.railway.app/en/services)
+PASS  [en] /en/services og:site_name and twitter card
+PASS  [en] /en/services og:image is the page's social image  (https://web-production-f1d7c246.up.railway.app/og/en/services.png)
+PASS  [en] /en/services social image /og/en/services.png -> 200 image/png  (status 200, 35485 bytes)
+PASS  [en] /en/services theme-color and manifest are declared
+PASS  [es] /servicios/desarrollo -> 200 without redirect  (status 200)
+PASS  [es] /servicios/desarrollo is <html lang="es">
+PASS  [es] /servicios/desarrollo X-Robots-Tag has noindex
+PASS  [es] /servicios/desarrollo has one header, main, footer and h1  ({"header":1,"main":1,"footer":1,"h1":1})
+PASS  [es] /servicios/desarrollo title is the page's own  (Desarrollo web y software a la medida — Kardenum)
+PASS  [es] /servicios/desarrollo description is the page's own  (141 chars)
+PASS  [es] /servicios/desarrollo title and description are unique on the site
+PASS  [es] /servicios/desarrollo meta robots has noindex  (noindex, nofollow)
+PASS  [es] /servicios/desarrollo has exactly one canonical, pointing to itself  (https://web-production-f1d7c246.up.railway.app/servicios/desarrollo)
+PASS  [es] /servicios/desarrollo hreflang es, en and x-default (English)  ({"es":"https://web-production-f1d7c246.up.railway.app/servicios/desarrollo","en":"https://web-production-f1d7c246.up.railway.app/en/services/development","x-default":"https://web-production-f1d7c246.up.railway.app/en/services/development"})
+PASS  [es] /servicios/desarrollo language links go to this page in each language, without redirect  (5 links)
+PASS  [es] /servicios/desarrollo og:url is the canonical  (https://web-production-f1d7c246.up.railway.app/servicios/desarrollo)
+PASS  [es] /servicios/desarrollo og:site_name and twitter card
+PASS  [es] /servicios/desarrollo og:image is the page's social image  (https://web-production-f1d7c246.up.railway.app/og/es/servicios-desarrollo.png)
+PASS  [es] /servicios/desarrollo social image /og/es/servicios-desarrollo.png -> 200 image/png  (status 200, 38144 bytes)
+PASS  [es] /servicios/desarrollo theme-color and manifest are declared
+PASS  [en] /en/services/development -> 200 without redirect  (status 200)
+PASS  [en] /en/services/development is <html lang="en">
+PASS  [en] /en/services/development X-Robots-Tag has noindex
+PASS  [en] /en/services/development has one header, main, footer and h1  ({"header":1,"main":1,"footer":1,"h1":1})
+PASS  [en] /en/services/development title is the page's own  (Web development and custom software — Kardenum)
+PASS  [en] /en/services/development description is the page's own  (145 chars)
+PASS  [en] /en/services/development title and description are unique on the site
+PASS  [en] /en/services/development meta robots has noindex  (noindex, nofollow)
+PASS  [en] /en/services/development has exactly one canonical, pointing to itself  (https://web-production-f1d7c246.up.railway.app/en/services/development)
+PASS  [en] /en/services/development hreflang es, en and x-default (English)  ({"es":"https://web-production-f1d7c246.up.railway.app/servicios/desarrollo","en":"https://web-production-f1d7c246.up.railway.app/en/services/development","x-default":"https://web-production-f1d7c246.up.railway.app/en/services/development"})
+PASS  [en] /en/services/development language links go to this page in each language, without redirect  (5 links)
+PASS  [en] /en/services/development og:url is the canonical  (https://web-production-f1d7c246.up.railway.app/en/services/development)
+PASS  [en] /en/services/development og:site_name and twitter card
+PASS  [en] /en/services/development og:image is the page's social image  (https://web-production-f1d7c246.up.railway.app/og/en/services-development.png)
+PASS  [en] /en/services/development social image /og/en/services-development.png -> 200 image/png  (status 200, 39801 bytes)
+PASS  [en] /en/services/development theme-color and manifest are declared
+PASS  [es] /servicios/diseno -> 200 without redirect  (status 200)
+PASS  [es] /servicios/diseno is <html lang="es">
+PASS  [es] /servicios/diseno X-Robots-Tag has noindex
+PASS  [es] /servicios/diseno has one header, main, footer and h1  ({"header":1,"main":1,"footer":1,"h1":1})
+PASS  [es] /servicios/diseno title is the page's own  (Identidad visual y diseño gráfico — Kardenum)
+PASS  [es] /servicios/diseno description is the page's own  (140 chars)
+PASS  [es] /servicios/diseno title and description are unique on the site
+PASS  [es] /servicios/diseno meta robots has noindex  (noindex, nofollow)
+PASS  [es] /servicios/diseno has exactly one canonical, pointing to itself  (https://web-production-f1d7c246.up.railway.app/servicios/diseno)
+PASS  [es] /servicios/diseno hreflang es, en and x-default (English)  ({"es":"https://web-production-f1d7c246.up.railway.app/servicios/diseno","en":"https://web-production-f1d7c246.up.railway.app/en/services/design","x-default":"https://web-production-f1d7c246.up.railway.app/en/services/design"})
+PASS  [es] /servicios/diseno language links go to this page in each language, without redirect  (5 links)
+PASS  [es] /servicios/diseno og:url is the canonical  (https://web-production-f1d7c246.up.railway.app/servicios/diseno)
+PASS  [es] /servicios/diseno og:site_name and twitter card
+PASS  [es] /servicios/diseno og:image is the page's social image  (https://web-production-f1d7c246.up.railway.app/og/es/servicios-diseno.png)
+PASS  [es] /servicios/diseno social image /og/es/servicios-diseno.png -> 200 image/png  (status 200, 39058 bytes)
+PASS  [es] /servicios/diseno theme-color and manifest are declared
+PASS  [en] /en/services/design -> 200 without redirect  (status 200)
+PASS  [en] /en/services/design is <html lang="en">
+PASS  [en] /en/services/design X-Robots-Tag has noindex
+PASS  [en] /en/services/design has one header, main, footer and h1  ({"header":1,"main":1,"footer":1,"h1":1})
+PASS  [en] /en/services/design title is the page's own  (Brand identity and graphic design — Kardenum)
+PASS  [en] /en/services/design description is the page's own  (139 chars)
+PASS  [en] /en/services/design title and description are unique on the site
+PASS  [en] /en/services/design meta robots has noindex  (noindex, nofollow)
+PASS  [en] /en/services/design has exactly one canonical, pointing to itself  (https://web-production-f1d7c246.up.railway.app/en/services/design)
+PASS  [en] /en/services/design hreflang es, en and x-default (English)  ({"es":"https://web-production-f1d7c246.up.railway.app/servicios/diseno","en":"https://web-production-f1d7c246.up.railway.app/en/services/design","x-default":"https://web-production-f1d7c246.up.railway.app/en/services/design"})
+PASS  [en] /en/services/design language links go to this page in each language, without redirect  (5 links)
+PASS  [en] /en/services/design og:url is the canonical  (https://web-production-f1d7c246.up.railway.app/en/services/design)
+PASS  [en] /en/services/design og:site_name and twitter card
+PASS  [en] /en/services/design og:image is the page's social image  (https://web-production-f1d7c246.up.railway.app/og/en/services-design.png)
+PASS  [en] /en/services/design social image /og/en/services-design.png -> 200 image/png  (status 200, 36056 bytes)
+PASS  [en] /en/services/design theme-color and manifest are declared
+PASS  [es] /servicios/video -> 200 without redirect  (status 200)
+PASS  [es] /servicios/video is <html lang="es">
+PASS  [es] /servicios/video X-Robots-Tag has noindex
+PASS  [es] /servicios/video has one header, main, footer and h1  ({"header":1,"main":1,"footer":1,"h1":1})
+PASS  [es] /servicios/video title is the page's own  (Edición de video y animación — Kardenum)
+PASS  [es] /servicios/video description is the page's own  (140 chars)
+PASS  [es] /servicios/video title and description are unique on the site
+PASS  [es] /servicios/video meta robots has noindex  (noindex, nofollow)
+PASS  [es] /servicios/video has exactly one canonical, pointing to itself  (https://web-production-f1d7c246.up.railway.app/servicios/video)
+PASS  [es] /servicios/video hreflang es, en and x-default (English)  ({"es":"https://web-production-f1d7c246.up.railway.app/servicios/video","en":"https://web-production-f1d7c246.up.railway.app/en/services/video","x-default":"https://web-production-f1d7c246.up.railway.app/en/services/video"})
+PASS  [es] /servicios/video language links go to this page in each language, without redirect  (5 links)
+PASS  [es] /servicios/video og:url is the canonical  (https://web-production-f1d7c246.up.railway.app/servicios/video)
+PASS  [es] /servicios/video og:site_name and twitter card
+PASS  [es] /servicios/video og:image is the page's social image  (https://web-production-f1d7c246.up.railway.app/og/es/servicios-video.png)
+PASS  [es] /servicios/video social image /og/es/servicios-video.png -> 200 image/png  (status 200, 39552 bytes)
+PASS  [es] /servicios/video theme-color and manifest are declared
+PASS  [en] /en/services/video -> 200 without redirect  (status 200)
+PASS  [en] /en/services/video is <html lang="en">
+PASS  [en] /en/services/video X-Robots-Tag has noindex
+PASS  [en] /en/services/video has one header, main, footer and h1  ({"header":1,"main":1,"footer":1,"h1":1})
+PASS  [en] /en/services/video title is the page's own  (Video editing and motion graphics — Kardenum)
+PASS  [en] /en/services/video description is the page's own  (151 chars)
+PASS  [en] /en/services/video title and description are unique on the site
+PASS  [en] /en/services/video meta robots has noindex  (noindex, nofollow)
+PASS  [en] /en/services/video has exactly one canonical, pointing to itself  (https://web-production-f1d7c246.up.railway.app/en/services/video)
+PASS  [en] /en/services/video hreflang es, en and x-default (English)  ({"es":"https://web-production-f1d7c246.up.railway.app/servicios/video","en":"https://web-production-f1d7c246.up.railway.app/en/services/video","x-default":"https://web-production-f1d7c246.up.railway.app/en/services/video"})
+PASS  [en] /en/services/video language links go to this page in each language, without redirect  (5 links)
+PASS  [en] /en/services/video og:url is the canonical  (https://web-production-f1d7c246.up.railway.app/en/services/video)
+PASS  [en] /en/services/video og:site_name and twitter card
+PASS  [en] /en/services/video og:image is the page's social image  (https://web-production-f1d7c246.up.railway.app/og/en/services-video.png)
+PASS  [en] /en/services/video social image /og/en/services-video.png -> 200 image/png  (status 200, 39630 bytes)
+PASS  [en] /en/services/video theme-color and manifest are declared
+PASS  [es] /servicios/minecraft -> 200 without redirect  (status 200)
+PASS  [es] /servicios/minecraft is <html lang="es">
+PASS  [es] /servicios/minecraft X-Robots-Tag has noindex
+PASS  [es] /servicios/minecraft has one header, main, footer and h1  ({"header":1,"main":1,"footer":1,"h1":1})
+PASS  [es] /servicios/minecraft title is the page's own  (Plugins y servidores de Minecraft a la medida — Kardenum)
+PASS  [es] /servicios/minecraft description is the page's own  (139 chars)
+PASS  [es] /servicios/minecraft title and description are unique on the site
+PASS  [es] /servicios/minecraft meta robots has noindex  (noindex, nofollow)
+PASS  [es] /servicios/minecraft has exactly one canonical, pointing to itself  (https://web-production-f1d7c246.up.railway.app/servicios/minecraft)
+PASS  [es] /servicios/minecraft hreflang es, en and x-default (English)  ({"es":"https://web-production-f1d7c246.up.railway.app/servicios/minecraft","en":"https://web-production-f1d7c246.up.railway.app/en/services/minecraft","x-default":"https://web-production-f1d7c246.up.railway.app/en/services/minecraft"})
+PASS  [es] /servicios/minecraft language links go to this page in each language, without redirect  (5 links)
+PASS  [es] /servicios/minecraft og:url is the canonical  (https://web-production-f1d7c246.up.railway.app/servicios/minecraft)
+PASS  [es] /servicios/minecraft og:site_name and twitter card
+PASS  [es] /servicios/minecraft og:image is the page's social image  (https://web-production-f1d7c246.up.railway.app/og/es/servicios-minecraft.png)
+PASS  [es] /servicios/minecraft social image /og/es/servicios-minecraft.png -> 200 image/png  (status 200, 35577 bytes)
+PASS  [es] /servicios/minecraft theme-color and manifest are declared
+PASS  [en] /en/services/minecraft -> 200 without redirect  (status 200)
+PASS  [en] /en/services/minecraft is <html lang="en">
+PASS  [en] /en/services/minecraft X-Robots-Tag has noindex
+PASS  [en] /en/services/minecraft has one header, main, footer and h1  ({"header":1,"main":1,"footer":1,"h1":1})
+PASS  [en] /en/services/minecraft title is the page's own  (Custom Minecraft plugins and server setup — Kardenum)
+PASS  [en] /en/services/minecraft description is the page's own  (133 chars)
+PASS  [en] /en/services/minecraft title and description are unique on the site
+PASS  [en] /en/services/minecraft meta robots has noindex  (noindex, nofollow)
+PASS  [en] /en/services/minecraft has exactly one canonical, pointing to itself  (https://web-production-f1d7c246.up.railway.app/en/services/minecraft)
+PASS  [en] /en/services/minecraft hreflang es, en and x-default (English)  ({"es":"https://web-production-f1d7c246.up.railway.app/servicios/minecraft","en":"https://web-production-f1d7c246.up.railway.app/en/services/minecraft","x-default":"https://web-production-f1d7c246.up.railway.app/en/services/minecraft"})
+PASS  [en] /en/services/minecraft language links go to this page in each language, without redirect  (5 links)
+PASS  [en] /en/services/minecraft og:url is the canonical  (https://web-production-f1d7c246.up.railway.app/en/services/minecraft)
+PASS  [en] /en/services/minecraft og:site_name and twitter card
+PASS  [en] /en/services/minecraft og:image is the page's social image  (https://web-production-f1d7c246.up.railway.app/og/en/services-minecraft.png)
+PASS  [en] /en/services/minecraft social image /og/en/services-minecraft.png -> 200 image/png  (status 200, 38248 bytes)
+PASS  [en] /en/services/minecraft theme-color and manifest are declared
+PASS  [es] /servicios/discord -> 200 without redirect  (status 200)
+PASS  [es] /servicios/discord is <html lang="es">
+PASS  [es] /servicios/discord X-Robots-Tag has noindex
+PASS  [es] /servicios/discord has one header, main, footer and h1  ({"header":1,"main":1,"footer":1,"h1":1})
+PASS  [es] /servicios/discord title is the page's own  (Bots y servidores de Discord a la medida — Kardenum)
+PASS  [es] /servicios/discord description is the page's own  (134 chars)
+PASS  [es] /servicios/discord title and description are unique on the site
+PASS  [es] /servicios/discord meta robots has noindex  (noindex, nofollow)
+PASS  [es] /servicios/discord has exactly one canonical, pointing to itself  (https://web-production-f1d7c246.up.railway.app/servicios/discord)
+PASS  [es] /servicios/discord hreflang es, en and x-default (English)  ({"es":"https://web-production-f1d7c246.up.railway.app/servicios/discord","en":"https://web-production-f1d7c246.up.railway.app/en/services/discord","x-default":"https://web-production-f1d7c246.up.railway.app/en/services/discord"})
+PASS  [es] /servicios/discord language links go to this page in each language, without redirect  (5 links)
+PASS  [es] /servicios/discord og:url is the canonical  (https://web-production-f1d7c246.up.railway.app/servicios/discord)
+PASS  [es] /servicios/discord og:site_name and twitter card
+PASS  [es] /servicios/discord og:image is the page's social image  (https://web-production-f1d7c246.up.railway.app/og/es/servicios-discord.png)
+PASS  [es] /servicios/discord social image /og/es/servicios-discord.png -> 200 image/png  (status 200, 37580 bytes)
+PASS  [es] /servicios/discord theme-color and manifest are declared
+PASS  [en] /en/services/discord -> 200 without redirect  (status 200)
+PASS  [en] /en/services/discord is <html lang="en">
+PASS  [en] /en/services/discord X-Robots-Tag has noindex
+PASS  [en] /en/services/discord has one header, main, footer and h1  ({"header":1,"main":1,"footer":1,"h1":1})
+PASS  [en] /en/services/discord title is the page's own  (Custom Discord bots and server setup — Kardenum)
+PASS  [en] /en/services/discord description is the page's own  (128 chars)
+PASS  [en] /en/services/discord title and description are unique on the site
+PASS  [en] /en/services/discord meta robots has noindex  (noindex, nofollow)
+PASS  [en] /en/services/discord has exactly one canonical, pointing to itself  (https://web-production-f1d7c246.up.railway.app/en/services/discord)
+PASS  [en] /en/services/discord hreflang es, en and x-default (English)  ({"es":"https://web-production-f1d7c246.up.railway.app/servicios/discord","en":"https://web-production-f1d7c246.up.railway.app/en/services/discord","x-default":"https://web-production-f1d7c246.up.railway.app/en/services/discord"})
+PASS  [en] /en/services/discord language links go to this page in each language, without redirect  (5 links)
+PASS  [en] /en/services/discord og:url is the canonical  (https://web-production-f1d7c246.up.railway.app/en/services/discord)
+PASS  [en] /en/services/discord og:site_name and twitter card
+PASS  [en] /en/services/discord og:image is the page's social image  (https://web-production-f1d7c246.up.railway.app/og/en/services-discord.png)
+PASS  [en] /en/services/discord social image /og/en/services-discord.png -> 200 image/png  (status 200, 42194 bytes)
+PASS  [en] /en/services/discord theme-color and manifest are declared
+PASS  [es] /nosotros -> 200 without redirect  (status 200)
+PASS  [es] /nosotros is <html lang="es">
+PASS  [es] /nosotros X-Robots-Tag has noindex
+PASS  [es] /nosotros has one header, main, footer and h1  ({"header":1,"main":1,"footer":1,"h1":1})
+PASS  [es] /nosotros title is the page's own  (Nosotros: varios oficios, un solo estudio — Kardenum)
+PASS  [es] /nosotros description is the page's own  (154 chars)
+PASS  [es] /nosotros title and description are unique on the site
+PASS  [es] /nosotros meta robots has noindex  (noindex, nofollow)
+PASS  [es] /nosotros has exactly one canonical, pointing to itself  (https://web-production-f1d7c246.up.railway.app/nosotros)
+PASS  [es] /nosotros hreflang es, en and x-default (English)  ({"es":"https://web-production-f1d7c246.up.railway.app/nosotros","en":"https://web-production-f1d7c246.up.railway.app/en/about","x-default":"https://web-production-f1d7c246.up.railway.app/en/about"})
+PASS  [es] /nosotros language links go to this page in each language, without redirect  (5 links)
+PASS  [es] /nosotros og:url is the canonical  (https://web-production-f1d7c246.up.railway.app/nosotros)
+PASS  [es] /nosotros og:site_name and twitter card
+PASS  [es] /nosotros og:image is the page's social image  (https://web-production-f1d7c246.up.railway.app/og/es/nosotros.png)
+PASS  [es] /nosotros social image /og/es/nosotros.png -> 200 image/png  (status 200, 41886 bytes)
+PASS  [es] /nosotros theme-color and manifest are declared
+PASS  [en] /en/about -> 200 without redirect  (status 200)
+PASS  [en] /en/about is <html lang="en">
+PASS  [en] /en/about X-Robots-Tag has noindex
+PASS  [en] /en/about has one header, main, footer and h1  ({"header":1,"main":1,"footer":1,"h1":1})
+PASS  [en] /en/about title is the page's own  (About us: several crafts, one studio — Kardenum)
+PASS  [en] /en/about description is the page's own  (143 chars)
+PASS  [en] /en/about title and description are unique on the site
+PASS  [en] /en/about meta robots has noindex  (noindex, nofollow)
+PASS  [en] /en/about has exactly one canonical, pointing to itself  (https://web-production-f1d7c246.up.railway.app/en/about)
+PASS  [en] /en/about hreflang es, en and x-default (English)  ({"es":"https://web-production-f1d7c246.up.railway.app/nosotros","en":"https://web-production-f1d7c246.up.railway.app/en/about","x-default":"https://web-production-f1d7c246.up.railway.app/en/about"})
+PASS  [en] /en/about language links go to this page in each language, without redirect  (5 links)
+PASS  [en] /en/about og:url is the canonical  (https://web-production-f1d7c246.up.railway.app/en/about)
+PASS  [en] /en/about og:site_name and twitter card
+PASS  [en] /en/about og:image is the page's social image  (https://web-production-f1d7c246.up.railway.app/og/en/about.png)
+PASS  [en] /en/about social image /og/en/about.png -> 200 image/png  (status 200, 37115 bytes)
+PASS  [en] /en/about theme-color and manifest are declared
+PASS  [es] /contacto -> 200 without redirect  (status 200)
+PASS  [es] /contacto is <html lang="es">
+PASS  [es] /contacto X-Robots-Tag has noindex
+PASS  [es] /contacto has one header, main, footer and h1  ({"header":1,"main":1,"footer":1,"h1":1})
+PASS  [es] /contacto title is the page's own  (Contacto y cotización a la medida — Kardenum)
+PASS  [es] /contacto description is the page's own  (142 chars)
+PASS  [es] /contacto title and description are unique on the site
+PASS  [es] /contacto meta robots has noindex  (noindex, nofollow)
+PASS  [es] /contacto has exactly one canonical, pointing to itself  (https://web-production-f1d7c246.up.railway.app/contacto)
+PASS  [es] /contacto hreflang es, en and x-default (English)  ({"es":"https://web-production-f1d7c246.up.railway.app/contacto","en":"https://web-production-f1d7c246.up.railway.app/en/contact","x-default":"https://web-production-f1d7c246.up.railway.app/en/contact"})
+PASS  [es] /contacto language links go to this page in each language, without redirect  (5 links)
+PASS  [es] /contacto og:url is the canonical  (https://web-production-f1d7c246.up.railway.app/contacto)
+PASS  [es] /contacto og:site_name and twitter card
+PASS  [es] /contacto og:image is the page's social image  (https://web-production-f1d7c246.up.railway.app/og/es/contacto.png)
+PASS  [es] /contacto social image /og/es/contacto.png -> 200 image/png  (status 200, 36748 bytes)
+PASS  [es] /contacto theme-color and manifest are declared
+PASS  [en] /en/contact -> 200 without redirect  (status 200)
+PASS  [en] /en/contact is <html lang="en">
+PASS  [en] /en/contact X-Robots-Tag has noindex
+PASS  [en] /en/contact has one header, main, footer and h1  ({"header":1,"main":1,"footer":1,"h1":1})
+PASS  [en] /en/contact title is the page's own  (Contact us and get a quote — Kardenum)
+PASS  [en] /en/contact description is the page's own  (144 chars)
+PASS  [en] /en/contact title and description are unique on the site
+PASS  [en] /en/contact meta robots has noindex  (noindex, nofollow)
+PASS  [en] /en/contact has exactly one canonical, pointing to itself  (https://web-production-f1d7c246.up.railway.app/en/contact)
+PASS  [en] /en/contact hreflang es, en and x-default (English)  ({"es":"https://web-production-f1d7c246.up.railway.app/contacto","en":"https://web-production-f1d7c246.up.railway.app/en/contact","x-default":"https://web-production-f1d7c246.up.railway.app/en/contact"})
+PASS  [en] /en/contact language links go to this page in each language, without redirect  (5 links)
+PASS  [en] /en/contact og:url is the canonical  (https://web-production-f1d7c246.up.railway.app/en/contact)
+PASS  [en] /en/contact og:site_name and twitter card
+PASS  [en] /en/contact og:image is the page's social image  (https://web-production-f1d7c246.up.railway.app/og/en/contact.png)
+PASS  [en] /en/contact social image /og/en/contact.png -> 200 image/png  (status 200, 36657 bytes)
+PASS  [en] /en/contact theme-color and manifest are declared
+PASS  [es] /legal/privacidad -> 200 without redirect  (status 200)
+PASS  [es] /legal/privacidad is <html lang="es">
+PASS  [es] /legal/privacidad X-Robots-Tag has noindex
+PASS  [es] /legal/privacidad has one header, main, footer and h1  ({"header":1,"main":1,"footer":1,"h1":1})
+PASS  [es] /legal/privacidad title is the page's own  (Política de privacidad — Kardenum)
+PASS  [es] /legal/privacidad description is the page's own  (141 chars)
+PASS  [es] /legal/privacidad title and description are unique on the site
+PASS  [es] /legal/privacidad meta robots has noindex  (noindex, nofollow)
+PASS  [es] /legal/privacidad has exactly one canonical, pointing to itself  (https://web-production-f1d7c246.up.railway.app/legal/privacidad)
+PASS  [es] /legal/privacidad hreflang es, en and x-default (English)  ({"es":"https://web-production-f1d7c246.up.railway.app/legal/privacidad","en":"https://web-production-f1d7c246.up.railway.app/en/legal/privacy","x-default":"https://web-production-f1d7c246.up.railway.app/en/legal/privacy"})
+PASS  [es] /legal/privacidad language links go to this page in each language, without redirect  (5 links)
+PASS  [es] /legal/privacidad og:url is the canonical  (https://web-production-f1d7c246.up.railway.app/legal/privacidad)
+PASS  [es] /legal/privacidad og:site_name and twitter card
+PASS  [es] /legal/privacidad og:image is the page's social image  (https://web-production-f1d7c246.up.railway.app/og/es/legal-privacidad.png)
+PASS  [es] /legal/privacidad social image /og/es/legal-privacidad.png -> 200 image/png  (status 200, 33877 bytes)
+PASS  [es] /legal/privacidad theme-color and manifest are declared
+PASS  [en] /en/legal/privacy -> 200 without redirect  (status 200)
+PASS  [en] /en/legal/privacy is <html lang="en">
+PASS  [en] /en/legal/privacy X-Robots-Tag has noindex
+PASS  [en] /en/legal/privacy has one header, main, footer and h1  ({"header":1,"main":1,"footer":1,"h1":1})
+PASS  [en] /en/legal/privacy title is the page's own  (Privacy policy — Kardenum)
+PASS  [en] /en/legal/privacy description is the page's own  (151 chars)
+PASS  [en] /en/legal/privacy title and description are unique on the site
+PASS  [en] /en/legal/privacy meta robots has noindex  (noindex, nofollow)
+PASS  [en] /en/legal/privacy has exactly one canonical, pointing to itself  (https://web-production-f1d7c246.up.railway.app/en/legal/privacy)
+PASS  [en] /en/legal/privacy hreflang es, en and x-default (English)  ({"es":"https://web-production-f1d7c246.up.railway.app/legal/privacidad","en":"https://web-production-f1d7c246.up.railway.app/en/legal/privacy","x-default":"https://web-production-f1d7c246.up.railway.app/en/legal/privacy"})
+PASS  [en] /en/legal/privacy language links go to this page in each language, without redirect  (5 links)
+PASS  [en] /en/legal/privacy og:url is the canonical  (https://web-production-f1d7c246.up.railway.app/en/legal/privacy)
+PASS  [en] /en/legal/privacy og:site_name and twitter card
+PASS  [en] /en/legal/privacy og:image is the page's social image  (https://web-production-f1d7c246.up.railway.app/og/en/legal-privacy.png)
+PASS  [en] /en/legal/privacy social image /og/en/legal-privacy.png -> 200 image/png  (status 200, 31248 bytes)
+PASS  [en] /en/legal/privacy theme-color and manifest are declared
+PASS  [es] /legal/terminos -> 200 without redirect  (status 200)
+PASS  [es] /legal/terminos is <html lang="es">
+PASS  [es] /legal/terminos X-Robots-Tag has noindex
+PASS  [es] /legal/terminos has one header, main, footer and h1  ({"header":1,"main":1,"footer":1,"h1":1})
+PASS  [es] /legal/terminos title is the page's own  (Términos del sitio — Kardenum)
+PASS  [es] /legal/terminos description is the page's own  (144 chars)
+PASS  [es] /legal/terminos title and description are unique on the site
+PASS  [es] /legal/terminos meta robots has noindex  (noindex, nofollow)
+PASS  [es] /legal/terminos has exactly one canonical, pointing to itself  (https://web-production-f1d7c246.up.railway.app/legal/terminos)
+PASS  [es] /legal/terminos hreflang es, en and x-default (English)  ({"es":"https://web-production-f1d7c246.up.railway.app/legal/terminos","en":"https://web-production-f1d7c246.up.railway.app/en/legal/terms","x-default":"https://web-production-f1d7c246.up.railway.app/en/legal/terms"})
+PASS  [es] /legal/terminos language links go to this page in each language, without redirect  (5 links)
+PASS  [es] /legal/terminos og:url is the canonical  (https://web-production-f1d7c246.up.railway.app/legal/terminos)
+PASS  [es] /legal/terminos og:site_name and twitter card
+PASS  [es] /legal/terminos og:image is the page's social image  (https://web-production-f1d7c246.up.railway.app/og/es/legal-terminos.png)
+PASS  [es] /legal/terminos social image /og/es/legal-terminos.png -> 200 image/png  (status 200, 31992 bytes)
+PASS  [es] /legal/terminos theme-color and manifest are declared
+PASS  [en] /en/legal/terms -> 200 without redirect  (status 200)
+PASS  [en] /en/legal/terms is <html lang="en">
+PASS  [en] /en/legal/terms X-Robots-Tag has noindex
+PASS  [en] /en/legal/terms has one header, main, footer and h1  ({"header":1,"main":1,"footer":1,"h1":1})
+PASS  [en] /en/legal/terms title is the page's own  (Site terms — Kardenum)
+PASS  [en] /en/legal/terms description is the page's own  (132 chars)
+PASS  [en] /en/legal/terms title and description are unique on the site
+PASS  [en] /en/legal/terms meta robots has noindex  (noindex, nofollow)
+PASS  [en] /en/legal/terms has exactly one canonical, pointing to itself  (https://web-production-f1d7c246.up.railway.app/en/legal/terms)
+PASS  [en] /en/legal/terms hreflang es, en and x-default (English)  ({"es":"https://web-production-f1d7c246.up.railway.app/legal/terminos","en":"https://web-production-f1d7c246.up.railway.app/en/legal/terms","x-default":"https://web-production-f1d7c246.up.railway.app/en/legal/terms"})
+PASS  [en] /en/legal/terms language links go to this page in each language, without redirect  (5 links)
+PASS  [en] /en/legal/terms og:url is the canonical  (https://web-production-f1d7c246.up.railway.app/en/legal/terms)
+PASS  [en] /en/legal/terms og:site_name and twitter card
+PASS  [en] /en/legal/terms og:image is the page's social image  (https://web-production-f1d7c246.up.railway.app/og/en/legal-terms.png)
+PASS  [en] /en/legal/terms social image /og/en/legal-terms.png -> 200 image/png  (status 200, 27035 bytes)
+PASS  [en] /en/legal/terms theme-color and manifest are declared
+PASS  [es] JSON-LD is one valid document with Organization and WebSite  (types: Organization, WebSite)
+PASS  [es] Organization: name, url and fixed logo URL
+PASS  [es] WebSite: name and language
+PASS  [es] JSON-LD has no bracketed placeholders
+PASS  [es] the five service lines are in the HTML
+PASS  [es] the seven questions and their answers are in the HTML, folded or not
+PASS  [en] JSON-LD is one valid document with Organization and WebSite  (types: Organization, WebSite)
+PASS  [en] Organization: name, url and fixed logo URL
+PASS  [en] WebSite: name and language
+PASS  [en] JSON-LD has no bracketed placeholders
+PASS  [en] the five service lines are in the HTML
+PASS  [en] the seven questions and their answers are in the HTML, folded or not
+PASS  GET /logo.png -> 200 image/png  (status 200)
+PASS  GET /manifest.webmanifest -> 200 with the site name  (status 200)
+PASS  [es] /servicios breadcrumb: visible trail and BreadcrumbList agree  (Inicio > Servicios)
+PASS  [es] /servicios JSON-LD has no bracketed placeholders
+PASS  [es] /servicios footer notices: minecraft  (minecraft)
+PASS  GET /services redirects permanently (308) to /servicios  (status 308 -> /servicios)
+PASS  [en] /en/services breadcrumb: visible trail and BreadcrumbList agree  (Home > Services)
+PASS  [en] /en/services JSON-LD has no bracketed placeholders
+PASS  [en] /en/services footer notices: minecraft  (minecraft)
+PASS  GET /en/servicios redirects permanently (308) to /en/services  (status 308 -> /en/services)
+PASS  [es] /servicios/desarrollo breadcrumb: visible trail and BreadcrumbList agree  (Inicio > Servicios > Desarrollo)
+PASS  [es] /servicios/desarrollo Service: name, url and description of the line  (Desarrollo)
+PASS  [es] /servicios/desarrollo JSON-LD has no bracketed placeholders
+PASS  [es] /servicios/desarrollo footer notices: minecraft  (minecraft)
+PASS  GET /services/development redirects permanently (308) to /servicios/desarrollo  (status 308 -> /servicios/desarrollo)
+PASS  [en] /en/services/development breadcrumb: visible trail and BreadcrumbList agree  (Home > Services > Development)
+PASS  [en] /en/services/development Service: name, url and description of the line  (Development)
+PASS  [en] /en/services/development JSON-LD has no bracketed placeholders
+PASS  [en] /en/services/development footer notices: minecraft  (minecraft)
+PASS  GET /en/servicios/desarrollo redirects permanently (308) to /en/services/development  (status 308 -> /en/services/development)
+PASS  [es] /servicios/diseno breadcrumb: visible trail and BreadcrumbList agree  (Inicio > Servicios > Diseño)
+PASS  [es] /servicios/diseno Service: name, url and description of the line  (Diseño)
+PASS  [es] /servicios/diseno JSON-LD has no bracketed placeholders
+PASS  [es] /servicios/diseno footer notices: minecraft  (minecraft)
+PASS  GET /services/design redirects permanently (308) to /servicios/diseno  (status 308 -> /servicios/diseno)
+PASS  [en] /en/services/design breadcrumb: visible trail and BreadcrumbList agree  (Home > Services > Design)
+PASS  [en] /en/services/design Service: name, url and description of the line  (Design)
+PASS  [en] /en/services/design JSON-LD has no bracketed placeholders
+PASS  [en] /en/services/design footer notices: minecraft  (minecraft)
+PASS  GET /en/servicios/diseno redirects permanently (308) to /en/services/design  (status 308 -> /en/services/design)
+PASS  [es] /servicios/video breadcrumb: visible trail and BreadcrumbList agree  (Inicio > Servicios > Video y animación)
+PASS  [es] /servicios/video Service: name, url and description of the line  (Video y animación)
+PASS  [es] /servicios/video JSON-LD has no bracketed placeholders
+PASS  [es] /servicios/video footer notices: minecraft  (minecraft)
+PASS  GET /services/video redirects permanently (308) to /servicios/video  (status 308 -> /servicios/video)
+PASS  [en] /en/services/video breadcrumb: visible trail and BreadcrumbList agree  (Home > Services > Video and animation)
+PASS  [en] /en/services/video Service: name, url and description of the line  (Video and animation)
+PASS  [en] /en/services/video JSON-LD has no bracketed placeholders
+PASS  [en] /en/services/video footer notices: minecraft  (minecraft)
+PASS  GET /en/servicios/video redirects permanently (308) to /en/services/video  (status 308 -> /en/services/video)
+PASS  [es] /servicios/minecraft breadcrumb: visible trail and BreadcrumbList agree  (Inicio > Servicios > Minecraft)
+PASS  [es] /servicios/minecraft Service: name, url and description of the line  (Minecraft)
+PASS  [es] /servicios/minecraft JSON-LD has no bracketed placeholders
+PASS  [es] /servicios/minecraft footer notices: minecraft  (minecraft)
+PASS  GET /services/minecraft redirects permanently (308) to /servicios/minecraft  (status 308 -> /servicios/minecraft)
+PASS  [en] /en/services/minecraft breadcrumb: visible trail and BreadcrumbList agree  (Home > Services > Minecraft)
+PASS  [en] /en/services/minecraft Service: name, url and description of the line  (Minecraft)
+PASS  [en] /en/services/minecraft JSON-LD has no bracketed placeholders
+PASS  [en] /en/services/minecraft footer notices: minecraft  (minecraft)
+PASS  GET /en/servicios/minecraft redirects permanently (308) to /en/services/minecraft  (status 308 -> /en/services/minecraft)
+PASS  [es] /servicios/discord breadcrumb: visible trail and BreadcrumbList agree  (Inicio > Servicios > Discord)
+PASS  [es] /servicios/discord Service: name, url and description of the line  (Discord)
+PASS  [es] /servicios/discord JSON-LD has no bracketed placeholders
+PASS  [es] /servicios/discord footer notices: minecraft + discord  (minecraft + discord)
+PASS  GET /services/discord redirects permanently (308) to /servicios/discord  (status 308 -> /servicios/discord)
+PASS  [en] /en/services/discord breadcrumb: visible trail and BreadcrumbList agree  (Home > Services > Discord)
+PASS  [en] /en/services/discord Service: name, url and description of the line  (Discord)
+PASS  [en] /en/services/discord JSON-LD has no bracketed placeholders
+PASS  [en] /en/services/discord footer notices: minecraft + discord  (minecraft + discord)
+PASS  GET /en/servicios/discord redirects permanently (308) to /en/services/discord  (status 308 -> /en/services/discord)
+PASS  [es] /nosotros breadcrumb: visible trail and BreadcrumbList agree  (no breadcrumb)
+PASS  [es] /nosotros JSON-LD has no bracketed placeholders
+PASS  [es] /nosotros footer notices: minecraft  (minecraft)
+PASS  GET /about redirects permanently (308) to /nosotros  (status 308 -> /nosotros)
+PASS  [en] /en/about breadcrumb: visible trail and BreadcrumbList agree  (no breadcrumb)
+PASS  [en] /en/about JSON-LD has no bracketed placeholders
+PASS  [en] /en/about footer notices: minecraft  (minecraft)
+PASS  GET /en/nosotros redirects permanently (308) to /en/about  (status 308 -> /en/about)
+PASS  [es] /contacto breadcrumb: visible trail and BreadcrumbList agree  (Inicio > Contacto)
+PASS  [es] /contacto JSON-LD has no bracketed placeholders
+PASS  [es] /contacto footer notices: minecraft  (minecraft)
+PASS  GET /contact redirects permanently (308) to /contacto  (status 308 -> /contacto)
+PASS  [en] /en/contact breadcrumb: visible trail and BreadcrumbList agree  (Home > Contact)
+PASS  [en] /en/contact JSON-LD has no bracketed placeholders
+PASS  [en] /en/contact footer notices: minecraft  (minecraft)
+PASS  GET /en/contacto redirects permanently (308) to /en/contact  (status 308 -> /en/contact)
+PASS  [es] /legal/privacidad breadcrumb: visible trail and BreadcrumbList agree  (Inicio > Privacidad)
+PASS  [es] /legal/privacidad JSON-LD has no bracketed placeholders
+PASS  [es] /legal/privacidad footer notices: minecraft  (minecraft)
+PASS  GET /legal/privacy redirects permanently (308) to /legal/privacidad  (status 308 -> /legal/privacidad)
+PASS  [en] /en/legal/privacy breadcrumb: visible trail and BreadcrumbList agree  (Home > Privacy)
+PASS  [en] /en/legal/privacy JSON-LD has no bracketed placeholders
+PASS  [en] /en/legal/privacy footer notices: minecraft  (minecraft)
+PASS  GET /en/legal/privacidad redirects permanently (308) to /en/legal/privacy  (status 308 -> /en/legal/privacy)
+PASS  [es] /legal/terminos breadcrumb: visible trail and BreadcrumbList agree  (Inicio > Términos)
+PASS  [es] /legal/terminos JSON-LD has no bracketed placeholders
+PASS  [es] /legal/terminos footer notices: minecraft  (minecraft)
+PASS  GET /legal/terms redirects permanently (308) to /legal/terminos  (status 308 -> /legal/terminos)
+PASS  [en] /en/legal/terms breadcrumb: visible trail and BreadcrumbList agree  (Home > Terms)
+PASS  [en] /en/legal/terms JSON-LD has no bracketed placeholders
+PASS  [en] /en/legal/terms footer notices: minecraft  (minecraft)
+PASS  GET /en/legal/terminos redirects permanently (308) to /en/legal/terms  (status 308 -> /en/legal/terms)
+PASS  GET /minecraft redirects (308) to /servicios/minecraft  (status 308 -> /servicios/minecraft)
+PASS  GET /discord -> 404 until the invitation exists (it never redirects to an invented address)  (status 404)
+PASS  [es] quote form: five labelled fields in the HTML  (5 labels)
+PASS  [es] quote form says it does not store the data
+PASS  [es] quote form cannot be sent by the browser alone (no field names, send button off)  (<button type="submit" disabled="" aria-describedby="_R_4tbsnqivbH5_" class="inline-flex min-h-12 items-center justify-center px-7 text-[0.8125rem] tracking-[0.14em] type-display transition-colors duration-150 bg-ink text-stone hover:bg-bronze-deep gap-2.5 cursor-not-allowed">)
+PASS  [es] quote form fields are off until the script runs, with a note for no JavaScript  (5 of 5 fields off)
+PASS  [es] contact page links to no invented WhatsApp number
+PASS  [en] quote form: five labelled fields in the HTML  (5 labels)
+PASS  [en] quote form says it does not store the data
+PASS  [en] quote form cannot be sent by the browser alone (no field names, send button off)  (<button type="submit" disabled="" aria-describedby="_R_4tbsnqivbH5_" class="inline-flex min-h-12 items-center justify-center px-7 text-[0.8125rem] tracking-[0.14em] type-display transition-colors duration-150 bg-ink text-stone hover:bg-bronze-deep gap-2.5 cursor-not-allowed">)
+PASS  [en] quote form fields are off until the script runs, with a note for no JavaScript  (5 of 5 fields off)
+PASS  [en] contact page links to no invented WhatsApp number
+PASS  GET /robots.txt -> 200  (status 200)
+PASS  robots.txt disallows everything  (User-Agent: * | Disallow: /)
+PASS  robots.txt does not announce a sitemap  (User-Agent: * | Disallow: /)
+PASS  GET /sitemap.xml -> 404 while not indexable  (status 404)
+PASS  robots.txt X-Robots-Tag has noindex
+PASS  the 404 page links only to pages that exist  (7 links)
+PASS  GET /ruta-que-no-existe-smoke -> 404 with the brand page in HTML  (status 404)
+PASS  unknown route X-Robots-Tag has noindex
+PASS  GET /en/ruta-que-no-existe-smoke -> 404 with the brand page in HTML  (status 404)
+PASS  GET /en/a/b -> 404 with the brand page in HTML  (status 404)
+PASS  GET /de -> 404 with the brand page in HTML  (status 404)
+PASS  GET /no-existe-smoke.txt -> 404 with the brand page in HTML  (status 404)
+PASS  GET /og/es/no-existe.png -> 404 with the brand page in HTML  (status 404)
+PASS  home references a /_next/static asset
+PASS  GET /_next/static/media/9a321a2c78eff0b5-s.p.1bkzbscqrt8rl.woff2 -> 200  (status 200)
+PASS  static asset X-Robots-Tag has noindex
+PASS  page /: security headers (6)
+PASS  page /: does not say what it is built with
+PASS  page /en/services/minecraft: security headers (6)
+PASS  page /en/services/minecraft: does not say what it is built with
+PASS  404: security headers (6)
+PASS  404: does not say what it is built with
+PASS  redirect /es: security headers (6)
+PASS  redirect /es: does not say what it is built with
+PASS  short link /minecraft: security headers (6)
+PASS  short link /minecraft: does not say what it is built with
+PASS  robots.txt: security headers (6)
+PASS  robots.txt: does not say what it is built with
+PASS  social image: security headers (6)
+PASS  social image: does not say what it is built with
+PASS  static asset: security headers (6)
+PASS  static asset: does not say what it is built with
+
+Site origin expected in canonical, hreflang, sitemap and JSON-LD: https://web-production-f1d7c246.up.railway.app
+OK: all 509 checks passed (noindex) on https://web-production-f1d7c246.up.railway.app
