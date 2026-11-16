@@ -1,6 +1,6 @@
 # 007 · Verificación automática tras cada despliegue
 
-**Estado:** en construcción (2026-11-15). **Fuente:** `docs/handoff/BRIEF.md`, paso 7 ("Pruebas automáticas en GitHub
+**Estado:** implementado y comprobado con una corrida real en verde y otra forzada a fallar (2026-11-15; `docs/revisiones/evidencia-paso7.txt`). **Fuente:** `docs/handoff/BRIEF.md`, paso 7 ("Pruebas automáticas en GitHub
 Actions contra la URL de Railway: axe con Playwright en 390 y 1280 px, y Lighthouse CI") y la indicación del fundador
 del 2026-11-15.
 

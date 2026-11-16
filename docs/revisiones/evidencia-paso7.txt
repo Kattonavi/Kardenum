@@ -1,0 +1,52 @@
+EVIDENCIA DEL PASO 7 DEL BRIEF (verificación automática tras cada despliegue, spec 007)
+Proyecto: Kardenum · workflow .github/workflows/verify-deploy.yml · 2026-11-15 (horas en UTC, 2026-11-16)
+
+== 1. Disparador comprobado antes de escribir el workflow
+$ gh api repos/Kattonavi/Kardenum/deployments
+  railway-app[bot] crea un despliegue por publicación, entorno "kardenum / production"; estados: in_progress -> success
+  (y el despliegue anterior pasa a inactive). Un push que no toca web/** no crea despliegue.
+
+== 2. Primera corrida real (despliegue de 358b6ac): FALLÓ, con un hallazgo real
+https://github.com/Kattonavi/Kardenum/actions/runs/43792570445
+  Humo contra el despliegue: OK: all 988 checks passed (noindex)
+  Navegador: 746 passed, 15 skipped, 1 failed
+    [mobile] e2e/fonts.spec.ts "nothing moves when the fonts arrive late (font swap)": Expected < 0.03, Received 0.0454
+  Lighthouse contra el despliegue: success · Lighthouse sobre el build abierto: success
+  El trabajo de aviso abrió el issue #1 por su cuenta.
+Causa: en el runner de Linux no existen Arial ni Roboto, las fuentes de respaldo sobre las que estaban ajustadas las
+medidas; el navegador caía en la fuente del sistema y el texto se movía al llegar la tipografía. Corregido en el sitio
+(0d9ff23): Liberation Sans y Liberation Mono, de las mismas medidas que Arial y Courier New, en las declaraciones.
+
+== 3. Corrida real EN VERDE (despliegue de 0d9ff23)
+https://github.com/Kattonavi/Kardenum/actions/runs/43794266444   (02:47:25 .. 02:53:59, 6 min 34 s)
+  success | Smoke, axe and Playwright at 1280 and 390 px, against the deployment
+            OK: all 988 checks passed (noindex) · 747 passed, 15 skipped
+  success | Lighthouse on the deployment (performance, accessibility, best practices at 95 or more)
+            Checking assertions against 7 URL(s), 21 total run(s) · All results processed!
+  success | Lighthouse on the open build of the same commit (the four categories at 95 or more)
+  skipped | Tell when the verification fails
+Issue #1 cerrado a mano con el enlace a esta corrida y la causa.
+
+== 4. Corrida FORZADA A FALLAR
+https://github.com/Kattonavi/Kardenum/actions/runs/43795361793
+Lanzada a mano (workflow_dispatch) sobre la rama test/verify-deploy-forced-failure, cuyo único cambio era esperar el
+sitio abierto (SITE_EXPECTATION: indexable) cuando está cerrado.
+  failure | Smoke, axe and Playwright …  ->  FAIL GET / X-Robots-Tag lacks noindex (noindex, nofollow) y siguientes
+  success | Lighthouse on the deployment · success | Lighthouse on the open build
+  success | Tell when the verification fails  ->  abrió el issue #2 (autor: github-actions) con el commit, la tabla de
+            resultados por comprobación y el enlace a la corrida
+Issue #2 cerrado a mano explicando que fue la prueba; la rama de prueba se borró del remoto (solo queda main).
+
+== 5. Permisos con los que corre (leídos del registro "GITHUB_TOKEN Permissions" de cada trabajo, en las tres corridas)
+  Los tres trabajos de verificación:  Contents: read · Metadata: read
+  El trabajo que avisa:               Issues: write · Metadata: read
+Metadata: read lo añade GitHub a todo token y no se puede quitar. Ningún otro permiso, ningún secreto, ningún paso de
+despliegue. Acciones de terceros: actions/checkout, actions/setup-node y actions/upload-artifact, fijadas por SHA.
+
+== 6. Concurrencia (RF-6)
+Cada despliegue genera varias corridas: la del aviso in_progress y la del anterior que pasa a inactive quedan "skipped"
+y, por llevar el estado en el nombre del grupo, no cancelan a la que verifica. Visto en el despliegue de 0d9ff23:
+  43794133522 deployment_status completed (skipped) · 43794266444 deployment_status completed (success)
+
+== 7. Lo que el workflow no hace
+No cierra los issues por su cuenta: cuando una corrida posterior pasa, el issue queda abierto hasta que alguien lo cierre.
