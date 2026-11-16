@@ -1,6 +1,6 @@
 # 005 · Portafolio y casos
 
-**Estado:** en construcción (2026-11-15). **Fuente:** maquetas `B-Portafolio` y `B-Caso`,
+**Estado:** implementado y oculto tras `features.portfolio` (2026-11-15). **Fuente:** maquetas `B-Portafolio` y `B-Caso`,
 `docs/handoff/docs/plan-sitio-web.md` §4 ("Portafolio", "Caso de portafolio") y §5 ("Reglas del portafolio"),
 `seo-sitio.md` §2.
 
