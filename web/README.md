@@ -35,4 +35,4 @@ hreflang, a las imágenes para redes y a la prueba de humo.
 | `CONFIDENTIAL_TERMS` (solo para `pnpm smoke`) | sin definir | Nombres que el sitio nunca debe servir (el cliente de un caso reservado, un proyecto privado), separados por comas. La prueba de humo los busca en todas las respuestas. No se versiona ni se pone en Railway. |
 | `SITE_URL` | sin definir = `https://kardenum.com` | Origen de todas las URL absolutas: canonical, hreflang, `og:image`, sitemap y JSON-LD. Antes de tener el dominio se pone la dirección de Railway. Solo el origen, sin ruta. Se lee en el build. |
 | `NEXT_TELEMETRY_DISABLED` | `1` | Sin telemetría de Next.js. |
-| `SITE_LAUNCH_CHECK` | sin definir | Solo para pruebas locales: `off` permite compilar con `SITE_INDEXABLE=true` aunque falten datos. No se define en Railway. |
+| `SITE_LAUNCH_CHECK` | sin definir | Para medir un build abierto que no se publica: `off` permite compilar con `SITE_INDEXABLE=true` aunque falten datos. Vale en local y en GitHub Actions (el workflow de verificación lo usa para Lighthouse y no despliega nada). En Railway, o en cualquier otro CI, ese valor hace fallar el build. |

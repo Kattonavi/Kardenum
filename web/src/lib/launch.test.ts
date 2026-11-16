@@ -151,6 +151,10 @@ test("SITE_LAUNCH_CHECK=off cannot skip the check on Railway or in CI", () => {
   assert.throws(() => assertLaunchReady({ ...skipped, RAILWAY_ENVIRONMENT_NAME: "production" }, siteConfig), /local verification only and RAILWAY_ENVIRONMENT_NAME is set/);
   assert.throws(() => assertLaunchReady({ ...skipped, RAILWAY_SERVICE_ID: "x" }, readyConfig), /local verification only/);
   assert.throws(() => assertLaunchReady({ ...skipped, CI: "true" }, readyConfig), /local verification only and CI is set/);
+  // GitHub Actions builds the open site to measure it and deploys nothing: the switch works there...
+  assert.doesNotThrow(() => assertLaunchReady({ ...skipped, CI: "true", GITHUB_ACTIONS: "true" }, siteConfig));
+  // ...but never where Railway builds, whatever else is set.
+  assert.throws(() => assertLaunchReady({ ...skipped, CI: "true", GITHUB_ACTIONS: "true", RAILWAY_ENVIRONMENT_NAME: "production" }, siteConfig), /RAILWAY_ENVIRONMENT_NAME is set/);
   // A closed site never fails, wherever it is built and whatever the switch says.
   assert.doesNotThrow(() => assertLaunchReady({ SITE_INDEXABLE: "false", SITE_LAUNCH_CHECK: "off", RAILWAY_ENVIRONMENT_NAME: "production" }, siteConfig));
 });

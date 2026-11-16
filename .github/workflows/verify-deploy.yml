@@ -1,0 +1,183 @@
+# Verifies the site after Railway has deployed it (docs/specs/007-verificacion-tras-despliegue.md).
+# It deploys nothing and changes nothing: it checks the live site and tells when something is wrong.
+name: Verify deploy
+
+on:
+  # Railway reports each deployment to GitHub. The jobs run when one succeeds.
+  deployment_status:
+  # By hand, from the Actions tab: checks the site as it is now, with the code of the main branch.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer deployment replaces the one being verified. The group carries the state because every
+# deployment sends several events (in_progress, success, and inactive for the previous one): a run
+# that has nothing to do must not cancel the one that is verifying.
+concurrency:
+  group: verify-deploy-${{ github.event.deployment_status.state || 'manual' }}
+  cancel-in-progress: true
+
+env:
+  # The address under test. At launch: the domain, and SITE_EXPECTATION becomes "indexable".
+  SITE_UNDER_TEST: https://web-production-f1d7c246.up.railway.app
+  SITE_EXPECTATION: noindex
+  LHCI_VERSION: 0.15.1
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  browser:
+    name: Smoke, axe and Playwright at 1280 and 390 px, against the deployment
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'kardenum / production')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      # pnpm at the version package.json names (packageManager), through Corepack.
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Wait until the deployment answers
+        run: |
+          for attempt in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$SITE_UNDER_TEST/")
+            [ "$code" = "200" ] && exit 0
+            sleep 10
+          done
+          echo "The site did not answer 200 in five minutes (last status: $code)"
+          exit 1
+      - name: Smoke test (structure, technical SEO, security headers, hidden pages)
+        run: pnpm smoke "$SITE_UNDER_TEST" --expect="$SITE_EXPECTATION" --site-url=self
+      - name: Browser tests (axe, keyboard, text at 200 %, 320 px, content policy)
+        run: pnpm test:e2e
+        env:
+          E2E_BASE_URL: ${{ env.SITE_UNDER_TEST }}
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: failure()
+        with:
+          name: playwright-results
+          path: web/test-results
+          retention-days: 14
+          if-no-files-found: ignore
+
+  lighthouse-deployed:
+    name: Lighthouse on the deployment (performance, accessibility, best practices at 95 or more)
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'kardenum / production')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      # SEO is not measured here: while the site is closed, its noindex would fail that category.
+      - name: Lighthouse CI against the deployment
+        run: npx --yes "@lhci/cli@$LHCI_VERSION" autorun --config=lighthouserc.cjs
+        env:
+          LHCI_MODE: deployed
+          LHCI_BASE_URL: ${{ env.SITE_UNDER_TEST }}
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: lighthouse-deployed
+          path: web/.lighthouseci
+          retention-days: 14
+          if-no-files-found: ignore
+
+  lighthouse-open:
+    name: Lighthouse on the open build of the same commit (the four categories at 95 or more)
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'kardenum / production')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      # The site as it will be when it is open to search engines, built here only to be measured:
+      # nothing built in this job is published. SITE_LAUNCH_CHECK=off is accepted in GitHub Actions
+      # for exactly this (web/src/lib/launch.ts) and rejected wherever Railway builds.
+      - name: Build the open site (lint, types, unit tests, build)
+        run: pnpm build
+        env:
+          SITE_INDEXABLE: "true"
+          SITE_LAUNCH_CHECK: "off"
+      - name: Lighthouse CI against the open build
+        run: npx --yes "@lhci/cli@$LHCI_VERSION" autorun --config=lighthouserc.cjs
+        env:
+          LHCI_MODE: open
+          SITE_INDEXABLE: "true"
+          PORT: "4173"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: lighthouse-open
+          path: web/.lighthouseci
+          retention-days: 14
+          if-no-files-found: ignore
+
+  report:
+    name: Tell when the verification fails
+    needs: [browser, lighthouse-deployed, lighthouse-open]
+    if: failure()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    steps:
+      # One open issue at a time: a second failure adds a comment to it instead of opening another.
+      - name: Open an issue, or comment on the open one
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          COMMIT: ${{ github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          BROWSER: ${{ needs.browser.result }}
+          DEPLOYED: ${{ needs.lighthouse-deployed.result }}
+          OPEN: ${{ needs.lighthouse-open.result }}
+        run: |
+          title="La verificación del despliegue falló"
+          body=$(printf '%s\n' \
+            "La verificación automática del sitio falló después del despliegue del commit \`${COMMIT:0:7}\`." \
+            "" \
+            "| Comprobación | Resultado |" \
+            "|---|---|" \
+            "| Humo, axe y Playwright (1280 y 390 px) contra el despliegue | $BROWSER |" \
+            "| Lighthouse contra el despliegue (rendimiento, accesibilidad, buenas prácticas) | $DEPLOYED |" \
+            "| Lighthouse sobre el build abierto (las cuatro categorías, con SEO) | $OPEN |" \
+            "" \
+            "Detalle y archivos de la corrida: $RUN_URL" \
+            "" \
+            "Este aviso lo abre el workflow \`verify-deploy\`. No despliega ni revierte nada: el sitio sigue como quedó.")
+          existing=$(gh issue list --repo "$REPO" --state open --search "\"$title\" in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --repo "$REPO" --body "$body"
+          else
+            gh issue create --repo "$REPO" --title "$title" --body "$body"
+          fi

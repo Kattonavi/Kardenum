@@ -59,16 +59,21 @@ export function getLaunchBlockers(config: SiteConfig = siteConfig, env: Env = pr
 /**
  * Called from next.config.ts. Fails the build when the site is about to be indexable without
  * being ready, so the previous (noindex) deployment stays online.
- * SITE_LAUNCH_CHECK=off skips it, for local verification of an indexable build only: on
- * Railway or in CI the switch itself fails the build, so copying it there cannot publish an
- * indexable site with placeholders.
+ * SITE_LAUNCH_CHECK=off skips it, to measure an indexable build that is never published: on a
+ * developer's machine, or in GitHub Actions, where the workflow builds the open site only to run
+ * Lighthouse on it (.github/workflows/verify-deploy.yml deploys nothing). On Railway, or in any
+ * other CI, the switch itself fails the build, so copying it there cannot publish an indexable
+ * site with placeholders.
  * With the portfolio on, the pending data of its published cases blocks the launch too
  * (spec 005, RF-7); with it off, it does not.
  */
 export function assertLaunchReady(env: Env = process.env, config: SiteConfig = siteConfig, cases: readonly PortfolioCase[] = portfolioCases): void {
   if (!isSiteIndexable(env)) return;
   if (env.SITE_LAUNCH_CHECK === "off") {
-    const deploying = Object.keys(env).find((name) => name === "CI" || name.startsWith("RAILWAY_"));
+    const railway = Object.keys(env).find((name) => name.startsWith("RAILWAY_"));
+    // GitHub Actions sets both CI and GITHUB_ACTIONS; Railway's builder sets CI and its own variables.
+    const otherCi = env.CI && env.GITHUB_ACTIONS !== "true" ? "CI" : undefined;
+    const deploying = railway ?? otherCi;
     if (deploying) throw new Error(`SITE_LAUNCH_CHECK=off is for local verification only and ${deploying} is set: remove it from this environment.`);
     return;
   }
