@@ -4,6 +4,7 @@
 // It reads the route registry and the page texts from src/, so every public page is checked
 // in both languages without listing URLs here. Exits with code 1 if any check fails.
 import { readFileSync } from "node:fs";
+import { portfolioCases } from "@/content/cases";
 import { guides } from "@/content/guides";
 import { homeFaqs } from "@/content/home";
 import { getPageMeta, getPageName } from "@/content/pages";
@@ -95,7 +96,16 @@ async function get(pathname, headers = {}) {
       if (candidate.startsWith("/_next/image?")) optimizerSample = decode(candidate);
     }
   }
-  const haystack = `${pathname}\n${res.headers.get("location") ?? ""}\n${body}`.toLowerCase();
+  // The same text three ways: as served, with its HTML entities undone (O&#x27;Brien) and with its
+  // URL escapes undone (otro%20nombre), so a name is found however the page happens to write it.
+  const served = `${pathname}\n${res.headers.get("location") ?? ""}\n${body}`;
+  let unescaped = served;
+  try {
+    unescaped = decodeURIComponent(served.replace(/%(?![0-9a-fA-F]{2})/g, "%25"));
+  } catch {
+    // a broken escape sequence: the text as served is searched anyway
+  }
+  const haystack = `${served}\n${decode(served)}\n${unescaped}`.toLowerCase();
   for (const term of confidentialTerms) if (haystack.includes(term)) confidentialHits.add(`${pathname} (term ${confidentialTerms.indexOf(term) + 1})`);
   return { res, body };
 }
@@ -700,7 +710,14 @@ if (confidentialTerms.length > 0) {
     [...confidentialHits].slice(0, 8).join(", "),
   );
 } else {
-  console.log("INFO  confidential terms: none configured (CONFIDENTIAL_TERMS); set it when the portfolio has reserved or private cases");
+  // With a reserved or a private case in the repo the list stops being optional: without it this
+  // test cannot say that the name stayed out, so it says so by failing.
+  const guarded = portfolioCases.filter((item) => item.visibilidad !== "publico").length;
+  if (guarded > 0) {
+    check(`CONFIDENTIAL_TERMS is set: the portfolio has ${guarded} reserved or private cases whose names must not be served`, false, "run the smoke test with the list of names");
+  } else {
+    console.log("INFO  confidential terms: none configured (CONFIDENTIAL_TERMS), and no case is reserved or private");
+  }
 }
 
 console.log(`\nSite origin expected in canonical, hreflang, sitemap and JSON-LD: ${getSiteUrl()}`);

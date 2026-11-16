@@ -143,9 +143,20 @@ const FORBIDDEN_IN_A_GUIDE: readonly [RegExp, string][] = [
 /** The one import a guide needs: its own screenshots, from its own folder, already as WebP or AVIF. */
 const OWN_IMAGE_IMPORT = /^import\s+[A-Za-z_]\w*\s+from\s+"\.\/[\w.-]+\.(?:webp|avif)";?\s*$/gm;
 
+/**
+ * Code shown to the reader is text, not code of the page: a fenced block (``` or ~~~) and inline
+ * code never run. A guide about bots must be able to show `import { Client } from "discord.js"`
+ * or `process.env.TOKEN` as an example. They are taken out before the rules are applied.
+ */
+function withoutShownCode(body: string): string {
+  return body
+    .replace(/^(`{3,}|~{3,})[^\n]*\n[\s\S]*?^\1[ \t]*$/gm, "")
+    .replace(/`[^`\n]+`/g, "");
+}
+
 function guideCodeProblems(body: string): string[] {
-  const withoutOwnImages = body.replace(OWN_IMAGE_IMPORT, "");
-  return FORBIDDEN_IN_A_GUIDE.filter(([pattern]) => pattern.test(withoutOwnImages)).map(([, what]) => what);
+  const authored = withoutShownCode(body).replace(OWN_IMAGE_IMPORT, "");
+  return FORBIDDEN_IN_A_GUIDE.filter(([pattern]) => pattern.test(authored)).map(([, what]) => what);
 }
 
 function mdxFiles(dir: string): string[] {
@@ -172,6 +183,30 @@ test("the body of a guide is content, never code", () => {
   assert.deepEqual(guideCodeProblems("La clave es {process.env.SECRET}"), ["process.env"]);
   assert.deepEqual(guideCodeProblems('<p style="color:red">x</p>'), ["an inline style (the content policy blocks it)"]);
   assert.deepEqual(guideCodeProblems('<button onClick={() => {}}>x</button>'), ["an event handler"]);
+  // Code shown as an example is text: a guide can teach with imports, variables and handlers.
+  const example = [
+    "Así se conecta el bot:",
+    "",
+    "```js",
+    'import { Client } from "discord.js";',
+    "const client = new Client({ intents: [] });",
+    "client.login(process.env.TOKEN);",
+    "```",
+    "",
+    "~~~html",
+    '<button onClick="saludar()" style="color:red">Hola</button>',
+    "<script>saludar()</script>",
+    "~~~",
+    "",
+    "La clave vive en `process.env.TOKEN` y nunca en el código; el manejador es `onClick={saludar}`.",
+    "",
+  ].join("\n");
+  assert.deepEqual(guideCodeProblems(example), []);
+  // The same constructions outside a block are still code of the page.
+  assert.deepEqual(guideCodeProblems(`${example}\n<script>alert(1)</script>\n`), ["a <script>"]);
+  assert.deepEqual(guideCodeProblems(`import x from "node:fs";\n\n${example}`), ["an import"]);
+  // A block that is opened and never closed hides nothing.
+  assert.deepEqual(guideCodeProblems('```js\nconst a = 1;\n\n<script>alert(1)</script>\n'), ["a <script>"]);
   assert.deepEqual(guideCodeProblems("Texto\n\n![El panel](./captura.webp)\n"), ["a Markdown image (use <Screenshot>)"]);
   assert.deepEqual(guideCodeProblems('<img src="/captura.webp" alt="" />'), ["an <img> (use <Screenshot>)"]);
 
