@@ -31,10 +31,13 @@
  * Values computed with fontTools over the site's own texts (capsize method):
  * size-adjust = Archivo's average advance / the fallback's; overrides = Archivo's hhea / size-adjust.
  * Arial covers Windows, macOS and iOS; Roboto covers Android (calculated, not measured on a device).
+ * Liberation Sans covers Linux: it is drawn to the same measures as Arial, so it takes the same
+ * adjustments. Without it a Linux browser fell to the system font and the text moved when the
+ * brand font arrived (0.045 of layout shift on a phone-sized window, measured on 2026-11-15).
  */
 @font-face {
   font-family: "Kardenum Sans Fallback";
-  src: local("Arial"), local("ArialMT");
+  src: local("Arial"), local("ArialMT"), local("Liberation Sans"), local("LiberationSans");
   font-weight: 100 900;
   size-adjust: 98.33%;
   ascent-override: 89.29%;
@@ -55,7 +58,7 @@
 /* Archivo at width 125 and weight 600 (uppercase) is far wider than any system font. */
 @font-face {
   font-family: "Kardenum Display Fallback";
-  src: local("Arial Bold"), local("Arial-BoldMT");
+  src: local("Arial Bold"), local("Arial-BoldMT"), local("Liberation Sans Bold"), local("LiberationSans-Bold");
   font-weight: 100 900;
   size-adjust: 127.9%;
   ascent-override: 68.65%;
@@ -81,8 +84,8 @@
  */
 @theme inline {
   --font-sans: "Archivo", "Kardenum Sans Fallback", "Kardenum Sans Fallback Android", ui-sans-serif, system-ui, sans-serif;
-  /* JetBrains Mono and Courier New share the same advance (0.6 em): identical wrapping without adjustments. */
-  --font-mono: "JetBrains Mono", "Courier New", monospace;
+  /* JetBrains Mono, Courier New and Liberation Mono (Linux) share the same advance (0.6 em): identical wrapping without adjustments. */
+  --font-mono: "JetBrains Mono", "Courier New", "Liberation Mono", monospace;
   --font-display: "Archivo", "Kardenum Display Fallback", "Kardenum Display Fallback Android", ui-sans-serif, system-ui, sans-serif;
 }
 
