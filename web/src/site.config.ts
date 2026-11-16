@@ -6,6 +6,10 @@ import type { Localized } from "./i18n/locales";
  * Data that does not exist yet is `pending`: it is shown as a bracketed placeholder and is never
  * invented. When a value is defined, replace it with `{ status: "ready", value: ... }`.
  * A build with SITE_INDEXABLE=true fails while ANY value here is pending (src/lib/launch.ts).
+ *
+ * EVERYTHING IN THIS FILE IS PUBLIC. The route registry imports it and the browser downloads it
+ * whole, with the notes of pages that are still hidden. Never write here a client's name that is
+ * reserved, a private project, a key or anything that is not meant to be read by a visitor.
  */
 export type Pending = { readonly status: "pending"; readonly placeholder: string };
 export type Ready<T> = { readonly status: "ready"; readonly value: T };

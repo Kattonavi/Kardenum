@@ -32,6 +32,7 @@ hreflang, a las imágenes para redes y a la prueba de humo.
 |---|---|---|
 | `SITE_INDEXABLE` | `false` | Solo el valor exacto `true` deja indexar el sitio. Se lee en el build: cambiarla exige un despliegue nuevo. Guardia en `src/lib/indexing.ts`. Con `true`, el build falla mientras `site.config.ts` tenga cualquier valor pendiente (contacto, datos y textos legales) o `SITE_URL` no sea `https://kardenum.com` (`src/lib/launch.ts`). `SITE_LAUNCH_CHECK=off` omite el freno solo en local: con `CI` o una variable `RAILWAY_*` presente, hace fallar el build. |
 | `UMAMI_SRC` y `UMAMI_WEBSITE_ID` | sin definir = sin analítica | Dirección https del script de Umami y el id del sitio. Solo con las DOS se carga el script y la política de contenido admite ese origen; con una sola o ninguna no se carga nada. Se leen en el build. |
+| `CONFIDENTIAL_TERMS` (solo para `pnpm smoke`) | sin definir | Nombres que el sitio nunca debe servir (el cliente de un caso reservado, un proyecto privado), separados por comas. La prueba de humo los busca en todas las respuestas. No se versiona ni se pone en Railway. |
 | `SITE_URL` | sin definir = `https://kardenum.com` | Origen de todas las URL absolutas: canonical, hreflang, `og:image`, sitemap y JSON-LD. Antes de tener el dominio se pone la dirección de Railway. Solo el origen, sin ruta. Se lee en el build. |
 | `NEXT_TELEMETRY_DISABLED` | `1` | Sin telemetría de Next.js. |
 | `SITE_LAUNCH_CHECK` | sin definir | Solo para pruebas locales: `off` permite compilar con `SITE_INDEXABLE=true` aunque falten datos. No se define en Railway. |

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -121,5 +121,48 @@ test("the registry: every guide is complete, has both bodies on disk and its own
   for (const field of ["title", "description"] as const) {
     const values = [...pageTexts, ...guides.map((item) => item.meta.meta)].flatMap((meta) => locales.map((locale) => meta[field][locale]));
     assert.equal(new Set(values).size, values.length, `duplicated ${field}`);
+  }
+});
+
+// An .mdx file is compiled as code: it can import any module, read the build's environment or
+// write a <script>. The body of a guide is content only; its data lives in meta.ts.
+const FORBIDDEN_IN_A_GUIDE: readonly [RegExp, string][] = [
+  [/^\s*import\s/m, "an import"],
+  [/^\s*export\s/m, "an export (the data of a guide lives in meta.ts)"],
+  [/<\s*script\b/i, "a <script>"],
+  [/<\s*iframe\b/i, "an <iframe>"],
+  [/<\s*(object|embed|link|style)\b/i, "an <object>, <embed>, <link> or <style>"],
+  [/process\s*\.\s*env/, "process.env"],
+  [/\bstyle\s*=/, "an inline style (the content policy blocks it)"],
+  [/\bon[A-Za-z]+\s*=\s*[{"']/, "an event handler"],
+];
+
+function guideCodeProblems(body: string): string[] {
+  return FORBIDDEN_IN_A_GUIDE.filter(([pattern]) => pattern.test(body)).map(([, what]) => what);
+}
+
+function mdxFiles(dir: string): string[] {
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) return mdxFiles(full);
+    return entry.name.endsWith(".mdx") ? [full] : [];
+  });
+}
+
+test("the body of a guide is content, never code", () => {
+  // The rule catches each construction, and lets ordinary content through.
+  assert.deepEqual(guideCodeProblems("Un párrafo con `código`, un [enlace](/contacto) y una tabla.\n\n<Section n={1}>\nTexto\n</Section>\n"), []);
+  assert.deepEqual(guideCodeProblems('import fs from "node:fs";\n\nTexto'), ["an import"]);
+  assert.deepEqual(guideCodeProblems("export const meta = {};\n"), ["an export (the data of a guide lives in meta.ts)"]);
+  assert.deepEqual(guideCodeProblems("Texto\n<script>alert(1)</script>"), ["a <script>"]);
+  assert.deepEqual(guideCodeProblems('<iframe src="https://example.com" />'), ["an <iframe>"]);
+  assert.deepEqual(guideCodeProblems("La clave es {process.env.SECRET}"), ["process.env"]);
+  assert.deepEqual(guideCodeProblems('<p style="color:red">x</p>'), ["an inline style (the content policy blocks it)"]);
+  assert.deepEqual(guideCodeProblems('<button onClick={() => {}}>x</button>'), ["an event handler"]);
+
+  const guidesDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "content", "guides");
+  for (const file of mdxFiles(guidesDir)) {
+    assert.deepEqual(guideCodeProblems(readFileSync(file, "utf8")), [], `${path.relative(guidesDir, file)} has code in it`);
   }
 });

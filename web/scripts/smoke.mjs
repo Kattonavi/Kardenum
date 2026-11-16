@@ -63,9 +63,26 @@ function check(name, ok, detail = "") {
   else failures += 1;
 }
 
+/**
+ * Names that must never be served: the client of a reserved case, a private project. The type of a
+ * case has no field for them, but an id, a slug, a text or an image file name is free text and one
+ * slip puts the name in an address, the sitemap, the structured data and the data of every page.
+ * The list is not in the repo (it would be the leak): CONFIDENTIAL_TERMS="acme,otro nombre".
+ * Every response this test fetches is searched, address and body, script data included.
+ */
+const confidentialTerms = (process.env.CONFIDENTIAL_TERMS ?? "")
+  .split(",")
+  .map((term) => term.trim().toLowerCase())
+  .filter(Boolean);
+const confidentialHits = new Set();
+let responsesSearched = 0;
+
 async function get(pathname, headers = {}) {
   const res = await fetch(new URL(pathname, base), { redirect: "manual", headers });
   const body = await res.text();
+  responsesSearched += 1;
+  const haystack = `${pathname}\n${res.headers.get("location") ?? ""}\n${body}`.toLowerCase();
+  for (const term of confidentialTerms) if (haystack.includes(term)) confidentialHits.add(`${pathname} (term ${confidentialTerms.indexOf(term) + 1})`);
   return { res, body };
 }
 
@@ -632,6 +649,17 @@ for (const [label, res] of responses) {
   const wrong = expectedHeaders.filter((header) => res.headers.get(header.key) !== header.value).map((header) => `${header.key}: ${res.headers.get(header.key) ?? "missing"}`);
   check(`${label}: security headers (${expectedHeaders.length})`, wrong.length === 0, wrong.join(" | "));
   check(`${label}: does not say what it is built with`, !res.headers.has("x-powered-by"), res.headers.get("x-powered-by") ?? "");
+}
+
+// The terms themselves are never printed: this output ends up in logs and evidence files.
+if (confidentialTerms.length > 0) {
+  check(
+    `none of the ${confidentialTerms.length} confidential terms is served (${responsesSearched} responses searched)`,
+    confidentialHits.size === 0,
+    [...confidentialHits].slice(0, 8).join(", "),
+  );
+} else {
+  console.log("INFO  confidential terms: none configured (CONFIDENTIAL_TERMS); set it when the portfolio has reserved or private cases");
 }
 
 console.log(`\nSite origin expected in canonical, hreflang, sitemap and JSON-LD: ${getSiteUrl()}`);

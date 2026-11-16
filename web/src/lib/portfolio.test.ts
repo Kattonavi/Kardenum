@@ -149,6 +149,11 @@ test("entries: ES / EN of an entry lead to the same case in the other language, 
   assert.ok(entry);
   assert.deepEqual(pathsOfEntry(entry), { es: "/portafolio/uno", en: "/en/work/uno-en" });
   assert.throws(() => builtEntries([shown("uno", ["video"]), shown("uno", ["discord"])], []), /share a slug/);
+  // A slug with an accent, a capital or a space would reach the page encoded and match nothing.
+  for (const slug of ["guía", "Caso", "dos palabras", "-inicio", "fin-", "doble--guion"]) {
+    const broken = { ...shown("uno", ["video"]), slug: { es: slug, en: "ok" } };
+    assert.throws(() => builtEntries([broken], []), /lowercase letters, digits and hyphens/, slug);
+  }
 });
 
 test("the next project goes round the published cases and skips private ones", () => {

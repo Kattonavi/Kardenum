@@ -55,6 +55,13 @@ idioma y la ruta interna en el otro); `useParams()` sí.
 - **Imágenes:** `next/image` con importación estática (ancho y alto conocidos; hoy `images.unoptimized`). Se guardan
   ya optimizadas: WebP o AVIF, 1600 px de ancho como máximo y 300 KB por archivo; una prueba unitaria lo revisa.
 
+## Cómo se escribe un caso reservado (revisión de seguridad del paso 5)
+
+El tipo impide el campo del cliente, pero el `id`, el `slug`, el nombre, los textos y los nombres de los archivos de
+imagen son texto libre, y los nombres de archivo llegan a la dirección de la imagen. En un caso reservado todos son
+genéricos ("catalogo-ferreteria", nunca la marca). Antes de publicar, la prueba de humo se corre con
+`CONFIDENTIAL_TERMS="marca,otro nombre"`: busca cada término en todo lo que el sitio sirve. Esa lista no se versiona.
+
 ## Con qué se llena hoy (de las maquetas; nada inventado)
 
 - **Kardenum** (caso 0): Diseño · Desarrollo, 2026, proyecto propio. "Identidad visual y sitio web del estudio."
