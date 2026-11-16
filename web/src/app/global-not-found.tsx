@@ -208,7 +208,6 @@ export default function GlobalNotFound() {
                   <span>© {YEAR} Kardenum</span>
                 </div>
               </div>
-              <p className="font-mono text-[0.6875rem] leading-[1.6] tracking-[0.08em] text-(--muted-text) uppercase">{es.Footer.minecraftNotice}</p>
             </div>
           </Container>
         </footer>

@@ -19,6 +19,7 @@ Sitio de Kardenum. Next.js 16 (App Router, `output: "standalone"`), TypeScript s
 | Rutas y slugs en español e inglés (una sola lista) | `src/routes.ts` |
 | Páginas detrás de un flag (`features` en `site.config.ts`) | archivos `page.<flag>.tsx`: `page.subpages.tsx`, `page.portfolio.tsx`, `page.guides.tsx` |
 | Contenido tipado: líneas, preguntas, pasos, título y descripción de cada página | `src/content/` |
+| Avisos de marca del pie y correo escrito en el cierre: salen de la línea de la página, no de una lista de direcciones | `src/lib/notices.ts` (spec 008) |
 | Textos de la interfaz | `messages/es.json` y `messages/en.json` |
 | SEO: metadatos, hreflang, sitemap, JSON-LD | `src/lib/seo/` |
 | Colores, fuentes y superficies | `src/app/globals.css` |

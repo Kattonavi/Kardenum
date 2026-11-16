@@ -4,7 +4,8 @@ import { buttonClass } from "@/components/ui/button";
 import { ArrowRightIcon } from "@/components/ui/icons";
 import type { ServiceLineId } from "@/content/types";
 import { isAppLocale } from "@/i18n/locales";
-import { type ContactChannel, getChannelHref, hasPendingChannels, quoteFormHref } from "@/lib/contact";
+import { type ContactChannel, getChannelHref, getWrittenEmail, hasPendingChannels, quoteFormHref } from "@/lib/contact";
+import { isMinecraftPage } from "@/lib/notices";
 import { ChannelLink } from "./channel-link";
 
 const CHANNEL_ORDER: Record<"whatsapp" | "discord", readonly ContactChannel[]> = {
@@ -19,6 +20,8 @@ type ContactCtaProps = {
   community?: boolean;
   /** Line of the page: it arrives preselected in the quote form. */
   line?: ServiceLineId;
+  /** Lines the page is about, when they are not just `line` (a case has several and preselects none). */
+  lines?: readonly ServiceLineId[];
 };
 
 /**
@@ -26,14 +29,17 @@ type ContactCtaProps = {
  * WhatsApp leads to the quote form, which builds the message (plan §4: "llamado a cotizar con
  * la línea ya preseleccionada"). Discord and e-mail are shown inert while they have no data,
  * with a bracketed note (the handoff's convention for pending content).
+ * On a page about Minecraft the e-mail address is also written out (spec 008, RF-5): the brand's
+ * rules do not take a chat link as the only means of contact.
  */
-export function ContactCta({ first = "whatsapp", community = false, line }: ContactCtaProps) {
+export function ContactCta({ first = "whatsapp", community = false, line, lines = line ? [line] : [] }: ContactCtaProps) {
   const t = useTranslations("ContactCta");
   const channels = useTranslations("Channels");
   const sections = useTranslations("Sections");
   const contact = useTranslations("ContactPage");
   const locale = useLocale();
   const quoteHref = quoteFormHref(isAppLocale(locale) ? locale : "es", contact("quoteId"), line);
+  const writtenEmail = isMinecraftPage(lines) ? getWrittenEmail() : null;
 
   return (
     <div className="surface-ink">
@@ -61,6 +67,21 @@ export function ContactCta({ first = "whatsapp", community = false, line }: Cont
                 </li>
               ))}
             </ul>
+            {writtenEmail ? (
+              <p data-written-email className="flex flex-wrap items-center gap-x-2.5 type-label text-(--muted-text)">
+                {channels("email")}
+                {writtenEmail.href ? (
+                  <a
+                    href={writtenEmail.href}
+                    className="inline-flex min-h-11 items-center text-sm tracking-normal text-stone normal-case underline underline-offset-4 transition-colors duration-150 hover:text-(--accent-text)"
+                  >
+                    {writtenEmail.text}
+                  </a>
+                ) : (
+                  <span className="text-sm tracking-normal normal-case">{writtenEmail.text}</span>
+                )}
+              </p>
+            ) : null}
             {hasPendingChannels(["discord", "email"]) ?<p className="type-label text-(--muted-text)">[{channels("pending")}]</p> : null}
           </div>
         </section>

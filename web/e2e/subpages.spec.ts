@@ -1,3 +1,4 @@
+import es from "../messages/es.json";
 import { subpages } from "../src/content/subpages";
 import { linePages } from "../src/content/lines";
 import { serviceLines } from "../src/content/service-lines";
@@ -122,16 +123,23 @@ test("while the sub-pages are hidden, the public pages do not lead to them (RF-2
     await page.getByRole("navigation", { name: "Principal" }).getByRole("button", { name: "Servicios" }).click();
     await expect(page.getByRole("banner").getByRole("link", { name: "Plugins" })).toHaveCount(0);
   }
-  // Hidden is not absent: the address answers, closed to search engines.
   const response = await page.goto("/servicios/minecraft/plugins");
-  expect(response?.status()).toBe(200);
-  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+  if (isGenerated("/servicios/minecraft/plugins")) {
+    // Closed site. Hidden is not absent: the address answers, closed to search engines.
+    expect(response?.status()).toBe(200);
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+  } else {
+    // Open site: the page is not part of the build (specs 004 to 006, "Páginas ocultas y sitio abierto").
+    expect(response?.status()).toBe(404);
+  }
 });
 
-test("the bots page carries the Discord notice in its footer (RF-8)", async ({ page }) => {
+// The whole sentence, not the word: "Discord" and "Minecraft" are always in the footer, as names of lines.
+test("the bots page carries the Discord notice in its footer, and not the Minecraft one (RF-8; spec 008)", async ({ page }) => {
+  test.skip(!isGenerated("/servicios/discord/bots"), "the sub-pages are hidden and this is an open site: the page is a 404");
   await page.goto("/servicios/discord/bots");
-  await expect(page.getByRole("contentinfo")).toContainText("Discord");
-  await expect(page.getByRole("contentinfo")).toContainText("Minecraft");
+  await expect(page.getByRole("contentinfo")).toContainText(es.Footer.discordNotice);
+  await expect(page.getByRole("contentinfo")).not.toContainText(es.Footer.minecraftNotice);
 });
 
 // Founder's decision (2026-11-15): one root layout for the whole site, so going from a line to

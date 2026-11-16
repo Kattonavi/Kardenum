@@ -191,17 +191,6 @@ export function breadcrumbTrail(pathname: AppPathname): AppPathname[] {
   return trail;
 }
 
-export type FooterNotice = "minecraft" | "discord";
-
-/**
- * Trademark notices of the footer. The Minecraft one is shown on the whole site (the lines are
- * named on every page); the Discord one on the Discord pages.
- */
-export function footerNotices(pathname: string): FooterNotice[] {
-  const discord = "/servicios/discord";
-  return pathname === discord || pathname.startsWith(`${discord}/`) ? ["minecraft", "discord"] : ["minecraft"];
-}
-
 /** Short addresses that lead to a page of the site. */
 const shortLinks: Readonly<Record<string, AppPathname>> = { "/minecraft": "/servicios/minecraft" };
 

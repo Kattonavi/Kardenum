@@ -1,6 +1,6 @@
 import { portfolioCases } from "../content/cases";
 import { guides as guideRegistry } from "../content/guides";
-import type { GuideContent, PageMeta, PortfolioCase } from "../content/types";
+import type { GuideContent, PageMeta, PortfolioCase, ServiceLineId } from "../content/types";
 import type { Localized } from "../i18n/locales";
 import { locales } from "../i18n/locales";
 import {
@@ -17,6 +17,7 @@ import {
 } from "../routes";
 import { sortedGuides } from "./guides";
 import { type Env, isSiteIndexable } from "./indexing";
+import { type EntryNotices, entryNoticesOf } from "./notices";
 import { visibleCases } from "./portfolio";
 
 /**
@@ -32,14 +33,16 @@ export type Entry = {
   /** Name in the breadcrumbs. */
   readonly name: Localized<string>;
   readonly meta: Pick<PageMeta, "title" | "description">;
+  /** Service lines the entry is about: the line of a guide, the lines of a case (src/lib/notices.ts). */
+  readonly lines: readonly ServiceLineId[];
 };
 
 /** What each collection is made of. The cases come in as a parameter so the tests can add private ones. */
 type Content = { readonly cases: readonly PortfolioCase[]; readonly guides: readonly GuideContent[] };
 
 const sources: Readonly<Record<CollectionPathname, (content: Content) => readonly Omit<Entry, "collection">[]>> = {
-  "/portafolio/[slug]": ({ cases }) => visibleCases(cases).map(({ id, slug, name, meta }) => ({ id, slug, name: { es: name, en: name }, meta })),
-  "/guias/[slug]": ({ guides }) => sortedGuides(guides).map(({ meta: guide }) => ({ id: guide.id, slug: guide.slug, name: guide.shortName, meta: guide.meta })),
+  "/portafolio/[slug]": ({ cases }) => visibleCases(cases).map(({ id, slug, name, meta, lines }) => ({ id, slug, name: { es: name, en: name }, meta, lines })),
+  "/guias/[slug]": ({ guides }) => sortedGuides(guides).map(({ meta: guide }) => ({ id: guide.id, slug: guide.slug, name: guide.shortName, meta: guide.meta, lines: [guide.line] })),
 };
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -113,4 +116,9 @@ export function entryLinks(cases: readonly PortfolioCase[] = portfolioCases, gui
     // Only the entries this build generates: a hidden one on the open site has no page to lead to.
     builtEntries(cases, guides).filter((entry) => isEntryGenerated(entry, env)).flatMap((entry) => locales.map((locale) => [entryLinkKey(locale, entry.slug[locale]), pathsOfEntry(entry)])),
   );
+}
+
+/** Trademark notices of the entries this build generates, for the footer (spec 008). */
+export function entryNotices(env: Env = process.env, cases: readonly PortfolioCase[] = portfolioCases, guides: readonly GuideContent[] = guideRegistry): EntryNotices {
+  return entryNoticesOf(generatedEntries(env, cases, guides), locales);
 }

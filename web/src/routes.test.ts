@@ -13,7 +13,6 @@ import {
   featureOf,
   featurePageExtensions,
   features,
-  footerNotices,
   intlPathnames,
   isAppPathname,
   builtPathnames,
@@ -180,18 +179,13 @@ test("language links go to the final address of the same page, never through a r
   }
 });
 
-test("breadcrumbs list every parent page that exists; trademark notices follow the section", () => {
+// The trademark notices of the footer are in src/lib/notices.test.ts (spec 008).
+test("breadcrumbs list every parent page that exists", () => {
   assert.deepEqual(breadcrumbTrail("/"), ["/"]);
   assert.deepEqual(breadcrumbTrail("/contacto"), ["/", "/contacto"]);
   assert.deepEqual(breadcrumbTrail("/servicios/minecraft/tebex"), ["/", "/servicios", "/servicios/minecraft", "/servicios/minecraft/tebex"]);
   // "/legal" is not a page: the trail skips it.
   assert.deepEqual(breadcrumbTrail("/legal/privacidad"), ["/", "/legal/privacidad"]);
-
-  assert.deepEqual(footerNotices("/"), ["minecraft"]);
-  assert.deepEqual(footerNotices("/servicios/minecraft"), ["minecraft"]);
-  assert.deepEqual(footerNotices("/servicios/discord"), ["minecraft", "discord"]);
-  assert.deepEqual(footerNotices("/servicios/discord/bots"), ["minecraft", "discord"]);
-  assert.deepEqual(footerNotices("/servicios/discordia"), ["minecraft"]);
 });
 
 const withDiscord = (invite: string): SiteConfig => ({

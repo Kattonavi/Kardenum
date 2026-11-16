@@ -26,6 +26,15 @@ export function getChannelHref(channel: ContactChannel, config: SiteConfig = sit
   }
 }
 
+/**
+ * The contact e-mail as it is written on a page: the address and its mailto link, or the
+ * bracketed note of site.config.ts, without a link, while the address does not exist.
+ */
+export function getWrittenEmail(config: SiteConfig = siteConfig): { readonly text: string; readonly href: string | null } {
+  const { email } = config.contact;
+  return email.status === "ready" ? { text: email.value, href: `mailto:${email.value}` } : { text: email.placeholder, href: null };
+}
+
 export function hasPendingChannels(channels: readonly ContactChannel[] = contactChannels, config: SiteConfig = siteConfig): boolean {
   return channels.some((channel) => getChannelHref(channel, config) === null);
 }

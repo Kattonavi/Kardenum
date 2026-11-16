@@ -165,7 +165,7 @@ export default async function Page({ params }: EntryPageProps) {
         </Container>
       </div>
 
-      <ContactCta />
+      <ContactCta lines={item.lines} />
     </>
   );
 }

@@ -11,6 +11,8 @@ import { getPageMeta, getPageName } from "@/content/pages";
 import { serviceLines } from "@/content/service-lines";
 import { subpages } from "@/content/subpages";
 import { locales } from "@/i18n/locales";
+import { getWrittenEmail } from "@/lib/contact";
+import { noticeLines } from "@/lib/notices";
 import { generatedEntries, hiddenEntries, isEntryListed, pathsOfEntry, publicEntries, skippedEntries } from "@/lib/entries";
 import { securityHeaders } from "@/lib/security-headers";
 import { ogImagePath } from "@/lib/seo/metadata";
@@ -25,7 +27,6 @@ import {
   entryPath,
   generatedPathnames,
   skippedPathnames,
-  footerNotices,
   hiddenPathnames,
   isListed,
   languageAlternates,
@@ -514,10 +515,6 @@ for (const pathname of generatedPathnames(buildEnv).filter((candidate) => candid
     }
     check(`${label} JSON-LD has no bracketed placeholders`, !scripts.some((script) => /"\[[^"]*\]"/.test(script)));
 
-    const expectedNotices = footerNotices(pathname);
-    const shown = ["minecraft", "discord"].filter((notice) => html.includes(messages[locale].Footer[`${notice}Notice`]));
-    check(`${label} footer notices: ${expectedNotices.join(" + ")}`, shown.length === expectedNotices.length && expectedNotices.every((notice) => shown.includes(notice)), shown.join(" + ") || "none");
-
     // The other language's slug under this language's prefix is not a second URL for the page.
     const foreign = locale === "en" ? `/en${pathname}` : routeTable[pathname].en;
     if (foreign !== path) {
@@ -530,6 +527,52 @@ for (const pathname of generatedPathnames(buildEnv).filter((candidate) => candid
     }
   }
 }
+
+// ---------------------------------------------------------------------------------------------
+// 3c. Trademark notices by line and the written e-mail (docs/specs/008): every generated page
+//     and entry, in both languages (the 404 follows in section 5). A page about Minecraft carries
+//     the Minecraft notice in its footer and writes the contact e-mail out in its closing; on any
+//     other page the notice is nowhere. The same for Discord and its notice.
+//     What a page is about is read here from the content itself (the line of a line page, of a
+//     sub-page, of a guide; the lines of a case), not from the function the footer uses.
+// ---------------------------------------------------------------------------------------------
+const textOf = (html) => html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+const writtenEmail = getWrittenEmail().text;
+const caseById = new Map(portfolioCases.map((item) => [item.id, item]));
+let minecraftPagesSeen = 0;
+
+function checkNotices(label, body, locale, lines) {
+  const html = rendered(body);
+  const footer = textOf(html.match(/<footer\b[\s\S]*<\/footer>/)?.[0] ?? "");
+  for (const notice of noticeLines) {
+    const text = messages[locale].Footer[`${notice}Notice`];
+    if (lines.includes(notice)) check(`${label} is about ${notice}: its footer carries the ${notice} notice`, footer.includes(text));
+    else check(`${label} is not about ${notice}: the ${notice} notice is not on the page`, !textOf(html).includes(text));
+  }
+  if (lines.includes("minecraft")) {
+    minecraftPagesSeen += 1;
+    const closing = html.match(new RegExp(`<section id="${messages[locale].ContactCta.id}"[\\s\\S]*?</section>`))?.[0] ?? "";
+    check(`${label} is about minecraft: its closing writes the contact e-mail out`, textOf(closing).includes(writtenEmail), closing ? `"${writtenEmail}" is not in the closing` : "no closing");
+  }
+}
+
+for (const pathname of generatedPathnames(buildEnv)) {
+  const line = lineByPathname.get(pathname)?.id ?? subpageByPathname.get(pathname)?.line;
+  for (const locale of locales) {
+    const path = localizedPath(pathname, locale);
+    checkNotices(`[${locale}] ${path}`, (await get(path)).body, locale, line ? [line] : []);
+  }
+}
+for (const entry of generatedEntries(buildEnv)) {
+  const guideLine = entry.collection === "/guias/[slug]" ? guideById.get(entry.id)?.line : undefined;
+  const lines = guideLine ? [guideLine] : (caseById.get(entry.id)?.lines ?? []);
+  for (const locale of locales) {
+    const path = pathsOfEntry(entry)[locale];
+    checkNotices(`[${locale}] ${path}`, (await get(path)).body, locale, lines);
+  }
+}
+// The page of the Minecraft line is always generated: both languages, at least.
+check("pages about Minecraft were found and checked", minecraftPagesSeen >= locales.length, `${minecraftPagesSeen} pages`);
 
 for (const { source, destination, permanent } of shortLinkRedirects()) {
   const short = await get(source);
@@ -616,6 +659,8 @@ const brand404 = (body) => {
 };
 // Every link of the 404 page leads to a page that exists.
 const notFoundPage = await get("/ruta-que-no-existe-smoke");
+// The 404 is about no line: no trademark notice in it (spec 008, RF-2).
+checkNotices("[404] /ruta-que-no-existe-smoke", notFoundPage.body, "es", []);
 const notFoundLinks = [...new Set([...rendered(notFoundPage.body).matchAll(/<a\b[^>]*\bhref="(\/[^"#]*)"/g)].map((match) => match[1]))];
 const deadLinks = [];
 for (const link of notFoundLinks) {

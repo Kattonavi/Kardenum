@@ -4,6 +4,7 @@ import { AppLink } from "@/components/ui/app-link";
 import { getPageName } from "@/content/pages";
 import { serviceLines } from "@/content/service-lines";
 import type { AppLocale } from "@/i18n/locales";
+import { entryNotices } from "@/lib/entries";
 import { type AppPathname, isListed } from "@/routes";
 import { Container } from "./container";
 import { FooterNotices } from "./footer-notices";
@@ -18,7 +19,7 @@ const footerLinkClass = "inline-flex min-h-11 min-w-11 items-center justify-cent
 
 /**
  * Site footer (maquetas B-Gremio-inicio-v2, B-Linea-Minecraft and B-Linea-Discord): brand, the
- * five lines, legal links and the trademark notices (Minecraft on every page, Discord on its pages).
+ * five lines, legal links and the trademark notices, each on the pages of its line (spec 008).
  * The lines are links: the footer is also where the phone menu control leads before its script runs.
  */
 export async function SiteFooter({ locale }: { locale: AppLocale }) {
@@ -76,7 +77,8 @@ export async function SiteFooter({ locale }: { locale: AppLocale }) {
               <span>© {YEAR} Kardenum</span>
             </div>
           </div>
-          <FooterNotices texts={{ minecraft: t("minecraftNotice"), discord: t("discordNotice") }} />
+          {/* Only the entries this build generates, and only the ones with a notice, reach the browser. */}
+          <FooterNotices entries={entryNotices()} texts={{ minecraft: t("minecraftNotice"), discord: t("discordNotice") }} />
         </div>
       </Container>
     </footer>
