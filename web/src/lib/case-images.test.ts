@@ -80,3 +80,17 @@ test("every case image is WebP or AVIF, at most 1600 px wide and 300 KB", () => 
   const problems = files(casesDir).flatMap((file) => imageProblems(path.relative(casesDir, file), readFileSync(file)));
   assert.deepEqual(problems, []);
 });
+
+// docs/specs/006-guias.md: the screenshots of a guide live next to its .mdx files and follow the same limits.
+const guidesDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "content", "guides");
+const GUIDE_SOURCE = /\.(ts|tsx|mdx)$/;
+
+test("every guide screenshot is WebP or AVIF, at most 1600 px wide and 300 KB", () => {
+  // Everything in src/content/guides that is not the source of a guide is an image of one.
+  const images = files(guidesDir).filter((file) => !GUIDE_SOURCE.test(file));
+  const problems = images.flatMap((file) => imageProblems(path.relative(guidesDir, file), readFileSync(file)));
+  assert.deepEqual(problems, []);
+  // The filter itself: an image is never mistaken for a source file, nor the other way round.
+  assert.equal(GUIDE_SOURCE.test("tebex/es.mdx"), true);
+  assert.equal(GUIDE_SOURCE.test("tebex/panel.webp"), false);
+});

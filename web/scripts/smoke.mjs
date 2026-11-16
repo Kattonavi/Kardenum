@@ -4,6 +4,7 @@
 // It reads the route registry and the page texts from src/, so every public page is checked
 // in both languages without listing URLs here. Exits with code 1 if any check fails.
 import { readFileSync } from "node:fs";
+import { guides } from "@/content/guides";
 import { homeFaqs } from "@/content/home";
 import { getPageMeta, getPageName } from "@/content/pages";
 import { serviceLines } from "@/content/service-lines";
@@ -232,6 +233,7 @@ for (const pathname of builtPathnames()) {
 //     a page, with the entry's own slug in each language. An entry of a hidden collection answers
 //     with noindex even on the open site, and no public page links to it.
 // ---------------------------------------------------------------------------------------------
+const guideById = new Map(guides.map(({ meta }) => [meta.id, meta]));
 const entryMessages = Object.fromEntries(
   locales.map((locale) => [locale, JSON.parse(readFileSync(new URL(`../messages/${locale}.json`, import.meta.url), "utf8"))]),
 );
@@ -337,6 +339,29 @@ for (const entry of builtEntries()) {
           (work.dateCreated === undefined || /^\d{4}$/.test(work.dateCreated)),
         work ? `${work.name} ${work.dateCreated ?? "(no year)"}` : "no CreativeWork node",
       );
+    }
+    const guide = guideById.get(entry.id);
+    if (entry.collection === "/guias/[slug]" && guide) {
+      // spec 006, RF-5: a guide is an Article, written and published by the organization.
+      const article = graph.find((node) => node["@type"] === "Article");
+      const organization = absoluteUrl("/#organization");
+      check(
+        `${label} Article: title, author and publisher (the organization), dates, image and the canonical`,
+        article?.headline === guide.title[locale] &&
+          article?.url === alternates[locale] &&
+          article?.author?.["@id"] === organization &&
+          article?.publisher?.["@id"] === organization &&
+          article?.datePublished === guide.publishedAt &&
+          article?.dateModified === guide.updatedAt &&
+          article?.image === absoluteUrl(ogImagePath(index, locale)),
+        article ? `${article.headline} ${article.datePublished} / ${article.dateModified}` : "no Article node",
+      );
+      const times = [...html.matchAll(/<time\b[^>]*\bdatetime="([^"]*)"/gi)].map((match) => match[1]);
+      check(`${label} publication and update dates are visible in <time datetime>`, times.includes(guide.publishedAt) && times.includes(guide.updatedAt), times.join(", ") || "no <time>");
+      // The body comes from MDX: no inline style (content policy) and no obsolete align attribute.
+      const articleHtml = page.body.match(/<article\b[\s\S]*?<\/article>/)?.[0] ?? "";
+      const inline = (articleHtml.match(/\s(style|align)="/g) ?? []).length;
+      check(`${label} the article carries no style or align attributes`, articleHtml !== "" && inline === 0, articleHtml === "" ? "no <article>" : `${inline} found`);
     }
   }
 }

@@ -1,7 +1,7 @@
 import { guides as guideRegistry } from "../content/guides";
 import type { GuideContent, GuideMeta } from "../content/types";
 import { type AppLocale, locales } from "../i18n/locales";
-import { isBuilt } from "../routes";
+import { isAppPathname, isBuilt } from "../routes";
 import { type SiteConfig, siteConfig } from "../site.config";
 
 /**
@@ -55,7 +55,7 @@ export function guideProblems(guide: GuideContent): string[] {
     problems.push(`updatedAt ${meta.updatedAt} is before publishedAt ${meta.publishedAt}`);
   }
   if (!Number.isInteger(meta.readingMinutes) || meta.readingMinutes < 1) problems.push("readingMinutes must be a whole number of minutes");
-  if (!isBuilt(meta.service)) problems.push(`its related service ${meta.service} is not a page of the site`);
+  if (!isAppPathname(meta.service) || !isBuilt(meta.service)) problems.push(`its related service ${meta.service} is not a page of the site`);
   return problems;
 }
 
