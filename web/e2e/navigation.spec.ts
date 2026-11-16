@@ -1,3 +1,4 @@
+import { isListed } from "../src/routes";
 import { siteConfig } from "../src/site.config";
 import { expect, test } from "./helpers";
 
@@ -49,9 +50,12 @@ test.describe("desktop menu", () => {
     await expect(trigger).toHaveAttribute("aria-expanded", "false");
   });
 
-  test("the portfolio stays out of the menu while it is hidden", async ({ page }) => {
+  test("the portfolio is in the menu only when it is public", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("banner").getByRole("link", { name: "Portafolio" })).toHaveCount(0);
+    // The test follows the feature: opening the portfolio is one line in site.config.ts.
+    const portfolio = page.getByRole("banner").getByRole("link", { name: "Portafolio" });
+    await expect(portfolio).toHaveCount(isListed("/portafolio") ? 1 : 0);
+    if (isListed("/portafolio")) await expect(portfolio).toHaveAttribute("href", "/portafolio");
     await expect(page.getByRole("banner").getByRole("link", { name: "Nosotros" })).toBeVisible();
     await expect(page.getByRole("banner").getByRole("link", { name: "Cotizar" })).toBeVisible();
   });
@@ -104,7 +108,7 @@ test.describe("phone menu", () => {
     await services.click();
     await expect(menu.getByRole("link", { name: /^Desarrollo/ })).toBeHidden();
 
-    await expect(dialog.getByRole("link", { name: "Portafolio" })).toHaveCount(0);
+    await expect(dialog.getByRole("link", { name: "Portafolio" })).toHaveCount(isListed("/portafolio") ? 1 : 0);
     await expect(dialog.getByRole("link", { name: "Nosotros" })).toBeVisible();
     await expect(dialog.getByRole("link", { name: "Cotizar proyecto" })).toBeVisible();
     const language = dialog.getByRole("group", { name: "Idioma" });
