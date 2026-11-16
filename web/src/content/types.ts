@@ -1,6 +1,7 @@
 import type { Localized } from "../i18n/locales";
 import type { AppPathname } from "../routes";
 import type { PortfolioPendingKey } from "../site.config";
+import type { MDXModule } from "mdx/types";
 
 /**
  * Typed content model. Content lives in the repo: adding a case or a guide is adding a file.
@@ -236,12 +237,35 @@ export type PortfolioCase =
 /** A case that is published (publico or reservado). */
 export type ShownCase = Exclude<PortfolioCase, { readonly visibilidad: "privado" }>;
 
-export type Guide = {
+/**
+ * A guide (maqueta B-Guia-plantilla, spec 006): its data here, its body in `es.mdx` and `en.mdx`
+ * next to it. The body marks each section with <Section n={0}>…</Section>; the titles of the
+ * sections live only here, so the index "En esta guía" and the headings cannot disagree.
+ */
+export type GuideMeta = {
+  /** Internal id: the name of its folder in src/content/guides. */
+  readonly id: string;
+  readonly line: ServiceLineId;
+  /** Page of the related service: its sub-page, or the page of its line when it has none. */
+  readonly service: AppPathname;
   readonly slug: Localized<string>;
+  /** Name in the breadcrumbs ("Tienda Tebex"). */
+  readonly shortName: Localized<string>;
+  /** The question the guide answers, as people search it. It is the h1. */
   readonly title: Localized<string>;
   readonly summary: Localized<string>;
-  readonly line: ServiceLineId;
-  /** ISO dates, both shown on the page. */
+  /** Dates as YYYY-MM-DD; the update is never before the publication. */
   readonly publishedAt: string;
   readonly updatedAt: string;
+  readonly readingMinutes: number;
+  /** Titles of the sections, from 00 ("Antes de empezar") to the last one ("Siguientes pasos"). */
+  readonly sections: readonly Localized<string>[];
+  /** Title and description of the page (about 60 and 150 characters). */
+  readonly meta: { readonly title: Localized<string>; readonly description: Localized<string> };
+};
+
+/** A guide in the registry: its data and the body of each language, loaded only by the site. */
+export type GuideContent = {
+  readonly meta: GuideMeta;
+  readonly body: Localized<() => Promise<MDXModule>>;
 };

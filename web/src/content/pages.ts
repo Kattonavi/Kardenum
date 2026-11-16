@@ -90,6 +90,20 @@ export const pageMeta: Partial<Record<AppPathname, PageMeta>> = {
       en: { label: "Work", lines: ["Work we"], accent: "can show." },
     },
   },
+  "/guias": {
+    title: {
+      es: "Guías de desarrollo, Minecraft y Discord — Kardenum",
+      en: "Guides on websites, Minecraft and Discord — Kardenum",
+    },
+    description: {
+      es: "Guías para entender antes de decidir: sitios web, servidores de Minecraft y comunidades de Discord, explicados paso a paso. Cotiza tu proyecto.",
+      en: "Guides to understand before you decide: websites, Minecraft servers and Discord communities, explained step by step. Get a quote for your project.",
+    },
+    og: {
+      es: { label: "Guías", lines: ["Guías para entender"], accent: "antes de decidir." },
+      en: { label: "Guides", lines: ["Guides to understand"], accent: "before you decide." },
+    },
+  },
   ...Object.fromEntries(serviceLines.map((line) => [line.pathname, linePages[line.id].meta])),
   ...Object.fromEntries(Object.values(subpages).map((page) => [page.pathname, page.meta])),
   [privacyDocument.pathname]: privacyDocument.meta,
@@ -116,6 +130,7 @@ export const pageNames: Partial<Record<AppPathname, Localized<string>>> = {
   "/nosotros": { es: "Nosotros", en: "About" },
   "/contacto": { es: "Contacto", en: "Contact" },
   "/portafolio": { es: "Portafolio", en: "Work" },
+  "/guias": { es: "Guías", en: "Guides" },
   "/legal/privacidad": { es: "Privacidad", en: "Privacy" },
   "/legal/terminos": { es: "Términos", en: "Terms" },
   ...Object.fromEntries(serviceLines.map((line) => [line.pathname, line.name])),

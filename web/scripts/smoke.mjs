@@ -308,7 +308,7 @@ for (const entry of builtEntries()) {
     const items = graph.find((node) => node["@type"] === "BreadcrumbList")?.itemListElement ?? [];
     const expected = [
       ...breadcrumbTrail(index).map((crumb) => ({ name: getPageName(crumb)[locale], item: absoluteUrl(localizedPath(crumb, locale)) })),
-      { name: entry.name, item: absoluteUrl(path) },
+      { name: entry.name[locale], item: absoluteUrl(path) },
     ];
     const navHtml = breadcrumbNav(html, entryMessages[locale].Sections.breadcrumb);
     const shape = trailShape(navHtml);

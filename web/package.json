@@ -13,10 +13,15 @@
     "smoke": "node --import ./scripts/test-register.mjs scripts/smoke.mjs"
   },
   "dependencies": {
+    "@mdx-js/loader": "3.1.1",
+    "@mdx-js/react": "3.1.1",
+    "@next/mdx": "16.4.2",
+    "@types/mdx": "2.0.14",
     "next": "16.4.6",
     "next-intl": "4.14.9",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "remark-gfm": "4.0.1"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",

@@ -1,8 +1,10 @@
 import path from "node:path";
 import type { NextConfig } from "next";
+import createMDX from "@next/mdx";
 import createNextIntlPlugin from "next-intl/plugin";
 import { isSiteIndexable, NOINDEX_DIRECTIVE } from "./src/lib/indexing";
 import { assertLaunchReady } from "./src/lib/launch";
+import { assertGuidesReady } from "./src/lib/guides";
 import { assertPortfolioReady } from "./src/lib/portfolio";
 import { securityHeaders } from "./src/lib/security-headers";
 import { getSiteUrl } from "./src/lib/site-url";
@@ -16,6 +18,9 @@ assertLaunchReady();
 
 // With the portfolio on, every service line needs at least one published case, open site or not (spec 005, RF-7).
 assertPortfolioReady();
+
+// With the guides on there must be at least one, and an incomplete guide stops the build, named (spec 006, RF-7).
+assertGuidesReady();
 
 // Short links are answered in src/proxy.ts, which is loaded with the first request: a wrong
 // address in site.config.ts must stop the build here, not the site there.
@@ -58,4 +63,10 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withNextIntl(nextConfig);
+// Guides are written in MDX (src/content/guides). remark-gfm adds tables; it is named as a string
+// so Turbopack can load it. tableCellAlignToStyle: false keeps the alignment of a column as an
+// attribute: by default it becomes style="text-align:…", which the content policy (style-src
+// 'self') blocks. The table cells of src/components/guides turn it into a class.
+const withMDX = createMDX({ options: { remarkPlugins: ["remark-gfm"], tableCellAlignToStyle: false } });
+
+export default withMDX(withNextIntl(nextConfig));

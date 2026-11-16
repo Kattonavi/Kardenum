@@ -70,8 +70,8 @@ test("RF-5: a private case is never published: no case, no entry, no address, no
   const cases = [shown("uno", ["desarrollo"]), privateCase];
   assert.deepEqual(visibleCases(cases).map((item) => item.id), ["uno"]);
   assert.equal(findCase("es", "secreto", cases), undefined);
-  assert.deepEqual(builtEntries(cases).map((entry) => entry.id), ["uno"]);
-  assert.equal(Object.keys(entryLinks(cases)).some((key) => key.includes("secreto")), false);
+  assert.deepEqual(builtEntries(cases, []).map((entry) => entry.id), ["uno"]);
+  assert.equal(Object.keys(entryLinks(cases, [])).some((key) => key.includes("secreto")), false);
   for (const url of buildSitemapEntries({}, cases).map((entry) => entry.url)) assert.doesNotMatch(url, /secreto/);
   // It counts for no line either.
   assert.ok(linesWithoutCases(cases).includes("video"));
@@ -142,13 +142,13 @@ test("the published cases have their own slugs, addresses, texts and a next proj
 
 test("entries: ES / EN of an entry lead to the same case in the other language, and a slug cannot repeat", () => {
   const cases = [shown("uno", ["desarrollo"])];
-  const links = entryLinks(cases);
+  const links = entryLinks(cases, []);
   assert.deepEqual(links["es/uno"], { es: "/portafolio/uno", en: "/en/work/uno-en" });
   assert.deepEqual(links["en/uno-en"], links["es/uno"]);
-  const [entry] = builtEntries(cases);
+  const [entry] = builtEntries(cases, []);
   assert.ok(entry);
   assert.deepEqual(pathsOfEntry(entry), { es: "/portafolio/uno", en: "/en/work/uno-en" });
-  assert.throws(() => builtEntries([shown("uno", ["video"]), shown("uno", ["discord"])]), /share a slug/);
+  assert.throws(() => builtEntries([shown("uno", ["video"]), shown("uno", ["discord"])], []), /share a slug/);
 });
 
 test("the next project goes round the published cases and skips private ones", () => {

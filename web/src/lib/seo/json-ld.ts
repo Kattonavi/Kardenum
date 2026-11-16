@@ -110,3 +110,25 @@ export function creativeWorkJsonLd(
 export function serializeJsonLd(nodes: readonly JsonLdNode[]): string {
   return JSON.stringify({ "@context": "https://schema.org", "@graph": nodes }).replace(/</g, "\\u003c");
 }
+
+/** A guide (spec 006, RF-5): written and published by the studio, with its dates and its social image. */
+export function articleJsonLd(
+  locale: AppLocale,
+  article: { readonly headline: string; readonly description: string; readonly path: string; readonly image: string; readonly datePublished: string; readonly dateModified: string },
+  config: SiteConfig = siteConfig,
+): JsonLdNode {
+  const organization = { "@type": "Organization", "@id": organizationId(), name: config.name, url: absoluteUrl("/") };
+  return {
+    "@type": "Article",
+    headline: article.headline,
+    description: article.description,
+    url: absoluteUrl(article.path),
+    mainEntityOfPage: absoluteUrl(article.path),
+    image: absoluteUrl(article.image),
+    datePublished: article.datePublished,
+    dateModified: article.dateModified,
+    inLanguage: locale,
+    author: organization,
+    publisher: organization,
+  };
+}

@@ -1,5 +1,5 @@
-import Image from "next/image";
 import { KardenumSymbol } from "@/components/brand/kardenum-symbol";
+import { PlainImage } from "@/components/ui/plain-image";
 import type { CasePiece, CaseValue, CaseVisual } from "@/content/types";
 import type { AppLocale } from "@/i18n/locales";
 import { isPendingRef, pendingNote } from "@/lib/portfolio";
@@ -22,7 +22,7 @@ function PendingBox({ note, ratio }: { note: string; ratio: "aspect-4/3" | "aspe
 }
 
 function CaseImage({ visual, locale, sizes, preload = false }: { visual: Extract<CaseVisual, { kind: "image" }>; locale: AppLocale; sizes: string; preload?: boolean }) {
-  return <Image src={getCaseImage(visual.image)} alt={visual.alt[locale]} sizes={sizes} preload={preload} className="size-full object-cover" />;
+  return <PlainImage src={getCaseImage(visual.image)} alt={visual.alt[locale]} sizes={sizes} preload={preload} className="size-full object-cover" />;
 }
 
 /** Picture of a card in the index (4:3). */

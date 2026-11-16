@@ -36,7 +36,7 @@ export const routeTable = {
   "/servicios/discord": { en: "/services/discord", built: true, listed: true },
   "/servicios/discord/bots": { en: "/services/discord/bots", built: true, listed: serviceSubpages },
   "/portafolio": { en: "/work", built: true, listed: portfolio },
-  "/guias": { en: "/guides", built: false, listed: guides },
+  "/guias": { en: "/guides", built: true, listed: guides },
   "/nosotros": { en: "/about", built: true, listed: true },
   "/contacto": { en: "/contact", built: true, listed: true },
   "/legal/privacidad": { en: "/legal/privacy", built: true, listed: true },
@@ -200,6 +200,7 @@ type CollectionDefinition = {
 /** The key is the Spanish template, which is also the folder under src/app/[locale]. */
 export const collectionTable = {
   "/portafolio/[slug]": { en: "/work/[slug]", index: "/portafolio" },
+  "/guias/[slug]": { en: "/guides/[slug]", index: "/guias" },
 } as const satisfies Record<string, CollectionDefinition>;
 
 export type CollectionPathname = keyof typeof collectionTable;
