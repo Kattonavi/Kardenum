@@ -4,7 +4,7 @@ import { ContactCta } from "@/components/contact/contact-cta";
 import { GuideCard } from "@/components/guides/guide-card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { Container } from "@/components/layout/container";
-import { FILTER_GROUP, filteredItemClass, LineFilter } from "@/components/sections/line-filter";
+import { FILTER_GROUP, filteredItemClass, filterLines, LineFilter, showFilter } from "@/components/sections/line-filter";
 import { PageHero } from "@/components/sections/page-hero";
 import { JsonLd } from "@/components/seo/json-ld";
 import { getPageName } from "@/content/pages";
@@ -32,6 +32,7 @@ export default async function Page({ params }: PageProps<"/[locale]/guias">) {
   const [t, sections] = await Promise.all([getTranslations({ locale, namespace: "Guides" }), getTranslations({ locale, namespace: "Sections" })]);
   const guides = sortedGuides().map((guide) => guide.meta);
   const texts = { guide: t("guide"), read: t("read") };
+  const lines = filterLines(guides.map((guide) => [guide.line]));
 
   return (
     <>
@@ -49,7 +50,7 @@ export default async function Page({ params }: PageProps<"/[locale]/guias">) {
         <div className="surface-stone">
           <Container>
             <section aria-label={t("published")} className={`${FILTER_GROUP} flex flex-col gap-8 pt-18 pb-24`}>
-              <LineFilter locale={locale} legend={t("filterLabel")} allLabel={t("all")} variant="mono" />
+              {showFilter(lines) ? <LineFilter locale={locale} legend={t("filterLabel")} allLabel={t("all")} lines={lines} variant="mono" /> : null}
               <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(21.25rem,100%),1fr))] border-t border-l border-t-ink border-l-mist">
                 {guides.map((guide) => (
                   <GuideCard key={guide.id} guide={guide} locale={locale} texts={texts} heading="h2" withSummary className={filteredItemClass([guide.line])} />

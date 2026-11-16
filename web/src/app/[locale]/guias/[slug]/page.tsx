@@ -13,8 +13,8 @@ import { getPageName } from "@/content/pages";
 import { serviceLines } from "@/content/service-lines";
 import { type AppLocale, isAppLocale } from "@/i18n/locales";
 import { getChannelHref, quoteFormHref } from "@/lib/contact";
-import { builtEntries, type Entry, pathsOfEntry } from "@/lib/entries";
-import { findGuide, formatGuideDate, relatedGuides, sortedGuides } from "@/lib/guides";
+import { builtEntries, type Entry, generatedEntries, pathsOfEntry } from "@/lib/entries";
+import { findGuide, formatGuideDate, relatedGuides } from "@/lib/guides";
 import { articleJsonLd, breadcrumbJsonLd } from "@/lib/seo/json-ld";
 import { buildEntryMetadata, ogImagePath } from "@/lib/seo/metadata";
 import { breadcrumbTrail, isListed } from "@/routes";
@@ -28,7 +28,8 @@ export const dynamicParams = false;
 
 export function generateStaticParams({ params }: { params: { locale: string } }) {
   const { locale } = params;
-  return isAppLocale(locale) ? sortedGuides().map((guide) => ({ slug: guide.meta.slug[locale] })) : [];
+  // Hidden behind its flag on the open site: none (src/lib/entries.ts, isEntryGenerated).
+  return isAppLocale(locale) ? generatedEntries().filter((entry) => entry.collection === COLLECTION).map((entry) => ({ slug: entry.slug[locale] })) : [];
 }
 
 function findEntry(locale: AppLocale, slug: string): Entry | undefined {

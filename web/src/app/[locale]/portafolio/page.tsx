@@ -5,7 +5,7 @@ import { ContactCta } from "@/components/contact/contact-cta";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { Container } from "@/components/layout/container";
 import { CaseCover } from "@/components/portfolio/case-visuals";
-import { FILTER_GROUP, filteredItemClass, LineFilter } from "@/components/sections/line-filter";
+import { FILTER_GROUP, filteredItemClass, filterLines, LineFilter, showFilter } from "@/components/sections/line-filter";
 import { PageHero } from "@/components/sections/page-hero";
 import { JsonLd } from "@/components/seo/json-ld";
 import { getPageName } from "@/content/pages";
@@ -32,6 +32,7 @@ export default async function Page({ params }: PageProps<"/[locale]/portafolio">
     getTranslations({ locale, namespace: "Sections" }),
   ]);
   const cases = visibleCases();
+  const lines = filterLines(cases.map((item) => item.lines));
   const texts = { ownProject: t("ownProject"), reservedClient: t("reservedClient") };
 
   return (
@@ -48,7 +49,7 @@ export default async function Page({ params }: PageProps<"/[locale]/portafolio">
       <div className="surface-stone">
         <Container>
           <section aria-label={t("projects")} className={`${FILTER_GROUP} flex flex-col gap-10 pt-12 pb-24`}>
-            <LineFilter locale={locale} legend={t("filterLabel")} allLabel={t("all")} variant="display" />
+            {showFilter(lines) ? <LineFilter locale={locale} legend={t("filterLabel")} allLabel={t("all")} lines={lines} variant="display" /> : null}
 
             <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(21.25rem,100%),1fr))] gap-x-8 gap-y-12">
               {cases.map((item) => {

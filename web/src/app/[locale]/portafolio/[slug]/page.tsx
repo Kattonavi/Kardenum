@@ -9,8 +9,8 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { ArrowRightIcon } from "@/components/ui/icons";
 import { getPageName } from "@/content/pages";
 import { type AppLocale, isAppLocale } from "@/i18n/locales";
-import { builtEntries, type Entry, pathsOfEntry } from "@/lib/entries";
-import { clientLabel, findCase, lineNames, nextCase, showCaseValue, visibleCases } from "@/lib/portfolio";
+import { builtEntries, type Entry, generatedEntries, pathsOfEntry } from "@/lib/entries";
+import { clientLabel, findCase, lineNames, nextCase, showCaseValue } from "@/lib/portfolio";
 import { breadcrumbJsonLd, creativeWorkJsonLd } from "@/lib/seo/json-ld";
 import { buildEntryMetadata, ogImagePath } from "@/lib/seo/metadata";
 import { breadcrumbTrail, entryPath } from "@/routes";
@@ -24,7 +24,8 @@ export const dynamicParams = false;
 
 export function generateStaticParams({ params }: { params: { locale: string } }) {
   const { locale } = params;
-  return isAppLocale(locale) ? visibleCases().map((item) => ({ slug: item.slug[locale] })) : [];
+  // Hidden behind its flag on the open site: none (src/lib/entries.ts, isEntryGenerated).
+  return isAppLocale(locale) ? generatedEntries().filter((entry) => entry.collection === COLLECTION).map((entry) => ({ slug: entry.slug[locale] })) : [];
 }
 
 function findEntry(locale: AppLocale, slug: string): Entry | undefined {

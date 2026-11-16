@@ -5,7 +5,7 @@ import { getPageMeta, hasPageMeta } from "@/content/pages";
 import { type AppLocale, isAppLocale, locales } from "@/i18n/locales";
 import { brand } from "@/lib/brand";
 import { OG_IMAGE_SIZE, OG_PADDING_X, ogImageName, ogTitleFontSize } from "@/lib/seo/metadata";
-import { type AppPathname, appPathnames } from "@/routes";
+import { type AppPathname, generatedPathnames } from "@/routes";
 import { siteConfig } from "@/site.config";
 
 // Social images (Open Graph), one per page and language, generated at build time:
@@ -13,7 +13,8 @@ import { siteConfig } from "@/site.config";
 export const dynamic = "force-static";
 export const dynamicParams = false;
 
-const imagePages = appPathnames.filter(hasPageMeta);
+// Only pages this build serves: a page hidden on the open site has no social image either.
+const imagePages = generatedPathnames().filter(hasPageMeta);
 
 export function generateStaticParams() {
   return imagePages.flatMap((pathname) => locales.map((locale) => ({ locale, image: ogImageName(pathname, locale) })));

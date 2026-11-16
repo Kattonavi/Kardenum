@@ -180,3 +180,15 @@ test("a short link never leads to anything but an https address", () => {
     assert.throws(() => shortLinkRedirects(withDiscord(wrong)), /https address/, wrong);
   }
 });
+
+test("a hidden page is generated on a closed site and not on the open one; a public page on both", async () => {
+  const { isGenerated, skippedPathnames } = await import("@/routes");
+  const open = { SITE_INDEXABLE: "true" };
+  const closed = { SITE_INDEXABLE: "false" };
+  for (const pathname of builtPathnames()) {
+    assert.equal(isGenerated(pathname, closed), true, `${pathname} closed`);
+    assert.equal(isGenerated(pathname, open), isListed(pathname), `${pathname} open`);
+  }
+  assert.deepEqual(skippedPathnames(closed), []);
+  assert.deepEqual(skippedPathnames(open), hiddenPathnames());
+});

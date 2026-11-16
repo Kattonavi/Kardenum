@@ -1,8 +1,8 @@
 import AxeBuilder from "@axe-core/playwright";
 import { type Page } from "@playwright/test";
 import { locales } from "../src/i18n/locales";
-import { builtPathnames, localizedPath } from "../src/routes";
-import { builtEntries, pathsOfEntry } from "../src/lib/entries";
+import { generatedPathnames, localizedPath } from "../src/routes";
+import { generatedEntries, pathsOfEntry } from "../src/lib/entries";
 import { doubleTextSize, expect, sidewaysOverflow, test } from "./helpers";
 
 // BRIEF.md → "Accesibilidad (WCAG 2.1 AA)". axe finds roughly half of the problems; the rest
@@ -12,8 +12,8 @@ const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice"];
 // is checked without listing it here. Plus the 404 page, which has its own header and footer (it replaces the layout).
 // The entries of the collections (portfolio cases) are pages too.
 const PAGES = [
-  ...builtPathnames().flatMap((pathname) => locales.map((locale) => localizedPath(pathname, locale))),
-  ...builtEntries().flatMap((entry) => locales.map((locale) => pathsOfEntry(entry)[locale])),
+  ...generatedPathnames().flatMap((pathname) => locales.map((locale) => localizedPath(pathname, locale))),
+  ...generatedEntries().flatMap((entry) => locales.map((locale) => pathsOfEntry(entry)[locale])),
   "/pagina-que-no-existe",
 ];
 

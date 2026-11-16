@@ -1,6 +1,7 @@
 import { serviceLines } from "@/content/service-lines";
 import type { ServiceLineId } from "@/content/types";
 import type { AppLocale } from "@/i18n/locales";
+export { filterLines, showFilter } from "@/lib/line-filter";
 
 /**
  * Filter by service line that works without JavaScript (portfolio and guides, specs 005 and 006):
@@ -39,11 +40,16 @@ type LineFilterProps = {
   legend: string;
   /** Label of the option that shows everything ("Todos", "Todas"). */
   allLabel: string;
+  /** The lines to offer (filterLines). */
+  lines: readonly ServiceLineId[];
   variant: keyof typeof OPTION_CLASS;
 };
 
-export function LineFilter({ locale, legend, allLabel, variant }: LineFilterProps) {
-  const options = [{ id: "all", label: allLabel }, ...serviceLines.map((line) => ({ id: line.id, label: line.shortName[locale] }))];
+export function LineFilter({ locale, legend, allLabel, lines, variant }: LineFilterProps) {
+  const options = [
+    { id: "all", label: allLabel },
+    ...serviceLines.filter((line) => lines.includes(line.id)).map((line) => ({ id: line.id, label: line.shortName[locale] })),
+  ];
 
   return (
     <fieldset className="flex min-w-0 flex-wrap gap-2">

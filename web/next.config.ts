@@ -5,6 +5,7 @@ import createNextIntlPlugin from "next-intl/plugin";
 import { isSiteIndexable, NOINDEX_DIRECTIVE } from "./src/lib/indexing";
 import { assertLaunchReady } from "./src/lib/launch";
 import { assertGuidesReady } from "./src/lib/guides";
+import { blockedPaths } from "./src/lib/entries";
 import { assertPortfolioReady } from "./src/lib/portfolio";
 import { securityHeaders } from "./src/lib/security-headers";
 import { getSiteUrl } from "./src/lib/site-url";
@@ -37,6 +38,9 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: projectRoot,
   // No "X-Powered-By: Next.js": the stack is nobody's business.
   poweredByHeader: false,
+  // Addresses of the pages hidden on the open site, fixed at build time: src/proxy.ts answers them
+  // with the brand 404 (src/lib/entries.ts, blockedPaths). Empty on a closed site, which shows them.
+  env: { BLOCKED_PATHS: JSON.stringify(blockedPaths()) },
   // Pictures go through Next's optimizer (src/components/ui/plain-image.tsx): AVIF first, WebP for
   // browsers without it, one file per width. The optimizer is an open endpoint (/_next/image), so it
   // is narrowed to what the site uses: only images imported by the code (they live under
@@ -49,6 +53,23 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
     qualities: [75],
+    // Only the widths the `sizes` of the templates can ask for, counting phones at 1x to 3x
+    // (320–430 px wide) and desktops up to 2x. The optimizer refuses any other width (400), and a
+    // width here is a file the server may have to make. The originals are at most 2400 px wide
+    // (src/lib/case-images.test.ts), so nothing above that is ever useful.
+    //   480                phones at 1x under "100vw" (320–430 px)
+    //   640, 750, 828      phones at 2x (320, 375, 414 px); 750 is also a guide screenshot (46rem = 736) at 1x
+    //   1080, 1170, 1290   phones at 3x (360, 390, 430 px); 1170 also serves a piece (34rem = 544) at 2x
+    //                      (1088) and the main picture (70rem = 1120) at 1x
+    //   1536, 2048         "100vw" below 75rem on tablets and laptops at 2x (768, 1024 px); 1536 is also
+    //                      a guide screenshot at 2x (1472)
+    //   2400               the widest ask: "100vw" just under 75rem at 2x (2398) and the main picture
+    //                      at 2x (2240)
+    // Next adds an image size to a srcset only above the smallest device size times the narrowest
+    // vw of `sizes`, so it only reaches the cover of a card ("…, 50vw, 100vw"):
+    //   352                the cover from 75rem up (22rem) at 1x; at 2x (704) it takes 750
+    deviceSizes: [480, 640, 750, 828, 1080, 1170, 1290, 1536, 2048, 2400],
+    imageSizes: [352],
     localPatterns: [{ pathname: "/_next/static/media/**", search: "" }],
     remotePatterns: [],
   },

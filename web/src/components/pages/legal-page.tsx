@@ -107,7 +107,7 @@ export async function LegalPage<SectionId extends string>({ document, data, para
               {entries.map((entry) => (
                 <section key={entry.anchor} aria-labelledby={entry.anchor} className="flex flex-col gap-3.5">
                   <h2 id={entry.anchor} className="text-xl leading-[1.3] tracking-[0.04em] type-display">
-                    <span className="font-mono text-[0.75em] font-medium tracking-[0.1em] text-(--muted-text)">{entry.number} · </span>
+                    <span className="font-mono text-[0.75em] tracking-[0.1em] text-(--muted-text)">{entry.number} · </span>
                     {entry.title}
                   </h2>
                   {entry.paragraphs.map((paragraph, index) => (

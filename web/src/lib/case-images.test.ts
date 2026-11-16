@@ -4,11 +4,12 @@ import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-// docs/specs/005-portafolio-y-casos.md: case images are stored already optimized. WebP or AVIF,
-// at most 1600 px wide and 300 KB per file (the site serves them as they are: images.unoptimized).
+// docs/specs/005-portafolio-y-casos.md: the originals of case images are stored already compressed.
+// WebP or AVIF, at most 2400 px wide and 800 KB per file (founder's decision, 2026-11-15): Next's
+// optimizer makes the smaller widths each page asks for (next.config.ts, deviceSizes/imageSizes).
 const casesDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "assets", "cases");
-const MAX_WIDTH = 1600;
-const MAX_BYTES = 300 * 1024;
+const MAX_WIDTH = 2400;
+const MAX_BYTES = 800 * 1024;
 
 /** Width of a WebP (VP8, VP8L or VP8X) or AVIF (its "ispe" box) image, read from its header; null if it is neither. */
 function imageWidth(data: Buffer): number | null {
@@ -66,16 +67,16 @@ function syntheticAvif(width: number): Buffer {
 }
 
 test("the checker accepts images within the limits and rejects each kind of excess", () => {
-  assert.deepEqual(imageProblems("a.webp", syntheticWebp(1600)), []);
+  assert.deepEqual(imageProblems("a.webp", syntheticWebp(2400)), []);
   assert.deepEqual(imageProblems("a.avif", syntheticAvif(1200)), []);
-  assert.deepEqual(imageProblems("a.webp", syntheticWebp(1601)), ["a.webp: 1601 px wide (max 1600)"]);
-  assert.deepEqual(imageProblems("a.avif", syntheticAvif(2400)), ["a.avif: 2400 px wide (max 1600)"]);
-  assert.deepEqual(imageProblems("a.webp", syntheticWebp(800, MAX_BYTES + 1)), ["a.webp: 300 KB (max 300)"]);
+  assert.deepEqual(imageProblems("a.webp", syntheticWebp(2401)), ["a.webp: 2401 px wide (max 2400)"]);
+  assert.deepEqual(imageProblems("a.avif", syntheticAvif(3200)), ["a.avif: 3200 px wide (max 2400)"]);
+  assert.deepEqual(imageProblems("a.webp", syntheticWebp(800, MAX_BYTES + 1)), ["a.webp: 800 KB (max 800)"]);
   assert.deepEqual(imageProblems("a.png", Buffer.from("\x89PNG\r\n\x1a\n")), ["a.png: only WebP or AVIF", "a.png: not a WebP or AVIF file"]);
   assert.equal(imageWidth(syntheticWebp(1234)), 1234);
 });
 
-test("every case image is WebP or AVIF, at most 1600 px wide and 300 KB", () => {
+test("every case image is WebP or AVIF, at most 2400 px wide and 800 KB", () => {
   // There may be none (no case has images yet); every file under src/assets/cases is checked.
   const problems = files(casesDir).flatMap((file) => imageProblems(path.relative(casesDir, file), readFileSync(file)));
   assert.deepEqual(problems, []);
@@ -85,7 +86,7 @@ test("every case image is WebP or AVIF, at most 1600 px wide and 300 KB", () => 
 const guidesDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "content", "guides");
 const GUIDE_SOURCE = /\.(ts|tsx|mdx)$/;
 
-test("every guide screenshot is WebP or AVIF, at most 1600 px wide and 300 KB", () => {
+test("every guide screenshot is WebP or AVIF, at most 2400 px wide and 800 KB", () => {
   // Everything in src/content/guides that is not the source of a guide is an image of one.
   const images = files(guidesDir).filter((file) => !GUIDE_SOURCE.test(file));
   const problems = images.flatMap((file) => imageProblems(path.relative(guidesDir, file), readFileSync(file)));

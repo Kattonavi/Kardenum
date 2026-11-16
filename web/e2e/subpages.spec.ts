@@ -2,7 +2,7 @@ import { subpages } from "../src/content/subpages";
 import { linePages } from "../src/content/lines";
 import { serviceLines } from "../src/content/service-lines";
 import { locales } from "../src/i18n/locales";
-import { isListed, localizedPath } from "../src/routes";
+import { isGenerated, isListed, localizedPath } from "../src/routes";
 import { siteConfig } from "../src/site.config";
 import { expect, test } from "./helpers";
 
@@ -14,7 +14,8 @@ const SECTIONS = {
   en: { offer: "What we do", deliverables: "What you get", process: "How we work", faq: "Frequently asked questions", related: "Related services", other: "Other channels", breadcrumb: "Breadcrumb", contact: "Let's talk about your project." },
 } as const;
 
-for (const page of Object.values(subpages)) {
+// Only the sub-pages this build generates (hidden ones on the open site are a 404: see playwright.config.ts).
+for (const page of Object.values(subpages).filter((candidate) => isGenerated(candidate.pathname))) {
   for (const locale of locales) {
     const path = localizedPath(page.pathname, locale);
     const community = linePages[page.line].kind === "community";
@@ -131,4 +132,25 @@ test("the bots page carries the Discord notice in its footer (RF-8)", async ({ p
   await page.goto("/servicios/discord/bots");
   await expect(page.getByRole("contentinfo")).toContainText("Discord");
   await expect(page.getByRole("contentinfo")).toContainText("Minecraft");
+});
+
+// Founder's decision (2026-11-15): one root layout for the whole site, so going from a line to
+// its sub-page is a client-side navigation, never a full reload. Runs once the sub-pages are on.
+test("from a line, its sub-page opens on the client, without reloading the document", async ({ page }) => {
+  test.skip(!siteConfig.features.serviceSubpages, "the sub-pages are hidden: the line does not link to them");
+  await page.goto(localizedPath("/servicios/minecraft", "es"));
+  await page.waitForLoadState("networkidle");
+  await page.evaluate(() => {
+    (window as unknown as { sameDocument?: boolean }).sameDocument = true;
+  });
+  const documents: string[] = [];
+  page.on("request", (request) => {
+    if (request.resourceType() === "document") documents.push(request.url());
+  });
+  const target = localizedPath("/servicios/minecraft/plugins", "es");
+  await page.getByRole("main").locator(`a[href="${target}"]`).first().click();
+  await expect(page).toHaveURL(new RegExp(`${target}$`));
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText([...subpages.plugins.hero.titleLines.es, subpages.plugins.hero.titleAccent.es].join(" "));
+  expect(documents, "documents requested during the navigation").toEqual([]);
+  expect(await page.evaluate(() => (window as unknown as { sameDocument?: boolean }).sameDocument), "the page was not reloaded").toBe(true);
 });

@@ -3,9 +3,10 @@ import es from "../messages/es.json";
 import { linePages } from "../src/content/lines";
 import { getPageName } from "../src/content/pages";
 import { serviceLines } from "../src/content/service-lines";
+import { filterLines, showFilter } from "../src/lib/line-filter";
 import { locales, otherLocale } from "../src/i18n/locales";
 import { formatGuideDate, relatedGuides, sortedGuides } from "../src/lib/guides";
-import { entryPath, isListed, localizedPath } from "../src/routes";
+import { entryPath, isGenerated, isListed, localizedPath } from "../src/routes";
 import { siteConfig } from "../src/site.config";
 import { expect, sidewaysOverflow, test } from "./helpers";
 
@@ -17,8 +18,10 @@ import { expect, sidewaysOverflow, test } from "./helpers";
 const MESSAGES = { es, en } as const;
 const COLLECTION = "/guias/[slug]";
 const shown = sortedGuides();
+// The guide pages exist in this build (hidden on the open site they are a 404: see playwright.config.ts).
+const generated = isGenerated("/guias");
 
-for (const locale of locales) {
+for (const locale of generated ? locales : []) {
   const t = MESSAGES[locale].Guides;
   const index = localizedPath("/guias", locale);
 
@@ -38,8 +41,15 @@ for (const locale of locales) {
       await expect(published).toHaveCount(0);
       return;
     }
-    await expect(filter.getByRole("radio")).toHaveCount(serviceLines.length + 1);
-    await expect(filter.getByRole("radio", { name: t.all })).toBeChecked();
+    // "Todas" and the lines with at least one guide; with a single line there is no filter.
+    const lines = filterLines(shown.map(({ meta }) => [meta.line]));
+    if (showFilter(lines)) {
+      await expect(filter.getByRole("radio")).toHaveCount(lines.length + 1);
+      await expect(filter.getByRole("radio", { name: t.all })).toBeChecked();
+      for (const line of serviceLines) await expect(filter.getByText(line.shortName[locale], { exact: true })).toHaveCount(lines.includes(line.id) ? 1 : 0);
+    } else {
+      await expect(filter).toHaveCount(0);
+    }
     await expect(published.getByRole("link")).toHaveCount(shown.length);
     for (const { meta } of shown) {
       const card = published.getByRole("link", { name: new RegExp(meta.title[locale].replace(/[.*+?^${}()|[\]\\]/g, "\\$&")) });

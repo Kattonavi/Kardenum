@@ -16,6 +16,10 @@ import { type SiteConfig, siteConfig } from "@/site.config";
 // the registry is not touched (today it is empty).
 delete process.env.SITE_URL;
 
+// The entries of a hidden section are only generated on a closed site: these tests describe that one,
+// whatever SITE_INDEXABLE the build that runs them has.
+const closedSite = { SITE_INDEXABLE: "false" };
+
 const both = (text: string) => ({ es: text, en: text });
 const body = { es: async () => ({ default: () => null }), en: async () => ({ default: () => null }) };
 
@@ -90,7 +94,7 @@ test("guides: newest first, related ones of the same line first, each with its a
   assert.equal(findGuide("en", "nueva-en", list)?.meta.id, "nueva");
   assert.equal(findGuide("es", "nueva-en", list), undefined);
 
-  const links = entryLinks([], list);
+  const links = entryLinks([], list, closedSite);
   assert.deepEqual(links["es/nueva-es"], { es: "/guias/nueva-es", en: "/en/guides/nueva-en" });
   assert.deepEqual(links["en/nueva-en"], links["es/nueva-es"]);
   assert.equal(entryPath("/guias/[slug]", newer.meta.slug, "en"), "/en/guides/nueva-en");

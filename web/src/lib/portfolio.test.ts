@@ -23,6 +23,10 @@ import { portfolioPending, type SiteConfig, siteConfig } from "@/site.config";
 // docs/specs/005-portafolio-y-casos.md. The cases below are built here: the real ones are not touched.
 delete process.env.SITE_URL;
 
+// The entries of a hidden section are only generated on a closed site: these tests describe that one,
+// whatever SITE_INDEXABLE the build that runs them has.
+const closedSite = { SITE_INDEXABLE: "false" };
+
 const texts = { ownProject: "Proyecto propio", reservedClient: "Cliente reservado" };
 const both = (text: string) => ({ es: text, en: text });
 
@@ -71,7 +75,7 @@ test("RF-5: a private case is never published: no case, no entry, no address, no
   assert.deepEqual(visibleCases(cases).map((item) => item.id), ["uno"]);
   assert.equal(findCase("es", "secreto", cases), undefined);
   assert.deepEqual(builtEntries(cases, []).map((entry) => entry.id), ["uno"]);
-  assert.equal(Object.keys(entryLinks(cases, [])).some((key) => key.includes("secreto")), false);
+  assert.equal(Object.keys(entryLinks(cases, [], closedSite)).some((key) => key.includes("secreto")), false);
   for (const url of buildSitemapEntries({}, cases).map((entry) => entry.url)) assert.doesNotMatch(url, /secreto/);
   // It counts for no line either.
   assert.ok(linesWithoutCases(cases).includes("video"));
@@ -142,7 +146,7 @@ test("the published cases have their own slugs, addresses, texts and a next proj
 
 test("entries: ES / EN of an entry lead to the same case in the other language, and a slug cannot repeat", () => {
   const cases = [shown("uno", ["desarrollo"])];
-  const links = entryLinks(cases, []);
+  const links = entryLinks(cases, [], closedSite);
   assert.deepEqual(links["es/uno"], { es: "/portafolio/uno", en: "/en/work/uno-en" });
   assert.deepEqual(links["en/uno-en"], links["es/uno"]);
   const [entry] = builtEntries(cases, []);

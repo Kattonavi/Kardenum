@@ -2,10 +2,11 @@ import type { Page } from "@playwright/test";
 import en from "../messages/en.json";
 import es from "../messages/es.json";
 import { serviceLines } from "../src/content/service-lines";
+import { filterLines, showFilter } from "../src/lib/line-filter";
 import type { ShownCase } from "../src/content/types";
 import { type AppLocale, locales, otherLocale } from "../src/i18n/locales";
 import { clientLabel, lineNames, nextCase, visibleCases } from "../src/lib/portfolio";
-import { entryPath, isListed, localizedPath } from "../src/routes";
+import { entryPath, isGenerated, isListed, localizedPath } from "../src/routes";
 import { portfolioPending, siteConfig } from "../src/site.config";
 import { expect, test } from "./helpers";
 
@@ -16,6 +17,8 @@ import { expect, test } from "./helpers";
 const MESSAGES = { es, en } as const;
 const COLLECTION = "/portafolio/[slug]";
 const cases = visibleCases();
+// The portfolio pages exist in this build (hidden on the open site they are a 404: see playwright.config.ts).
+const generated = isGenerated("/portafolio");
 const casePath = (item: ShownCase, locale: AppLocale) => entryPath(COLLECTION, item.slug, locale);
 const show = <T,>(value: T | { pending: keyof typeof portfolioPending }, locale: AppLocale, format: (ready: T) => string) =>
   value && typeof value === "object" && "pending" in value ? portfolioPending[value.pending].placeholder[locale] : format(value as T);
@@ -25,10 +28,12 @@ async function visibleCards(page: Page): Promise<string[]> {
   return page.locator("main ul > li:visible h2").allTextContents();
 }
 
-for (const locale of locales) {
+for (const locale of generated ? locales : []) {
   const t = MESSAGES[locale].Portfolio;
   const index = localizedPath("/portafolio", locale);
-  const options = [{ id: "all", label: t.all }, ...serviceLines.map((line) => ({ id: line.id, label: line.shortName[locale] }))];
+  // The filter offers "Todos" and the lines with at least one case; with a single line it is not drawn.
+  const lines = filterLines(cases.map((item) => item.lines));
+  const options = [{ id: "all", label: t.all }, ...serviceLines.filter((line) => lines.includes(line.id)).map((line) => ({ id: line.id, label: line.shortName[locale] }))];
   const expectedFor = (option: string) => cases.filter((item) => option === "all" || item.lines.some((line) => line === option)).map((item) => item.name);
 
   test(`${index} shows the rule, the filters and one card per published case (RF-1)`, async ({ page }) => {
@@ -39,9 +44,13 @@ for (const locale of locales) {
     await expect(crumbs).toHaveCount(2);
 
     const filter = page.getByRole("group", { name: t.filterLabel });
-    await expect(filter.getByRole("radio")).toHaveCount(options.length);
-    for (const option of options) await expect(filter.getByText(option.label, { exact: true })).toBeVisible();
-    await expect(filter.getByRole("radio", { name: t.all })).toBeChecked();
+    if (showFilter(lines)) {
+      await expect(filter.getByRole("radio")).toHaveCount(options.length);
+      for (const option of options) await expect(filter.getByText(option.label, { exact: true })).toBeVisible();
+      await expect(filter.getByRole("radio", { name: t.all })).toBeChecked();
+    } else {
+      await expect(filter).toHaveCount(0);
+    }
 
     const projects = page.getByRole("region", { name: t.projects });
     await expect(projects.getByRole("link")).toHaveCount(cases.length);
@@ -56,6 +65,7 @@ for (const locale of locales) {
   });
 
   test(`${index} filters by line with the mouse and with the keyboard (RF-2)`, async ({ page }) => {
+    test.skip(!showFilter(lines), "fewer than two lines have cases: there is no filter");
     await page.goto(index);
     const filter = page.getByRole("group", { name: t.filterLabel });
     for (const option of [...options.slice(1), options[0]]) {
@@ -77,6 +87,7 @@ for (const locale of locales) {
   test.describe(`${index} without JavaScript`, () => {
     test.use({ javaScriptEnabled: false });
     test(`the filter still works (RF-2)`, async ({ page }) => {
+      test.skip(!showFilter(lines), "fewer than two lines have cases: there is no filter");
       await page.goto(index);
       const filter = page.getByRole("group", { name: t.filterLabel });
       for (const option of options.slice(1)) {

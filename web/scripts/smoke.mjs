@@ -11,7 +11,7 @@ import { getPageMeta, getPageName } from "@/content/pages";
 import { serviceLines } from "@/content/service-lines";
 import { subpages } from "@/content/subpages";
 import { locales } from "@/i18n/locales";
-import { builtEntries, hiddenEntries, isEntryListed, pathsOfEntry, publicEntries } from "@/lib/entries";
+import { generatedEntries, hiddenEntries, isEntryListed, pathsOfEntry, publicEntries, skippedEntries } from "@/lib/entries";
 import { securityHeaders } from "@/lib/security-headers";
 import { ogImagePath } from "@/lib/seo/metadata";
 import { countImages, imageProblems } from "@/lib/html-images";
@@ -23,7 +23,8 @@ import {
   collectionPathnames,
   collectionTable,
   entryPath,
-  builtPathnames,
+  generatedPathnames,
+  skippedPathnames,
   footerNotices,
   hiddenPathnames,
   isListed,
@@ -56,6 +57,10 @@ if (siteUrlArg) {
 
 const base = new URL(baseArg);
 const noindex = expectMode === "noindex";
+// What the server under test was built to generate: everything on a closed site; on an open one, a
+// section hidden behind its feature is not generated and its addresses answer the brand 404
+// (specs 004, 005 and 006, "Páginas ocultas y sitio abierto"; src/routes.ts, isGenerated).
+const buildEnv = { SITE_INDEXABLE: noindex ? "false" : "true" };
 let failures = 0;
 let passes = 0;
 
@@ -192,7 +197,7 @@ const hiddenPaths = new Set([
   ...hiddenEntries().flatMap((entry) => Object.values(pathsOfEntry(entry))),
 ]);
 
-for (const pathname of builtPathnames()) {
+for (const pathname of generatedPathnames(buildEnv)) {
   const alternates = languageAlternates(pathname);
   const hidden = !isListed(pathname);
   for (const locale of locales) {
@@ -278,7 +283,7 @@ const guideById = new Map(guides.map(({ meta }) => [meta.id, meta]));
 const entryMessages = Object.fromEntries(
   locales.map((locale) => [locale, JSON.parse(readFileSync(new URL(`../messages/${locale}.json`, import.meta.url), "utf8"))]),
 );
-for (const entry of builtEntries()) {
+for (const entry of generatedEntries(buildEnv)) {
   const paths = pathsOfEntry(entry);
   const alternates = alternatesOf(paths);
   const hidden = !isEntryListed(entry);
@@ -456,7 +461,7 @@ const messages = Object.fromEntries(
 const lineByPathname = new Map(serviceLines.map((line) => [line.pathname, line]));
 const subpageByPathname = new Map(Object.values(subpages).map((page) => [page.pathname, page]));
 
-for (const pathname of builtPathnames().filter((candidate) => candidate !== "/")) {
+for (const pathname of generatedPathnames(buildEnv).filter((candidate) => candidate !== "/")) {
   for (const locale of locales) {
     const path = localizedPath(pathname, locale);
     const label = `[${locale}] ${path}`;
@@ -623,7 +628,7 @@ check("the 404 page links only to pages that exist", notFoundLinks.length >= 2 &
 const unknownSlug = { es: "no-existe-smoke", en: "no-existe-smoke" };
 const entryProbes = [
   ...collectionPathnames.flatMap((collection) => locales.map((locale) => entryPath(collection, unknownSlug, locale))),
-  ...builtEntries()
+  ...generatedEntries(buildEnv)
     .filter((entry) => entry.slug.es !== entry.slug.en)
     .flatMap((entry) => locales.map((locale) => entryPath(entry.collection, { es: entry.slug.en, en: entry.slug.es }, locale))),
 ];
@@ -634,6 +639,37 @@ for (const pathname of ["/ruta-que-no-existe-smoke", "/en/ruta-que-no-existe-smo
     check(`unknown route X-Robots-Tag ${noindex ? "has" : "lacks"} noindex`, robotsHeaderOk(missing.res));
   }
 }
+
+// Pages and entries hidden behind a feature that is off, on the open site: not generated, so their
+// addresses (in both languages) are the brand 404 with the headers of every response.
+const skippedPaths = [
+  ...skippedPathnames(buildEnv).flatMap((pathname) => locales.map((locale) => localizedPath(pathname, locale))),
+  ...skippedEntries(buildEnv).flatMap((entry) => Object.values(pathsOfEntry(entry))),
+];
+for (const pathname of skippedPaths) {
+  const missing = await get(pathname);
+  check(
+    `GET ${pathname} -> 404 with the brand page and its headers (hidden, open site)`,
+    missing.res.status === 404 && brand404(missing.body) && missing.res.headers.has("content-security-policy") && missing.res.headers.has("strict-transport-security"),
+    `status ${missing.res.status}`,
+  );
+  // Its RSC data (what a client-side navigation asks for) is refused the same way. If Next first
+  // redirects to add its cache-busting parameter, the final answer is the one that counts.
+  let data = await get(pathname, { RSC: "1" });
+  if (data.res.status >= 300 && data.res.status < 400 && data.res.headers.has("location")) {
+    const next = new URL(data.res.headers.get("location") ?? "", base);
+    data = await get(`${next.pathname}${next.search}`, { RSC: "1" });
+  }
+  check(`GET ${pathname} (RSC: 1) -> 404 (hidden, open site)`, data.res.status === 404, `status ${data.res.status}`);
+}
+// The social images of hidden pages are not made on the open site either.
+for (const pathname of skippedPathnames(buildEnv)) {
+  for (const locale of locales) {
+    const image = await fetch(new URL(ogImagePath(pathname, locale), base));
+    check(`GET ${ogImagePath(pathname, locale)} -> 404 (hidden, open site)`, image.status === 404, `status ${image.status}`);
+  }
+}
+if (noindex) check("a closed site generates every page it has, hidden ones included", skippedPaths.length === 0, skippedPaths.join(", "));
 
 // ---------------------------------------------------------------------------------------------
 // 6. A static asset referenced by the home page is served (standalone copy worked) with the header.
@@ -690,6 +726,20 @@ if (optimizerSample) {
   check("the image optimizer converts a picture of the site to AVIF for a browser that accepts it", converted.status === 200 && type === "image/avif" && bytes > 0, `status ${converted.status}, ${type}, ${bytes} bytes`);
 } else {
   console.log("INFO  image optimizer: no picture on the site yet, so its conversion could not be exercised");
+}
+
+// The image optimizer only makes the widths of next.config.ts (deviceSizes and imageSizes): any
+// other width is refused before a file is read. With a picture on the site its own address is
+// used, so the 400 can only come from the width.
+{
+  const sample = optimizerSample ? new URL(optimizerSample, base) : new URL("/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fno-existe.webp&w=640&q=75", base);
+  sample.searchParams.set("w", "999");
+  const answer = await get(`${sample.pathname}${sample.search}`);
+  check(
+    "the image optimizer refuses a width outside its list (999 px)",
+    answer.res.status === 400 && /width/i.test(answer.body),
+    `status ${answer.res.status}: ${answer.body.slice(0, 80)}`,
+  );
 }
 
 // The image optimizer only serves the site's own imported images, at the one quality the site uses.
