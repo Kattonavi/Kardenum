@@ -97,3 +97,16 @@ pnpm view <paquete>@<versión> time / maintainers -> tabla del punto 1
 | B3: un `.mdx` es código | Bajo | **Corregido.** Prueba unitaria que rechaza en el cuerpo de una guía `import`, `export`, `<script>`, `<iframe>`, `<object>`/`<embed>`/`<link>`/`<style>`, `process.env`, estilos en línea y manejadores de eventos; los datos de una guía viven en `meta.ts`. |
 | B4: `@next/mdx` 16.4.2 junto a `next` 16.4.6 | Bajo | Backlog 44: alinear cuando 16.4.6 cumpla 30 días (2026-12-09) o al subir Next. `@mdx-js/react` se queda: `@next/mdx` lo declara como dependencia par. |
 | I1: las direcciones de las entradas ocultas van en los datos de todas las páginas | Info | Es el Medio 1 de la revisión de código: backlog 41. |
+
+## Re-verificación del delta `3b758fa..cb245c4` (2026-11-15, mismo revisor): sin bloqueantes
+
+Sin Crítico, Alto ni Medio. Barreras del optimizador medidas en producción: responde 400 a una fuente `.woff2` y a un
+chunk JS de `/_next/static/media` y `/_next/static`, a `..%2f` y `%252e%252e`, a `?v=1` dentro de `url` y a un ancho
+fuera de la lista; un archivo inexistente da 404; un parámetro extra no rompe la caché.
+
+| Hallazgo | Sev. | Resolución |
+|---|---|---|
+| M1, parcial: la lista de términos era opcional y comparaba texto literal | Bajo | **Corregido** (52d0548): con un caso reservado o privado en el repo, la prueba de humo falla si no recibe la lista; busca cada término en el texto tal como se sirve, con las entidades HTML deshechas y con los escapes de URL deshechos. Probado con casos de prueba: sin lista falla; con el identificador del caso privado pasa; con el nombre de un cliente que sí se muestra falla y lista las páginas. Falta recorrer los archivos JavaScript enlazados: backlog 51. |
+| B3, parcial: la regla del cuerpo de una guía es una lista de patrones, con rodeos (`dangerouslySetInnerHTML`, `globalThis["process"]`, cualquier expresión `{…}`) | Bajo | Los falsos positivos en bloques de código quedaron corregidos. Pasar a una lista blanca sobre el árbol de MDX (solo los componentes de guía y sus props): backlog 51. Las guías las escribe el estudio; no hay contenido de visitantes. |
+| Nuevo: quien pida todos los anchos y formatos de cada imagen tras un despliegue fuerza muchas codificaciones AVIF | Bajo | Backlog 49: dejar en `deviceSizes` e `imageSizes` solo los anchos que usan los `sizes` del sitio, y Cloudflare delante (backlog 2). |
+| Info: las respuestas del optimizador llevan caché inmutable y el nombre original del archivo | Info | Sin acción: ese nombre ya está en el `srcset`. La regla de nombres genéricos de un caso reservado lo cubre (spec 005). |

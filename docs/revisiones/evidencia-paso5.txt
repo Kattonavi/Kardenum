@@ -277,3 +277,11 @@ tambien en el clon de verificacion de la carpeta temporal (C:): desde ahi se ver
 limpio) y se subio. Por eso el commit de la precarga conserva su mensaje provisional ("wip: preload the main picture from
 the head (measuring)"): no se reescribio para que el arbol de E:, cuando vuelva, avance sin conflicto con un git pull.
 
+== Re-verificación del delta 3b758fa..cb245c4 por los revisores de código y de seguridad · 2026-11-15
+Código: APROBADO, un Medio (la regla del cuerpo de una guía rechazaba el código mostrado como ejemplo). Seguridad: sin
+bloqueantes, todo Bajo. Lo corregido va en 52d0548.
+Términos confidenciales, con un caso reservado y uno privado de prueba en el clon (flag encendido):
+  sin la lista:                          FAIL CONFIDENTIAL_TERMS is set: the portfolio has 2 reserved or private cases … -> 1 of 1071 checks failed
+  CONFIDENTIAL_TERMS="secreto-zeta, …":  PASS none of the 2 confidential terms is served (164 responses searched) -> OK: all 1071 checks passed
+  con el nombre de un cliente que sí se muestra: FAIL … (/portafolio, /en/work, /portafolio/bot-de-prueba, /en/work/test-bot)
+Contra producción (sin casos reservados ni privados): INFO … no case is reserved or private · OK: all 988 checks passed

@@ -37,3 +37,16 @@ cabecera con el par de direcciones de esa entrada, moviendo las páginas a grupo
 grande (todas las carpetas de página) y va solo, con su propia verificación. Mientras tanto: no hay enlaces hacia las
 entradas ocultas, llevan `noindex`, y la revisión de seguridad lo clasificó como informativo. La comprobación nueva
 de términos confidenciales cubre el riesgo real (un nombre reservado dentro de un slug).
+
+## Re-verificación del delta `3b758fa..cb245c4` (2026-11-15, mismo revisor): APROBADO
+
+Sin Crítico ni Alto. Comprobó la regla de formato de los slugs, el componente de imagen (descarta `style`, vuelve a
+poner la carga: diferida por defecto, o inmediata con prioridad alta y precarga), que la regla de `html-images.ts` lee
+bien `srcSet` y `fetchPriority` como los escribe React, y, contra producción, que el optimizador rechaza lo ajeno.
+
+| Sev. | Dónde | Escenario | Resolución |
+|---|---|---|---|
+| Medio | `guides.test.ts` (reglas del cuerpo de una guía) | Las reglas se aplicaban también dentro de los bloques de código: una guía de bots con un ejemplo que trae `import { Client } from "discord.js"` o `process.env.TOKEN` habría fallado sin motivo, y eso empuja a debilitar la prueba. | **Corregido** (52d0548): los bloques de código y el código en línea se quitan antes de aplicar las reglas; la prueba incluye un ejemplo con `import`, `process.env`, `<script>` y manejadores dentro de bloques, y comprueba que fuera de ellos siguen prohibidos y que un bloque sin cerrar no esconde nada. |
+
+No verificó la conversión a AVIF sobre una imagen real en producción (el sitio no tiene ninguna) ni el renderizado
+de las guías de prueba: los tomó de la evidencia.
