@@ -21,8 +21,8 @@ function PendingBox({ note, ratio }: { note: string; ratio: "aspect-4/3" | "aspe
   );
 }
 
-function CaseImage({ visual, locale, sizes, preload = false }: { visual: Extract<CaseVisual, { kind: "image" }>; locale: AppLocale; sizes: string; preload?: boolean }) {
-  return <PlainImage src={getCaseImage(visual.image)} alt={visual.alt[locale]} sizes={sizes} preload={preload} className="size-full object-cover" />;
+function CaseImage({ visual, locale, sizes, priority = false }: { visual: Extract<CaseVisual, { kind: "image" }>; locale: AppLocale; sizes: string; priority?: boolean }) {
+  return <PlainImage src={getCaseImage(visual.image)} alt={visual.alt[locale]} sizes={sizes} priority={priority} className="size-full object-cover" />;
 }
 
 /** Picture of a card in the index (4:3). */
@@ -51,7 +51,7 @@ export function CaseHeroVisual({ hero, name, locale }: { hero: CaseValue<CaseVis
     return (
       <div className="aspect-video overflow-hidden bg-ink">
         {/* The first picture of the page: requested early, it is usually the largest paint. */}
-        <CaseImage visual={hero} locale={locale} sizes="(min-width: 75rem) 70rem, 100vw" preload />
+        <CaseImage visual={hero} locale={locale} sizes="(min-width: 75rem) 70rem, 100vw" priority />
       </div>
     );
   }

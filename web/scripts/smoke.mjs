@@ -13,6 +13,7 @@ import { locales } from "@/i18n/locales";
 import { builtEntries, hiddenEntries, isEntryListed, pathsOfEntry, publicEntries } from "@/lib/entries";
 import { securityHeaders } from "@/lib/security-headers";
 import { ogImagePath } from "@/lib/seo/metadata";
+import { countImages, imageProblems } from "@/lib/html-images";
 import { getSiteUrl } from "@/lib/site-url";
 import {
   absoluteUrl,
@@ -76,11 +77,24 @@ const confidentialTerms = (process.env.CONFIDENTIAL_TERMS ?? "")
   .filter(Boolean);
 const confidentialHits = new Set();
 let responsesSearched = 0;
+// Every picture of every page fetched: srcset, sizes, width, height and alt (src/lib/html-images.ts).
+const pictureProblems = new Set();
+let picturesSeen = 0;
+/** One address of the optimizer, taken from the srcset of the first picture found. */
+let optimizerSample = "";
 
 async function get(pathname, headers = {}) {
   const res = await fetch(new URL(pathname, base), { redirect: "manual", headers });
   const body = await res.text();
   responsesSearched += 1;
+  if ((res.headers.get("content-type") ?? "").includes("text/html")) {
+    picturesSeen += countImages(body);
+    for (const problem of imageProblems(body)) pictureProblems.add(`${pathname} ${problem}`);
+    if (!optimizerSample) {
+      const candidate = body.match(/<img\b[^>]*\bsrcset="([^"]+)"/i)?.[1]?.split(",")[0]?.trim().split(/\s+/)[0] ?? "";
+      if (candidate.startsWith("/_next/image?")) optimizerSample = decode(candidate);
+    }
+  }
   const haystack = `${pathname}\n${res.headers.get("location") ?? ""}\n${body}`.toLowerCase();
   for (const term of confidentialTerms) if (haystack.includes(term)) confidentialHits.add(`${pathname} (term ${confidentialTerms.indexOf(term) + 1})`);
   return { res, body };
@@ -649,6 +663,33 @@ for (const [label, res] of responses) {
   const wrong = expectedHeaders.filter((header) => res.headers.get(header.key) !== header.value).map((header) => `${header.key}: ${res.headers.get(header.key) ?? "missing"}`);
   check(`${label}: security headers (${expectedHeaders.length})`, wrong.length === 0, wrong.join(" | "));
   check(`${label}: does not say what it is built with`, !res.headers.has("x-powered-by"), res.headers.get("x-powered-by") ?? "");
+}
+
+check(
+  `every picture has srcset, sizes, width, height and alt, and is lazy unless it is the main one (${picturesSeen} pictures in the pages fetched)`,
+  pictureProblems.size === 0,
+  [...pictureProblems].slice(0, 6).join(" | "),
+);
+
+// The optimizer must really convert. When its image library fails to load, Next hands back the
+// original file with a 200 and says nothing (seen on 2026-11-15 in the standalone build).
+if (optimizerSample) {
+  const converted = await fetch(new URL(optimizerSample, base), { headers: { Accept: "image/avif,image/webp,*/*" } });
+  const bytes = (await converted.arrayBuffer()).byteLength;
+  const type = converted.headers.get("content-type") ?? "";
+  check("the image optimizer converts a picture of the site to AVIF for a browser that accepts it", converted.status === 200 && type === "image/avif" && bytes > 0, `status ${converted.status}, ${type}, ${bytes} bytes`);
+} else {
+  console.log("INFO  image optimizer: no picture on the site yet, so its conversion could not be exercised");
+}
+
+// The image optimizer only serves the site's own imported images, at the one quality the site uses.
+for (const [what, query] of [
+  ["a file of the site that is not an imported image", "url=%2Ffavicon.ico&w=640&q=75"],
+  ["an address outside the site", "url=https%3A%2F%2Fexample.com%2Fa.png&w=640&q=75"],
+  ["an address outside the site, without its scheme", "url=%2F%2Fexample.com%2Fa.png&w=640&q=75"],
+]) {
+  const answer = await get(`/_next/image?${query}`);
+  check(`the image optimizer refuses ${what}`, answer.res.status === 400, `status ${answer.res.status}`);
 }
 
 // The terms themselves are never printed: this output ends up in logs and evidence files.

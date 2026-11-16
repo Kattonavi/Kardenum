@@ -137,8 +137,12 @@ const FORBIDDEN_IN_A_GUIDE: readonly [RegExp, string][] = [
   [/\bon[A-Za-z]+\s*=\s*[{"']/, "an event handler"],
 ];
 
+/** The one import a guide needs: its own screenshots, from its own folder, already as WebP or AVIF. */
+const OWN_IMAGE_IMPORT = /^import\s+[A-Za-z_]\w*\s+from\s+"\.\/[\w.-]+\.(?:webp|avif)";?\s*$/gm;
+
 function guideCodeProblems(body: string): string[] {
-  return FORBIDDEN_IN_A_GUIDE.filter(([pattern]) => pattern.test(body)).map(([, what]) => what);
+  const withoutOwnImages = body.replace(OWN_IMAGE_IMPORT, "");
+  return FORBIDDEN_IN_A_GUIDE.filter(([pattern]) => pattern.test(withoutOwnImages)).map(([, what]) => what);
 }
 
 function mdxFiles(dir: string): string[] {
@@ -154,6 +158,11 @@ test("the body of a guide is content, never code", () => {
   // The rule catches each construction, and lets ordinary content through.
   assert.deepEqual(guideCodeProblems("Un párrafo con `código`, un [enlace](/contacto) y una tabla.\n\n<Section n={1}>\nTexto\n</Section>\n"), []);
   assert.deepEqual(guideCodeProblems('import fs from "node:fs";\n\nTexto'), ["an import"]);
+  // Its own screenshots are the exception; anything else, even an image from another folder, is not.
+  assert.deepEqual(guideCodeProblems('import captura from "./captura-del-panel.webp";\n\n<Screenshot src={captura} caption="Panel" />\n'), []);
+  assert.deepEqual(guideCodeProblems('import captura from "../otra-guia/captura.webp";\n'), ["an import"]);
+  assert.deepEqual(guideCodeProblems('import { readFileSync } from "./captura.webp";\n'), ["an import"]);
+  assert.deepEqual(guideCodeProblems('import logo from "./logo.png";\n'), ["an import"]);
   assert.deepEqual(guideCodeProblems("export const meta = {};\n"), ["an export (the data of a guide lives in meta.ts)"]);
   assert.deepEqual(guideCodeProblems("Texto\n<script>alert(1)</script>"), ["a <script>"]);
   assert.deepEqual(guideCodeProblems('<iframe src="https://example.com" />'), ["an <iframe>"]);

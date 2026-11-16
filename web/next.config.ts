@@ -37,8 +37,21 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: projectRoot,
   // No "X-Powered-By: Next.js": the stack is nobody's business.
   poweredByHeader: false,
-  // The site has no next/image: without this, /_next/image would still answer as an image resizer.
-  images: { unoptimized: true },
+  // Pictures go through Next's optimizer (src/components/ui/plain-image.tsx): AVIF first, WebP for
+  // browsers without it, one file per width. The optimizer is an open endpoint (/_next/image), so it
+  // is narrowed to what the site uses: only images imported by the code (they live under
+  // /_next/static/media), one quality, and no address outside the site.
+  // The optimizer runs on sharp, whose binary needs the libvips libraries that ship next to it.
+  // The standalone output copies the binary and leaves those libraries out (measured on
+  // 2026-11-15: sharp then fails to load and Next serves every picture untouched, without a
+  // word). They are named here so they travel with the build on every platform.
+  outputFileTracingIncludes: { "/*": ["./node_modules/.pnpm/@img+*/node_modules/@img/*/lib/**/*"] },
+  images: {
+    formats: ["image/avif", "image/webp"],
+    qualities: [75],
+    localPatterns: [{ pathname: "/_next/static/media/**", search: "" }],
+    remotePatterns: [],
+  },
   experimental: {
     // 404 for URLs that match no route (src/app/global-not-found.tsx): the root layout
     // lives in [locale], so a regular app/not-found.tsx has no layout to render in.

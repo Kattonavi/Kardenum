@@ -1,21 +1,33 @@
 import { getImageProps, type StaticImageData } from "next/image";
 
-type PlainImageProps = {
-  src: StaticImageData;
+/** An imported image carries its own width and height; an address needs them written. */
+type Source = { src: StaticImageData } | { src: string; width: number; height: number };
+
+type PlainImageProps = Source & {
+  /** Required: what the picture shows ("" only for a picture that is pure decoration). */
   alt: string;
+  /** How wide the picture is drawn at each window width: the browser picks the file from it. */
   sizes: string;
   className?: string;
-  /** The largest picture of the page: requested early. */
-  preload?: boolean;
+  /** The main picture of the page (the one that decides the largest paint): fetched first, never lazy. */
+  priority?: boolean;
 };
 
 /**
- * An imported image, with the width and height Next reads from the file, without the inline
- * style next/image always writes (`style="color:transparent"`): the content policy of the site
- * is style-src 'self', and that attribute is reported as a violation in the browser.
+ * Every picture of the site goes through here. The props come from Next's optimizer
+ * (`getImageProps`: AVIF or WebP by what the browser accepts, one file per width in `srcset`,
+ * `width` and `height` so the page does not jump), and only one thing is dropped: the inline
+ * `style="color:transparent"` that next/image always writes. The content policy of the site is
+ * style-src 'self', and that attribute is a violation in the browser.
+ *
+ * Lazy by default; `priority` marks the one picture that must arrive first.
  */
-export function PlainImage({ src, alt, sizes, className, preload = false }: PlainImageProps) {
-  const { props } = getImageProps({ src, alt, sizes, className, ...(preload ? { preload: true } : { loading: "lazy" as const }) });
-  // eslint-disable-next-line @next/next/no-img-element -- the props come from next/image; only its inline style is dropped
-  return <img {...props} alt={alt} style={undefined} />;
+export function PlainImage({ alt, sizes, className, priority = false, ...source }: PlainImageProps) {
+  const { props } = getImageProps({ ...source, alt, sizes, className });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- dropped on purpose (see above)
+  const { style, loading, fetchPriority, ...image } = props;
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- the props come from next/image; only its inline style is dropped
+    <img {...image} alt={alt} loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : undefined} />
+  );
 }
