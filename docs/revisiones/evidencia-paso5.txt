@@ -285,3 +285,46 @@ Términos confidenciales, con un caso reservado y uno privado de prueba en el cl
   CONFIDENTIAL_TERMS="secreto-zeta, …":  PASS none of the 2 confidential terms is served (164 responses searched) -> OK: all 1071 checks passed
   con el nombre de un cliente que sí se muestra: FAIL … (/portafolio, /en/work, /portafolio/bot-de-prueba, /en/work/test-bot)
 Contra producción (sin casos reservados ni privados): INFO … no case is reserved or private · OK: all 988 checks passed
+
+== Decisiones del fundador del 2026-11-15 y páginas ocultas en dos capas · 2026-11-16
+Commits: 731df92 (filtros solo con líneas que tienen entradas; páginas ocultas con 404 en el sitio abierto; anchos del
+optimizador; tope de 2400 px y 800 KB; peso del número en las legales) y df3a5a3 (las dos capas).
+
+Hueco encontrado en 731df92 (por eso no se subió solo): el proxy comparaba la dirección tal como llegaba.
+  GET /servicios/minecraft/plugin%73 (sitio abierto, flag apagado) -> 200 con el contenido de la página
+  (Next decodifica después del proxy). La doble codificación (%2573) ya daba 404.
+
+Laboratorio previo (clon de descarte): con el archivo renombrado a page.<flag>.tsx y la extensión aceptada solo cuando
+el build genera la página, el build abierto no lista la ruta y su dirección da el 404 de marca con HTML completo, sin
+<html id="__next_error__">. `next typegen` deja de nombrar esas rutas: sus `params` se tipan a mano.
+Descartado: notFound() dentro de la página entrega un cascarón vacío en Next 16.4.6 (vercel/next.js#99287).
+
+Verificación de df3a5a3 en un clon en C: (cinco builds; humo con --expect=indexable, 779 comprobaciones, de ellas 160
+son las cuatro escrituras nuevas por cada dirección oculta: letra codificada, doble codificación, mayúsculas y barra
+final, como página y con RSC: 1):
+  A.  sitio abierto, flags apagados, tal como se sube (pnpm build completo: 128 unitarias, 0 fallos)
+      tabla de rutas: 0 páginas ocultas · 0 filas ƒ · Proxy presente · humo OK 779 de 779 · 160 de escritura, 0 fallos
+  A1. solo el proxy (páginas compiladas a propósito: tabla con 26 filas de páginas ocultas)
+      humo OK 779 de 779 · 160 de escritura, 0 fallos
+  A2. solo el build (lista del proxy vacía a propósito: tabla con 0 páginas ocultas)
+      humo OK 779 de 779 · 160 de escritura, 0 fallos
+  En A, A1 y A2, con curl --path-as-is y siguiendo redirecciones, 20 escrituras más dan 404 sin contenido de la página
+  y sin cascarón: letra codificada, doble codificación, mayúsculas, barra final, barra codificada al final, doble
+  barra, segmento ".", "%2E", "..", parámetro ";x=1", prefijo /es, inglés con letra codificada, RSC y RSC con
+  prefetch con letra codificada, .rsc de la página, .rsc de una entrada (con y sin /es), entrada e índice con letra
+  codificada e imagen social de una página oculta. La página pública de control (/servicios/minecraft) da 200.
+  B.  subpáginas encendidas, sitio cerrado (pnpm build completo: 128 unitarias): e2e/subpages.spec.ts 78 pasadas,
+      2 omitidas; "from a line, its sub-page opens on the client, without reloading the document": ok en 1280 y 390 px
+  C.  subpáginas encendidas, sitio abierto: /servicios/minecraft/plugins y /en/services/minecraft/plugins -> 200;
+      /portafolio (su flag sigue apagado) -> 404
+
+Puerta en clon limpio de df3a5a3 (sitio cerrado, como compila Railway):
+  build: 128 unitarias, 0 fallos · tabla de rutas solo con "○" y "●", "ƒ" únicamente en Proxy (Middleware); las páginas
+  ocultas siguen en la tabla (sitio cerrado: se revisan)
+  humo:  OK: all 990 checks passed (noindex)
+  navegador: 747 passed · 17 skipped (2.2m)
+
+Incidente de entorno (2026-11-16): la unidad E: (SSD por USB, la misma que desapareció el 2026-11-15) leyó a unos
+0,5 MB/s (19 s para un archivo de 9 MB; Windows la reporta sana). `tsc` no terminaba ahí en más de 5 minutos y en C:
+tarda 9 s con el mismo código. Se verificó y se subió desde el clon de C:, como la vez anterior.
+
