@@ -135,6 +135,9 @@ const FORBIDDEN_IN_A_GUIDE: readonly [RegExp, string][] = [
   [/process\s*\.\s*env/, "process.env"],
   [/\bstyle\s*=/, "an inline style (the content policy blocks it)"],
   [/\bon[A-Za-z]+\s*=\s*[{"']/, "an event handler"],
+  // A Markdown image or a bare <img> skips the image component: no srcset, no dimensions, no optimizer.
+  [/!\[[^\]]*\]\(/, "a Markdown image (use <Screenshot>)"],
+  [/<\s*img\b/i, "an <img> (use <Screenshot>)"],
 ];
 
 /** The one import a guide needs: its own screenshots, from its own folder, already as WebP or AVIF. */
@@ -169,6 +172,8 @@ test("the body of a guide is content, never code", () => {
   assert.deepEqual(guideCodeProblems("La clave es {process.env.SECRET}"), ["process.env"]);
   assert.deepEqual(guideCodeProblems('<p style="color:red">x</p>'), ["an inline style (the content policy blocks it)"]);
   assert.deepEqual(guideCodeProblems('<button onClick={() => {}}>x</button>'), ["an event handler"]);
+  assert.deepEqual(guideCodeProblems("Texto\n\n![El panel](./captura.webp)\n"), ["a Markdown image (use <Screenshot>)"]);
+  assert.deepEqual(guideCodeProblems('<img src="/captura.webp" alt="" />'), ["an <img> (use <Screenshot>)"]);
 
   const guidesDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "content", "guides");
   for (const file of mdxFiles(guidesDir)) {
