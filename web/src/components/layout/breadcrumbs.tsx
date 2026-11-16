@@ -47,17 +47,13 @@ export function Breadcrumbs({ pathname, locale, label, entry }: BreadcrumbsProps
             </Fragment>
           );
         })}
+        {/* Every page of the trail above already closed with its separator: the entry adds none. */}
         {entry ? (
-          <>
-            <li aria-hidden="true" className="text-graphite">
-              /
-            </li>
-            <li>
-              <span aria-current="page" className="inline-flex min-h-11 items-center">
-                {entry.name}
-              </span>
-            </li>
-          </>
+          <li>
+            <span aria-current="page" className="inline-flex min-h-11 items-center">
+              {entry.name}
+            </span>
+          </li>
         ) : null}
       </ol>
     </nav>

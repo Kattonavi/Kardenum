@@ -20,7 +20,7 @@ agregar un caso es agregar un archivo.
 | RF-6 | MIENTRAS `features.portfolio` sea `false`, el índice y los casos DEBEN llevar `noindex` aunque el sitio esté abierto, quedar fuera del sitemap, y ninguna página pública DEBE enlazarlos. CUANDO sea `true`, entran al menú (Servicios · Portafolio · Nosotros), al sitemap y a "Ver portafolio" donde las maquetas lo traen. |
 | RF-7 | SI `features.portfolio` es `true` y alguna línea no tiene al menos un caso visible, el build DEBE fallar y nombrar las líneas que faltan. SI el sitio se compila para indexar (`SITE_INDEXABLE=true`) con el portafolio encendido y un caso visible tiene datos entre corchetes, el build DEBE fallar y nombrar cada dato. Con el portafolio apagado, los datos pendientes de los casos NO DEBEN frenar el lanzamiento. |
 | RF-8 | Una dirección de caso que no existe (o el slug de un idioma bajo el prefijo del otro) DEBE responder 404 con la página 404 de marca completa. Todo sigue estático: sin `ƒ` en la tabla del build. |
-| RF-9 | Cada caso DEBE llevar título y descripción únicos por idioma, canonical propio, hreflang (es, en, x-default → inglés) con el slug de cada idioma, `BreadcrumbList`, y los enlaces ES / EN de la cabecera y de la barra de idioma DEBEN llevar al mismo caso en el otro idioma. |
+| RF-9 | Cada caso DEBE llevar título y descripción únicos por idioma, canonical propio, hreflang (es, en, x-default → inglés) con el slug de cada idioma, `BreadcrumbList` y `CreativeWork` (nombre, año si se conoce, creador → la organización, imagen), y los enlaces ES / EN de la cabecera y de la barra de idioma DEBEN llevar al mismo caso en el otro idioma. |
 | RF-10 | Índice y casos DEBEN cumplir lo de todo el sitio: un `h1`, `header`/`main`/`footer`, objetivos de 44 px, sin violaciones de axe, sin desborde a 320 px ni con texto al 200 %. Las imágenes llevan texto alternativo, ancho y alto, y un tope de peso por archivo que una prueba revisa. |
 
 ## Diseño técnico (decidido con laboratorio el 2026-11-15, Next 16.4.6 + next-intl 4.14.9)
@@ -59,7 +59,7 @@ idioma y la ruta interna en el otro); `useParams()` sí.
 
 - **Kardenum** (caso 0): Diseño · Desarrollo, 2026, proyecto propio. "Identidad visual y sitio web del estudio."
   (tarjeta: "Identidad visual y sitio web. Proyecto propio."). El reto y "Qué hicimos" (cuatro ítems) salen de
-  `B-Caso`. Resultado: pendiente (`[Resultado del proyecto: cifras o un comentario del cliente]`). Piezas: símbolo,
+  `B-Caso`. Resultado: pendiente (`[Resultado del proyecto]`: en un proyecto propio no se pide comentario de cliente). Piezas: símbolo,
   paleta, tipografía y captura del sitio (pendiente). Imagen principal: símbolo y nombre sobre tinta.
 - **Kaelion**: Minecraft, proyecto propio. "Servidor RPG de Minecraft: plugins y configuración. Proyecto propio."
   Año, portada, reto, qué hicimos, resultado y piezas: pendientes.

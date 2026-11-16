@@ -200,14 +200,14 @@ export const siteConfig: SiteConfig = {
  * Image placeholders are pending data too: each box shows its note and is counted by the launch check.
  */
 export const portfolioPending = {
-  "kardenum.result": pendingIn("[Resultado del proyecto: cifras o un comentario del cliente]", "[Project result: figures or a comment from the client]"),
+  "kardenum.result": pendingIn("[Resultado del proyecto]", "[Project result]"),
   "kardenum.siteScreenshot": pendingIn("[Captura del sitio]", "[Website screenshot]"),
   "kaelion.year": pendingIn("[Año]", "[Year]"),
   "kaelion.cover": pendingIn("[Captura del servidor]", "[Server screenshot]"),
   "kaelion.hero": pendingIn("[Imagen principal: captura del servidor en 16:9]", "[Main image: server screenshot in 16:9]"),
   "kaelion.challenge": pendingIn("[El reto: qué problema había y para quién]", "[The challenge: what the problem was and for whom]"),
   "kaelion.work": pendingIn("[Qué hicimos: lo que se construyó, en una lista]", "[What we did: what was built, as a list]"),
-  "kaelion.result": pendingIn("[Resultado del proyecto: cifras o un comentario del cliente]", "[Project result: figures or a comment from the client]"),
+  "kaelion.result": pendingIn("[Resultado del proyecto]", "[Project result]"),
   "kaelion.serverScreenshot": pendingIn("[Piezas: capturas del servidor en 4:3]", "[Pieces: server screenshots in 4:3]"),
 } as const satisfies Readonly<Record<string, PendingLocalized>>;
 

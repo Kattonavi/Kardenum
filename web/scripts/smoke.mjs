@@ -92,6 +92,22 @@ const count = (html, re) => (html.match(re) ?? []).length;
 /** What the visitor gets without JavaScript: the markup, without the data Next serializes in <script>. */
 const rendered = (html) => decode(html.replace(/<script\b[\s\S]*?<\/script>/g, ""));
 
+/** The breadcrumb navigation of a page, as HTML (empty when the page has none). */
+function breadcrumbNav(html, label) {
+  const start = html.indexOf(`<nav aria-label="${label}"`);
+  return start === -1 ? "" : html.slice(start, html.indexOf("</nav>", start));
+}
+
+/**
+ * Shape of a trail: "item" for a page and "sep" for a separator, in order. A well-formed trail
+ * alternates them and starts and ends with a page: never two separators together, never one at
+ * an end (found on the case pages: "Inicio / Portafolio / / Kardenum").
+ */
+function trailShape(navHtml) {
+  return [...navHtml.matchAll(/<li\b([^>]*)>/g)].map((match) => (/aria-hidden="true"/.test(match[1]) ? "sep" : "item"));
+}
+const wellFormedTrail = (shape) => shape.length > 0 && shape.length % 2 === 1 && shape.every((kind, index) => kind === (index % 2 === 0 ? "item" : "sep"));
+
 // ---------------------------------------------------------------------------------------------
 // 1. Home: 200 in Spanish, no redirect (Railway healthcheck hits "/").
 // ---------------------------------------------------------------------------------------------
@@ -294,8 +310,9 @@ for (const entry of builtEntries()) {
       ...breadcrumbTrail(index).map((crumb) => ({ name: getPageName(crumb)[locale], item: absoluteUrl(localizedPath(crumb, locale)) })),
       { name: entry.name, item: absoluteUrl(path) },
     ];
-    const navStart = html.indexOf(`<nav aria-label="${entryMessages[locale].Sections.breadcrumb}"`);
-    const navHtml = navStart === -1 ? "" : html.slice(navStart, html.indexOf("</nav>", navStart));
+    const navHtml = breadcrumbNav(html, entryMessages[locale].Sections.breadcrumb);
+    const shape = trailShape(navHtml);
+    check(`${label} breadcrumb: one separator between pages, none repeated or left at an end`, wellFormedTrail(shape), shape.join(" "));
     const visible = [...navHtml.matchAll(/<li>([\s\S]*?)<\/li>/g)].map((match) => match[1].replace(/<[^>]+>/g, "").trim()).filter(Boolean);
     check(
       `${label} breadcrumb: visible trail and BreadcrumbList, both present and saying the same`,
@@ -306,6 +323,21 @@ for (const entry of builtEntries()) {
       `${items.map((item) => item.name).join(" > ")} | visible: ${visible.join(" > ")}`,
     );
     check(`${label} JSON-LD has no bracketed placeholders`, !scripts.some((script) => /"\[[^"]*\]"/.test(script)));
+    if (entry.collection === "/portafolio/[slug]") {
+      // seo-sitio.md §2.5: a case is a CreativeWork: name, year, creator -> the organization, image.
+      const work = graph.find((node) => node["@type"] === "CreativeWork");
+      check(
+        `${label} CreativeWork: the case, made by the organization, with an image and a year only when it is known`,
+        work?.name === entry.name &&
+          work?.url === absoluteUrl(path) &&
+          work?.description === entry.meta.description[locale] &&
+          work?.creator?.["@id"] === absoluteUrl("/#organization") &&
+          typeof work?.image === "string" &&
+          work.image.startsWith(absoluteUrl("/og/")) &&
+          (work.dateCreated === undefined || /^\d{4}$/.test(work.dateCreated)),
+        work ? `${work.name} ${work.dateCreated ?? "(no year)"}` : "no CreativeWork node",
+      );
+    }
   }
 }
 
@@ -376,6 +408,8 @@ for (const pathname of builtPathnames().filter((candidate) => candidate !== "/")
     // The visible trail and its structured data go together: both or neither, and the same pages.
     const trail = breadcrumbTrail(pathname);
     const visibleTrail = html.includes(`<nav aria-label="${messages[locale].Sections.breadcrumb}"`);
+    const shape = trailShape(breadcrumbNav(html, messages[locale].Sections.breadcrumb));
+    check(`${label} breadcrumb: one separator between pages, none repeated or left at an end`, wellFormedTrail(shape), shape.join(" "));
     const items = breadcrumb?.itemListElement ?? [];
     check(
       `${label} breadcrumb: visible trail and BreadcrumbList, both present and saying the same`,

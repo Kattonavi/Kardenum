@@ -124,3 +124,19 @@ C. flag encendido + casos de prueba, sitio abierto:
   - El agente corrigió en su propia prueba un conteo que tomaba los colores de la paleta como piezas.
   - Migas del caso: Inicio › Portafolio › caso (la maqueta trae Portafolio / caso), iguales al BreadcrumbList.
 
+== 5b, revisión del fundador en producción (2026-11-15): cuatro correcciones
+1. Migas de los casos con el separador repetido ("Inicio / Portafolio / / Kardenum").
+   Causa: con una entrada al final, cada página de la ruta cerraba con su separador y la entrada añadía otro.
+   Prueba nueva en la prueba de humo, para toda página interna y toda entrada: la ruta alterna página y separador,
+   y empieza y termina en página. Corrida contra producción ANTES del arreglo (commit 1909978):
+     FAIL [es] /portafolio/kardenum breadcrumb: one separator between pages, none repeated or left at an end (item sep item sep sep item)
+     (igual en /en/work/kardenum, /portafolio/kaelion y /en/work/kaelion; las demás páginas, incluidas las doce
+     subpáginas de 5a, pasan) -> 8 of 940 checks failed (4 de migas y 4 de CreativeWork, que aún no existía)
+   Después del arreglo, build local del clon: (item sep item sep item) · OK: all 940 checks passed (noindex)
+2. CreativeWork en cada caso (seo-sitio.md §2.5): nombre, descripción, URL, imagen, idioma, creador -> la organización,
+   y el año solo cuando se conoce (Kardenum: "dateCreated":"2026"; Kaelion: sin año, porque está pendiente).
+3. Título del caso Kardenum: "Caso Kardenum: identidad visual y sitio web — Kardenum" /
+   "Kardenum case study: brand identity and website — Kardenum".
+4. "Sitio web en español e inglés." y el marcador del resultado de un proyecto propio: "[Resultado del proyecto]".
+Verificación del clon (commit de esta corrección): # pass 105 # fail 0 · humo 940/940 · e2e 715 passed, 15 skipped.
+

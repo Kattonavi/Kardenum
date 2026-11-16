@@ -11,8 +11,8 @@ import { getPageName } from "@/content/pages";
 import { type AppLocale, isAppLocale } from "@/i18n/locales";
 import { builtEntries, type Entry, pathsOfEntry } from "@/lib/entries";
 import { clientLabel, findCase, lineNames, nextCase, showCaseValue, visibleCases } from "@/lib/portfolio";
-import { breadcrumbJsonLd } from "@/lib/seo/json-ld";
-import { buildEntryMetadata } from "@/lib/seo/metadata";
+import { breadcrumbJsonLd, creativeWorkJsonLd } from "@/lib/seo/json-ld";
+import { buildEntryMetadata, ogImagePath } from "@/lib/seo/metadata";
 import { breadcrumbTrail, entryPath } from "@/routes";
 
 const COLLECTION = "/portafolio/[slug]";
@@ -73,6 +73,14 @@ export default async function Page({ params }: PageProps<"/[locale]/portafolio/[
             breadcrumbTrail(INDEX).map((pathname) => ({ name: getPageName(pathname)[locale], pathname })),
             { name: item.name, path: pathsOfEntry(entry)[locale] },
           ),
+          creativeWorkJsonLd(locale, {
+            name: item.name,
+            description: item.meta.description[locale],
+            path: pathsOfEntry(entry)[locale],
+            // The social image of the portfolio, until each case has its own (spec 005).
+            image: ogImagePath(INDEX, locale),
+            year: year.status === "ready" ? year.value : undefined,
+          }),
         ]}
       />
       <div className="surface-ink">

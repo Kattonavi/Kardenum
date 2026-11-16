@@ -85,6 +85,27 @@ export function serviceJsonLd(
   };
 }
 
+/**
+ * A portfolio case (seo-sitio.md §2.5): name, year, creator -> the organization, image.
+ * The year is left out while it is pending: structured data never carries a placeholder.
+ */
+export function creativeWorkJsonLd(
+  locale: AppLocale,
+  work: { readonly name: string; readonly description: string; readonly path: string; readonly image: string; readonly year?: number },
+  config: SiteConfig = siteConfig,
+): JsonLdNode {
+  return {
+    "@type": "CreativeWork",
+    name: work.name,
+    description: work.description,
+    url: absoluteUrl(work.path),
+    image: absoluteUrl(work.image),
+    inLanguage: locale,
+    ...(work.year === undefined ? {} : { dateCreated: String(work.year) }),
+    creator: { "@type": "Organization", "@id": organizationId(), name: config.name, url: absoluteUrl("/") },
+  };
+}
+
 /** One JSON-LD document for a page. "<" is escaped so the content can never close the script tag. */
 export function serializeJsonLd(nodes: readonly JsonLdNode[]): string {
   return JSON.stringify({ "@context": "https://schema.org", "@graph": nodes }).replace(/</g, "\\u003c");

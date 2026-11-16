@@ -40,8 +40,8 @@ export const kardenumCase: PortfolioCase = {
       en: "Archivo typeface in its expanded width.",
     },
     {
-      es: "Sitio web en inglés y español.",
-      en: "Website in English and Spanish.",
+      es: "Sitio web en español e inglés.",
+      en: "Website in Spanish and English.",
     },
   ],
   result: { pending: "kardenum.result" },
@@ -64,8 +64,8 @@ export const kardenumCase: PortfolioCase = {
   // Provisional, like every title and description until the keywords are validated.
   meta: {
     title: {
-      es: "Kardenum: identidad visual y sitio web — Kardenum",
-      en: "Kardenum: visual identity and website — Kardenum",
+      es: "Caso Kardenum: identidad visual y sitio web — Kardenum",
+      en: "Kardenum case study: brand identity and website — Kardenum",
     },
     description: {
       es: "Caso del portafolio: identidad visual y sitio web de Kardenum, el propio estudio. El reto, qué hicimos y las piezas. Cotiza tu proyecto.",
