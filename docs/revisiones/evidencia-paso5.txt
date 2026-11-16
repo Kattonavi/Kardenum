@@ -140,3 +140,46 @@ C. flag encendido + casos de prueba, sitio abierto:
 4. "Sitio web en español e inglés." y el marcador del resultado de un proyecto propio: "[Resultado del proyecto]".
 Verificación del clon (commit de esta corrección): # pass 105 # fail 0 · humo 940/940 · e2e 715 passed, 15 skipped.
 
+== 5c. Guías (spec 006) · commits c5dd6bf, a7c2bde y 3b758fa · 2026-11-15
+Implementado por el agente react-next-engineer en dos encargos; verificado por el hilo principal. Hoy hay cero guías.
+
+-- 1. Puerta de clon limpio, commit 3b758fa (cero guías)
+# tests 112 # pass 112 # fail 0
+OK: all 984 checks passed (noindex)
+e2e: 747 passed, 15 skipped
+Tabla del build: ● /[locale]/guias y ● /[locale]/guias/[slug] (sin parámetros); ƒ solo en Proxy (Middleware).
+Dependencias nuevas, fijadas: @next/mdx 16.4.2, @mdx-js/loader 3.1.1, @mdx-js/react 3.1.1, @types/mdx 2.0.14, remark-gfm 4.0.1.
+pnpm audit --prod: No known vulnerabilities found.
+
+-- 2. Producción (Railway), commit 3b758fa
+$ pnpm smoke https://web-production-f1d7c246.up.railway.app --expect=noindex --site-url=self
+OK: all 984 checks passed (noindex) on https://web-production-f1d7c246.up.railway.app
+(e2e contra producción: E2E_PROD_5C)
+
+-- 3. Con dos guías de prueba (texto ficticio; viven fuera del repo y se instalan con un guion), flag apagado, corrida del agente
+build exit 0, 112 de 112 · humo 1064 de 1064 (Article, fechas en <time datetime>, artículo sin atributos style ni align,
+sondas de 404 de slug cruzado) · e2e/guides.spec.ts 48 de 48 · e2e/accessibility.spec.ts 569 passed, 1 skipped.
+Revisión visual del hilo principal a 1280 y 390 px: migas con un separador, índice "En esta guía", secciones numeradas,
+código y tabla en su propia caja con desplazamiento (la página no se ensancha), columnas alineadas sin estilos en línea.
+
+-- 4. Ramas del flag en un clon de descarte, commit 3b758fa (nada de esto se versionó)
+A. flag apagado, sitio abierto, cero guías:
+   OK: all 986 checks passed (indexable) on http://127.0.0.1:4712
+   /guias: meta robots has noindex (hidden page) · sitemap: 22 URL, 0 de guías · el pie no enlaza las guías
+B0. flag encendido con cero guías -> next build exit 1:
+   "features.guides is on but there is no guide: write one or keep the guides off."
+B. flag encendido + dos guías de prueba, sitio cerrado:
+   # pass 112 # fail 0 · OK: all 1070 checks passed (noindex) on http://127.0.0.1:4712
+   navegador (suite completa): 833 passed, 17 skipped, 0 failed · el pie enlaza /guias
+C. flag encendido + guías de prueba, sitio abierto:
+   OK: all 1072 checks passed (indexable) on http://127.0.0.1:4712
+   /guias y /guias/guia-de-prueba: meta robots lacks noindex · sitemap: 28 URL, 6 de guías (índice y 2 guías, en dos idiomas)
+   Article: título, autor y editor (la organización), fechas 2026-11-01 / 2026-11-12, imagen y canonical.
+
+-- 5. Hallazgos de la construcción, corregidos antes de subir
+  - next/image escribe siempre style="color:transparent": 2 violaciones de la CSP por página con una imagen. Las imágenes
+    salen ahora por getImageProps y un <img> propio (también en el portafolio, para cuando un caso tenga imagen real).
+  - Los enlaces dentro del texto de una guía medían 43 px de alto: ahora 44.
+  - Una guía con un servicio que no es una ruta registrada reventaba el validador en vez de nombrar la guía.
+  - Una prueba unitaria que se saltaba sola (ya no quedaban rutas sin textos) se reemplazó por una que siempre corre.
+

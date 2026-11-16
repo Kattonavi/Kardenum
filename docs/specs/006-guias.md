@@ -1,6 +1,6 @@
 # 006 · Guías
 
-**Estado:** en construcción (2026-11-15). **Fuente:** maquetas `B-Guias` y `B-Guia-plantilla`,
+**Estado:** implementado y oculto tras `features.guides` (2026-11-15); cero guías escritas. **Fuente:** maquetas `B-Guias` y `B-Guia-plantilla`,
 `docs/handoff/docs/seo-sitio.md` §3 ("Guías") y §2, `plan-sitio-web.md` §4 ("Guía").
 
 El índice de guías y la plantilla de guía. Quedan **construidos y ocultos** detrás de `features.guides`. Hoy no hay
