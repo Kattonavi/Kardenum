@@ -220,3 +220,10 @@ de crear subdominios. El `s-maxage` de un año está bien para HTML estático, p
 - **`script-src-attr 'none'`** en producción; 0 atributos `on*=` en el HTML servido de cinco páginas.
 - **Bajo nuevo: `UMAMI_SRC` aceptaba cualquier host https y direcciones con usuario y clave.** Corregido lo segundo (el
   build falla); la lista de hosts permitidos queda para cuando se sepa dónde vive Umami (backlog 31).
+
+## Nota posterior (2026-11-15, paso 5)
+
+B2 quedó sustituido: el fundador pidió conservar AVIF, WebP y `srcset` del optimizador, así que `/_next/image` vuelve a
+responder, acotado en `next.config.ts` a las imágenes importadas por el código (`/_next/static/media/**`), una sola
+calidad y ninguna dirección externa. La prueba de humo comprueba en cada corrida que rechaza un archivo del sitio que
+no es una imagen importada y las direcciones externas (400). Detalle en `evidencia-paso5.txt`.

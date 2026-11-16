@@ -68,7 +68,7 @@ re-negociar. El lanzamiento (paso 8) depende de datos del fundador, no del códi
 | Pruebas | `node --test` (unitarias, dentro del build), Playwright + axe (e2e), prueba de humo propia | Desviación: sin Vitest mientras toda versión de Vite con más de 30 días tenga el aviso crítico de RCE del 2026-11-10 |
 | UI | Sin shadcn ni librería de componentes o animaciones | Desviación del default: el brief pide dependencias mínimas |
 | Backend / BD / Auth / Pagos | Ninguno en v1 | Brief |
-| Otros | `next/font` (Archivo, JetBrains Mono), imágenes con `getImageProps` de `next/image` y un `<img>` propio (el componente escribe un estilo en línea que la CSP bloquea), `next/og`, MDX (`@next/mdx` 16.4.2 + `remark-gfm` 4.0.1) para las guías, Umami sin cookies | Brief |
+| Otros | `next/font` (Archivo, JetBrains Mono), imágenes por el optimizador de Next (`getImageProps`: AVIF y WebP, `srcset` por anchos) con un `<img>` propio que descarta el estilo en línea que la CSP bloquea, `next/og`, MDX (`@next/mdx` 16.4.2 + `remark-gfm` 4.0.1) para las guías, Umami sin cookies | Brief |
 
 ## Infra y entrega
 - **Railway:** proyecto `kardenum`, entorno `production`, servicio `web` (raíz `/web`, healthcheck `/`, Railpack).

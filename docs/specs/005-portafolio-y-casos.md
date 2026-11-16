@@ -52,8 +52,12 @@ idioma y la ruta interna en el otro); `useParams()` sí.
 - **Datos pendientes de un caso** (regla 6 de la Constitución): viven en `site.config.ts` (`portfolio.<caso>.<dato>`),
   con el mismo `Pending`/`Ready` de los datos legales, y se muestran entre corchetes. El freno de lanzamiento solo
   los cuenta con `features.portfolio` encendido (RF-7).
-- **Imágenes:** `next/image` con importación estática (ancho y alto conocidos; hoy `images.unoptimized`). Se guardan
-  ya optimizadas: WebP o AVIF, 1600 px de ancho como máximo y 300 KB por archivo; una prueba unitaria lo revisa.
+- **Imágenes** (decisión del fundador, 2026-11-15): todas pasan por el componente de imagen del sitio, que toma
+  sus props de `getImageProps()` (optimizador de Next: AVIF, luego WebP, un archivo por ancho en `srcset`, con
+  `sizes`, `width` y `height`) y descarta el estilo en línea que la CSP bloquea. Carga diferida por defecto; la
+  imagen principal se marca como prioritaria (`fetchpriority="high"`, sin diferir). El optimizador solo sirve
+  imágenes importadas por el código. El original se guarda en WebP o AVIF, 1600 px de ancho como máximo y 300 KB
+  por archivo (prueba unitaria); la prueba de humo revisa cada `<img>` servido y que el optimizador convierta.
 
 ## Cómo se escribe un caso reservado (revisión de seguridad del paso 5)
 
