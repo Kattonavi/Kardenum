@@ -99,6 +99,9 @@ genéricos ("catalogo-ferreteria", nunca la marca). Antes de publicar, la prueba
 - Las demás tarjetas de la maqueta (`[NOMBRE DEL PROYECTO]`) no se crean.
 - Inglés provisional, como en el resto del sitio.
 
+Los avisos de marca del pie y el correo escrito en el cierre de las páginas de Minecraft siguen la línea de cada
+página: `docs/specs/008-aviso-de-minecraft-por-linea.md` (decisión del fundador del 2026-11-16).
+
 ## Fuera de alcance
 
 - "Trabajos" dentro de las páginas de línea y de las subpáginas (se conecta cuando haya casos por línea).

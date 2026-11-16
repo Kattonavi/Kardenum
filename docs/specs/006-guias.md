@@ -77,6 +77,9 @@ Con nada: cero guías. Los cuatro títulos del índice de la maqueta quedan anot
 tienda Tebex para tu servidor de Minecraft" (Minecraft), "Pterodactyl: qué es y cómo instalarlo de forma segura"
 (Minecraft) y "Qué debe tener un bot de Discord a medida" (Discord). El índice sin guías muestra solo su encabezado.
 
+Los avisos de marca del pie y el correo escrito en el cierre de las páginas de Minecraft siguen la línea de cada
+página: `docs/specs/008-aviso-de-minecraft-por-linea.md` (decisión del fundador del 2026-11-16).
+
 ## Fuera de alcance
 
 - Escribir las guías. Resaltado de sintaxis, buscador, RSS, imagen social por guía.

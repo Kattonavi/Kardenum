@@ -55,6 +55,9 @@ un `notFound()` al renderizar. Las pruebas de humo y de navegador esperan una co
 Hay un solo layout raíz: con el flag encendido, pasar de una página a otra sigue siendo navegación del lado del
 cliente, sin recarga completa. `web/src/routes.test.ts` falla si una página detrás de un flag se llama `page.tsx`.
 
+Los avisos de marca del pie y el correo escrito en el cierre de las páginas de Minecraft siguen la línea de cada
+página: `docs/specs/008-aviso-de-minecraft-por-linea.md` (decisión del fundador del 2026-11-16).
+
 ## Fuera de alcance
 
 - Las tarjetas de trabajos y de guías dentro de cada subpágina: llegan con el portafolio (spec 005) y las guías (006).

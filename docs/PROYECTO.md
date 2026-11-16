@@ -88,8 +88,10 @@ Detalle en `docs/handoff/docs/seo-sitio.md`. Nichos primero (Minecraft y Discord
   usan `SITE_URL`; sin definir vale `https://kardenum.com`. En Railway se pone la URL de Railway hasta comprar el
   dominio. Con `SITE_INDEXABLE=true`, el build falla si `SITE_URL` no es `https://kardenum.com`.
 - **Raíz sin barra final:** `https://kardenum.com`, como la escribe Next, en canonical, hreflang, sitemap y JSON-LD.
-- **Pie con el aviso de Minecraft en todo el sitio** (plan-sitio-web.md §6 y pedido del fundador); el de Discord se
-  suma en sus páginas.
+- **Avisos de marca por línea (decisión del fundador, 2026-11-16; reemplaza "aviso de Minecraft en todo el sitio"):**
+  el aviso de Minecraft sale solo en el pie de las páginas cuya línea es Minecraft (la línea, sus subpáginas, sus
+  guías y sus casos) y el de Discord en las de Discord; la 404 no lleva ninguno. En las páginas de Minecraft el
+  cierre muestra además el correo escrito (`docs/specs/008-aviso-de-minecraft-por-linea.md`).
 - **Canales de contacto pendientes:** se muestran sin enlace y con la nota `[Canales por activar]`. Un build con
   `SITE_INDEXABLE=true` falla mientras falte alguno (`src/lib/launch.ts`).
 - **Páginas legales con lo pendiente entre corchetes (decisión del fundador, 2026-11-15):** Privacidad y Términos
