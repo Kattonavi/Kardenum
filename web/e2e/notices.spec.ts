@@ -102,3 +102,35 @@ test("the notice comes and goes with the page, without reloading the document (R
   expect(documents, "documents requested during the navigation").toEqual([]);
   expect(await page.evaluate(() => (window as unknown as { sameDocument?: boolean }).sameDocument), "the page was not reloaded").toBe(true);
 });
+
+// From one case to the next the template is the same and only the slug changes.
+test("from a case to the next one, the notice follows the case on screen, without reloading the document (RF-4)", async ({ page }) => {
+  test.skip(!casesGenerated, "the portfolio is hidden and this is an open site: the cases are a 404");
+  const footer = page.getByRole("contentinfo");
+  const toKaelion = entryPath(CASES, kaelion, "es");
+  const toKardenum = entryPath(CASES, kardenum, "es");
+
+  await page.goto(toKardenum);
+  await page.waitForLoadState("networkidle");
+  await page.evaluate(() => {
+    (window as unknown as { sameDocument?: boolean }).sameDocument = true;
+  });
+  const documents: string[] = [];
+  page.on("request", (request) => {
+    if (request.resourceType() === "document") documents.push(request.url());
+  });
+  await expect(footer).not.toContainText(es.Footer.minecraftNotice);
+
+  // "Siguiente proyecto" goes round the published cases.
+  await page.getByRole("main").locator(`a[href="${toKaelion}"]`).click();
+  await expect(page).toHaveURL(new RegExp(`${toKaelion}$`));
+  await expect(footer).toContainText(es.Footer.minecraftNotice);
+
+  await page.getByRole("main").locator(`a[href="${toKardenum}"]`).click();
+  await expect(page).toHaveURL(new RegExp(`${toKardenum}$`));
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Kardenum");
+  await expect(footer).not.toContainText(es.Footer.minecraftNotice);
+
+  expect(documents, "documents requested during the navigation").toEqual([]);
+  expect(await page.evaluate(() => (window as unknown as { sameDocument?: boolean }).sameDocument), "the page was not reloaded").toBe(true);
+});

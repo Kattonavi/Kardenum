@@ -328,3 +328,48 @@ Incidente de entorno (2026-11-16): la unidad E: (SSD por USB, la misma que desap
 0,5 MB/s (19 s para un archivo de 9 MB; Windows la reporta sana). `tsc` no terminaba ahí en más de 5 minutos y en C:
 tarda 9 s con el mismo código. Se verificó y se subió desde el clon de C:, como la vez anterior.
 
+Avisos de marca por línea y correo escrito en las páginas de Minecraft (spec 008, decisión del fundador del
+2026-11-16). Verificado en clones en C: (la unidad E: sigue lenta).
+
+Puerta en clon limpio de 5efed5b (sitio cerrado, como compila Railway):
+  build: 138 unitarias, 0 fallos (10 nuevas: 8 de src/lib/notices.test.ts, 2 de src/lib/contact.test.ts) · tabla de
+  rutas solo con "○" y "●", "ƒ" únicamente en Proxy (Middleware)
+  humo:  OK: all 1051 checks passed (noindex); 96 son del aviso (cada página y entrada generada, en es y en, y la
+  404) y 10 del correo escrito en el cierre (línea Minecraft, sus tres subpáginas y Kaelion, en es y en)
+  navegador: 827 passed · 17 skipped (2.9m)
+
+Sitio abierto (SITE_INDEXABLE=true, flags apagados):
+  humo:  OK: all 808 checks passed (indexable); 48 del aviso, 2 del correo (solo queda la línea Minecraft)
+  navegador (notices + subpages): 44 passed · 4 skipped
+
+Lo que sirve el sitio cerrado (markup sin los scripts de Next):
+  /                         sin aviso · sin correo escrito
+  /servicios/minecraft      aviso de Minecraft en el pie · correo escrito en el cierre (igual en /en/services/minecraft)
+  /servicios/minecraft/plugins, /portafolio/kaelion, /en/work/kaelion   aviso · correo escrito
+  /portafolio/kardenum      sin aviso · sin correo escrito
+  /servicios/discord        solo el aviso de Discord
+  /ruta-que-no-existe       404 de marca, sin avisos
+
+Las pruebas fallan cuando deben (tres mutaciones del código, sitio cerrado; next build + humo + navegador):
+  M1. aviso de Minecraft otra vez en todas las páginas: humo 36 fallos ("is not about minecraft: the minecraft
+      notice is not on the page", empezando por / y /en) · navegador 60 fallos · unitarias 1 fallo
+  M2. aviso de Minecraft en ninguna página: humo 10 fallos ("is about minecraft: its footer carries the minecraft
+      notice") · navegador 22 fallos · unitarias 5 fallos
+  M3. el cierre nunca escribe el correo: humo 10 fallos ("its closing writes the contact e-mail out") · navegador
+      20 fallos · unitarias 0 (el componente solo se prueba renderizado)
+
+Después de la puerta se agregó una prueba de navegador (de un caso al siguiente, Kardenum <-> Kaelion, el aviso sigue
+al caso sin recargar el documento). En el sitio cerrado: notices + subpages, 160 passed · 2 skipped.
+
+Pasada temporal, sin commit, con contact.email marcado como listo (una dirección de example.com): humo 1051 de 1051;
+en /servicios/minecraft el cierre trae el botón "Correo" y además la dirección escrita con enlace mailto (objetivo de
+160 x 44 px a 390 px, sin desborde lateral); en /servicios/diseno solo el botón. Navegador (notices +
+accessibility): 602 passed · 1 skipped · 1 fallo de red de esta máquina (net::ERR_NO_BUFFER_SPACE al abrir
+/en/services/development/custom-software, que no es de Minecraft); las pruebas de axe, 320 px, texto al 200 % y
+objetivos de 44 px de las páginas de Minecraft y de Kaelion pasaron.
+
+Corregida de paso una prueba que ya fallaba en modo abierto: e2e/subpages.spec.ts esperaba 200 en una subpágina
+oculta también con el sitio abierto (ahí es 404 desde las dos capas). Nadie la corría en ese modo (backlog 55).
+
+Sin página real que comprobar: las guías de Minecraft (no hay ninguna escrita). La regla está probada con guías
+construidas en la prueba; la plantilla usa el mismo cierre y el mismo pie que los casos.
