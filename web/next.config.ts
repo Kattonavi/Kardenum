@@ -9,7 +9,7 @@ import { blockedPaths } from "./src/lib/entries";
 import { assertPortfolioReady } from "./src/lib/portfolio";
 import { securityHeaders } from "./src/lib/security-headers";
 import { getSiteUrl } from "./src/lib/site-url";
-import { shortLinkRedirects } from "./src/routes";
+import { pageExtensions, shortLinkRedirects } from "./src/routes";
 
 // Fail at once on a malformed SITE_URL: every absolute URL of the site is built from it.
 getSiteUrl();
@@ -41,6 +41,11 @@ const nextConfig: NextConfig = {
   // Addresses of the pages hidden on the open site, fixed at build time: src/proxy.ts answers them
   // with the brand 404 (src/lib/entries.ts, blockedPaths). Empty on a closed site, which shows them.
   env: { BLOCKED_PATHS: JSON.stringify(blockedPaths()) },
+  // The second layer: those pages are not compiled into the open site at all. A page behind a
+  // feature is a file named page.<feature>.tsx, and its extension is only accepted when this build
+  // generates it (src/routes.ts). Without it the address matches no route and Next answers with
+  // the brand 404 in full HTML, which a notFound() inside the page would not (empty shell).
+  pageExtensions: pageExtensions(),
   // Pictures go through Next's optimizer (src/components/ui/plain-image.tsx): AVIF first, WebP for
   // browsers without it, one file per width. The optimizer is an open endpoint (/_next/image), so it
   // is narrowed to what the site uses: only images imported by the code (they live under

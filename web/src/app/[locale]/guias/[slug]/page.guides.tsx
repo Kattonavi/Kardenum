@@ -17,7 +17,7 @@ import { builtEntries, type Entry, generatedEntries, pathsOfEntry } from "@/lib/
 import { findGuide, formatGuideDate, relatedGuides } from "@/lib/guides";
 import { articleJsonLd, breadcrumbJsonLd } from "@/lib/seo/json-ld";
 import { buildEntryMetadata, ogImagePath } from "@/lib/seo/metadata";
-import { breadcrumbTrail, isListed } from "@/routes";
+import { type EntryPageProps, breadcrumbTrail, isListed } from "@/routes";
 
 const COLLECTION = "/guias/[slug]";
 const INDEX = "/guias";
@@ -36,7 +36,7 @@ function findEntry(locale: AppLocale, slug: string): Entry | undefined {
   return builtEntries().find((entry) => entry.collection === COLLECTION && entry.slug[locale] === slug);
 }
 
-export async function generateMetadata({ params }: PageProps<"/[locale]/guias/[slug]">) {
+export async function generateMetadata({ params }: EntryPageProps) {
   const { locale, slug } = await params;
   const entry = isAppLocale(locale) ? findEntry(locale, slug) : undefined;
   // Unreachable: dynamicParams = false only lets the generated slugs in.
@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/guias/[s
 }
 
 /** Page of a guide (maqueta B-Guia-plantilla, spec 006, RF-2 to RF-5). */
-export default async function Page({ params }: PageProps<"/[locale]/guias/[slug]">) {
+export default async function Page({ params }: EntryPageProps) {
   const { locale, slug } = await params;
   if (!isAppLocale(locale)) notFound();
   const guide = findGuide(locale, slug);

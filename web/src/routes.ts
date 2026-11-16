@@ -17,26 +17,46 @@ type RouteDefinition = {
   readonly built: boolean;
   /** Public: shown in menus, included in the sitemap and indexable. If false, the page is built but hidden (noindex). */
   readonly listed: boolean;
+  /** The feature of site.config.ts that makes the page public. Its file is page.<extension>.tsx (featurePageExtensions). */
+  readonly feature?: Feature;
 };
 
-const { portfolio, guides, serviceSubpages } = siteConfig.features;
+export type Feature = keyof SiteConfig["features"];
+
+/**
+ * Pages behind a feature are files named page.<extension>.tsx instead of page.tsx. An open site
+ * with the feature off is compiled without that extension (pageExtensions, below), so the page is
+ * not part of the build and its address matches no route: the brand 404, like any unknown address.
+ */
+export const featurePageExtensions = {
+  serviceSubpages: "subpages",
+  portfolio: "portfolio",
+  guides: "guides",
+} as const satisfies Record<Feature, string>;
+
+export const features = Object.keys(featurePageExtensions) as Feature[];
+
+/** A page behind a feature: built, and public once the feature is on. */
+function behind(feature: Feature) {
+  return { built: true, listed: siteConfig.features[feature], feature } as const;
+}
 
 export const routeTable = {
   "/": { en: "/", built: true, listed: true },
   "/servicios": { en: "/services", built: true, listed: true },
   "/servicios/desarrollo": { en: "/services/development", built: true, listed: true },
-  "/servicios/desarrollo/tiendas-online": { en: "/services/development/ecommerce", built: true, listed: serviceSubpages },
-  "/servicios/desarrollo/software-a-la-medida": { en: "/services/development/custom-software", built: true, listed: serviceSubpages },
+  "/servicios/desarrollo/tiendas-online": { en: "/services/development/ecommerce", ...behind("serviceSubpages") },
+  "/servicios/desarrollo/software-a-la-medida": { en: "/services/development/custom-software", ...behind("serviceSubpages") },
   "/servicios/diseno": { en: "/services/design", built: true, listed: true },
   "/servicios/video": { en: "/services/video", built: true, listed: true },
   "/servicios/minecraft": { en: "/services/minecraft", built: true, listed: true },
-  "/servicios/minecraft/plugins": { en: "/services/minecraft/plugins", built: true, listed: serviceSubpages },
-  "/servicios/minecraft/servidores": { en: "/services/minecraft/servers", built: true, listed: serviceSubpages },
-  "/servicios/minecraft/tebex": { en: "/services/minecraft/tebex", built: true, listed: serviceSubpages },
+  "/servicios/minecraft/plugins": { en: "/services/minecraft/plugins", ...behind("serviceSubpages") },
+  "/servicios/minecraft/servidores": { en: "/services/minecraft/servers", ...behind("serviceSubpages") },
+  "/servicios/minecraft/tebex": { en: "/services/minecraft/tebex", ...behind("serviceSubpages") },
   "/servicios/discord": { en: "/services/discord", built: true, listed: true },
-  "/servicios/discord/bots": { en: "/services/discord/bots", built: true, listed: serviceSubpages },
-  "/portafolio": { en: "/work", built: true, listed: portfolio },
-  "/guias": { en: "/guides", built: true, listed: guides },
+  "/servicios/discord/bots": { en: "/services/discord/bots", ...behind("serviceSubpages") },
+  "/portafolio": { en: "/work", ...behind("portfolio") },
+  "/guias": { en: "/guides", ...behind("guides") },
   "/nosotros": { en: "/about", built: true, listed: true },
   "/contacto": { en: "/contact", built: true, listed: true },
   "/legal/privacidad": { en: "/legal/privacy", built: true, listed: true },
@@ -95,6 +115,38 @@ export function generatedPathnames(env: Env = process.env): AppPathname[] {
 export function skippedPathnames(env: Env = process.env): AppPathname[] {
   return appPathnames.filter((pathname) => isBuilt(pathname) && !isGenerated(pathname, env));
 }
+
+/** The feature a page is behind, if any. */
+export function featureOf(pathname: AppPathname): Feature | undefined {
+  const route: RouteDefinition = routeTable[pathname];
+  return route.feature;
+}
+
+/** Whether this build generates the pages of a feature: the same rule as isGenerated, by feature. */
+export function isFeatureGenerated(feature: Feature, env: Env = process.env): boolean {
+  return siteConfig.features[feature] || !isSiteIndexable(env);
+}
+
+/** File name of a page: page.tsx, or page.<extension>.tsx for a page behind a feature. */
+export function pageFileName(feature: Feature | undefined): string {
+  return feature ? `page.${featurePageExtensions[feature]}.tsx` : "page.tsx";
+}
+
+/**
+ * File extensions Next takes for pages in this build (next.config.ts, `pageExtensions`): its
+ * defaults, plus the extension of each feature whose pages this build generates. On the open
+ * site a feature that is off is left out, and its pages are not compiled at all.
+ */
+export function pageExtensions(env: Env = process.env): string[] {
+  return ["tsx", "ts", "jsx", "js", ...features.filter((feature) => isFeatureGenerated(feature, env)).map((feature) => `${featurePageExtensions[feature]}.tsx`)];
+}
+
+/**
+ * Props of a page behind a feature. Next's PageProps<"/…"> only names the routes of the build
+ * at hand, and these pages are left out of some builds, so their params are typed here.
+ */
+export type LocalePageProps = { readonly params: Promise<{ locale: string }> };
+export type EntryPageProps = { readonly params: Promise<{ locale: string; slug: string }> };
 
 /** Path of a route in a language, as the visitor sees it: Spanish has no prefix, English lives under /en. */
 export function localizedPath(pathname: AppPathname, locale: AppLocale): string {

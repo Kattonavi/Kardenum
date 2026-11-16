@@ -43,6 +43,9 @@ Este archivo solo agrega o endurece; nunca relaja.
 - **Una página nueva** se registra en `web/src/routes.ts` (`built: true`), lleva sus textos en
   `web/src/content/pages.ts` y llama a `buildPageMetadata` en `generateMetadata`. Así entra sola al sitemap, al
   hreflang, a las imágenes OG y a la prueba de humo.
+- **Una página detrás de un flag** (`features` en `site.config.ts`) se registra con `behind("<flag>")` y su archivo
+  se llama `page.<flag>.tsx` (`subpages`, `portfolio`, `guides`), nunca `page.tsx`: así el build abierto con el flag
+  apagado no la compila y su dirección da el 404 de marca (`web/src/routes.test.ts` lo comprueba).
 - Los componentes de cliente reciben sus textos como props: el provider no envía mensajes al navegador.
 - Código con barras invertidas (regex) se escribe con Write/Edit, nunca con heredoc de Bash.
 - Las URL absolutas salen de `absoluteUrl()` / `getSiteUrl()` (variable `SITE_URL`), nunca de `siteConfig.url`.

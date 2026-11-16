@@ -640,6 +640,33 @@ for (const pathname of ["/ruta-que-no-existe-smoke", "/en/ruta-que-no-existe-smo
   }
 }
 
+// Other spellings of an address that a server could take for the same page: its last letter
+// percent-encoded, the same escape encoded again, capitals and a trailing slash.
+function otherSpellings(pathname) {
+  const last = pathname.slice(-1);
+  const escape = `%${last.charCodeAt(0).toString(16).toUpperCase().padStart(2, "0")}`;
+  const head = pathname.slice(0, -1);
+  return [
+    ["encoded letter", `${head}${escape}`],
+    ["double encoding", `${head}%25${escape.slice(1)}`],
+    ["upper case", pathname.toUpperCase()],
+    ["trailing slash", `${pathname}/`],
+  ];
+}
+
+// The answer at the end of the redirects of an address (on this site only), and how many there were.
+async function settle(pathname, headers = {}) {
+  let answer = await get(pathname, headers);
+  let hops = 0;
+  while (hops < 5 && answer.res.status >= 300 && answer.res.status < 400 && answer.res.headers.has("location")) {
+    const next = new URL(answer.res.headers.get("location") ?? "", new URL(pathname, base));
+    if (next.origin !== new URL(base).origin) break;
+    answer = await get(`${next.pathname}${next.search}`, headers);
+    hops += 1;
+  }
+  return { ...answer, hops };
+}
+
 // Pages and entries hidden behind a feature that is off, on the open site: not generated, so their
 // addresses (in both languages) are the brand 404 with the headers of every response.
 const skippedPaths = [
@@ -661,6 +688,19 @@ for (const pathname of skippedPaths) {
     data = await get(`${next.pathname}${next.search}`, { RSC: "1" });
   }
   check(`GET ${pathname} (RSC: 1) -> 404 (hidden, open site)`, data.res.status === 404, `status ${data.res.status}`);
+
+  // The same address spelled another way is the same hidden page: none of its spellings answers,
+  // as a document or as RSC data. Redirects are followed: the answer at the end is the one that counts.
+  for (const [spelling, variant] of otherSpellings(pathname)) {
+    const page = await settle(variant);
+    check(
+      `GET ${variant} -> 404 with the brand page (hidden, open site; ${spelling})`,
+      page.res.status === 404 && brand404(page.body),
+      `status ${page.res.status} after ${page.hops} redirect(s)`,
+    );
+    const rsc = await settle(variant, { RSC: "1" });
+    check(`GET ${variant} (RSC: 1) -> 404 (hidden, open site; ${spelling})`, rsc.res.status === 404, `status ${rsc.res.status} after ${rsc.hops} redirect(s)`);
+  }
 }
 // The social images of hidden pages are not made on the open site either.
 for (const pathname of skippedPathnames(buildEnv)) {

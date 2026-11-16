@@ -12,11 +12,11 @@ import { isAppLocale } from "@/i18n/locales";
 import { sortedGuides } from "@/lib/guides";
 import { breadcrumbJsonLd } from "@/lib/seo/json-ld";
 import { buildPageMetadata } from "@/lib/seo/metadata";
-import { breadcrumbTrail } from "@/routes";
+import { type LocalePageProps, breadcrumbTrail } from "@/routes";
 
 const PATHNAME = "/guias";
 
-export async function generateMetadata({ params }: PageProps<"/[locale]/guias">) {
+export async function generateMetadata({ params }: LocalePageProps) {
   const { locale } = await params;
   if (!isAppLocale(locale)) notFound();
   return buildPageMetadata(PATHNAME, locale);
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/guias">)
  * Index of the guides (maqueta B-Guias, spec 006, RF-1): the newest first, filtered by line
  * without JavaScript. With no guide written, only the heading is shown: no empty filter.
  */
-export default async function Page({ params }: PageProps<"/[locale]/guias">) {
+export default async function Page({ params }: LocalePageProps) {
   const { locale } = await params;
   if (!isAppLocale(locale)) notFound();
   const [t, sections] = await Promise.all([getTranslations({ locale, namespace: "Guides" }), getTranslations({ locale, namespace: "Sections" })]);

@@ -8,14 +8,23 @@ import {
   absoluteUrl,
   appPathnames,
   breadcrumbTrail,
+  collectionPathnames,
+  collectionTable,
+  featureOf,
+  featurePageExtensions,
+  features,
   footerNotices,
   intlPathnames,
   isAppPathname,
   builtPathnames,
   hiddenPathnames,
+  isFeatureGenerated,
+  isGenerated,
   isListed,
   languageAlternates,
   localizedPath,
+  pageExtensions,
+  pageFileName,
   pathInLocale,
   publicPathnames,
   routeTable,
@@ -45,15 +54,55 @@ test("no two routes share a URL in the same language", () => {
   }
 });
 
-test("`built` matches the pages that exist under src/app/[locale]", () => {
+// A page file can carry any of these names; only one of them is right for each route.
+const pageFileNames = [undefined, ...features].map(pageFileName);
+
+function pageFilesIn(folder: string): string[] {
+  return pageFileNames.filter((name) => existsSync(path.join(appDir, ...folder.split("/").filter(Boolean), name)));
+}
+
+test("`built` matches the pages that exist under src/app/[locale], each in the file its feature names", () => {
   for (const pathname of appPathnames) {
-    const pageFile = path.join(appDir, ...pathname.split("/").filter(Boolean), "page.tsx");
-    assert.equal(
-      routeTable[pathname].built,
-      existsSync(pageFile),
-      `${pathname}: built=${routeTable[pathname].built} but page.tsx ${existsSync(pageFile) ? "exists" : "does not exist"}`,
-    );
+    const expected = routeTable[pathname].built ? [pageFileName(featureOf(pathname))] : [];
+    assert.deepEqual(pageFilesIn(pathname), expected, `${pathname}: built=${routeTable[pathname].built}, feature=${featureOf(pathname) ?? "none"}`);
   }
+  // The entries of a collection are behind the feature of its index.
+  for (const collection of collectionPathnames) {
+    assert.deepEqual(pageFilesIn(collection), [pageFileName(featureOf(collectionTable[collection].index))], collection);
+  }
+});
+
+test("a page that can be hidden is behind a feature, and only such a page", () => {
+  for (const pathname of appPathnames) {
+    const feature = featureOf(pathname);
+    if (feature) assert.equal(isListed(pathname), siteConfig.features[feature], `${pathname} follows its feature`);
+    else assert.equal(isListed(pathname), true, `${pathname} has no feature, so it is public`);
+  }
+  for (const collection of collectionPathnames) assert.ok(featureOf(collectionTable[collection].index), `${collection} hangs from a page behind a feature`);
+});
+
+test("the open site is compiled without the pages of a feature that is off, and the closed one with all of them", () => {
+  const open = { SITE_INDEXABLE: "true" };
+  const closed = {};
+  for (const env of [open, closed]) {
+    const extensions = pageExtensions(env);
+    // Next's own extensions always: the proxy, the layouts and every public page depend on them.
+    for (const extension of ["tsx", "ts", "jsx", "js"]) assert.ok(extensions.includes(extension), extension);
+    // The file of a page is accepted exactly when the build generates the page.
+    for (const pathname of builtPathnames()) {
+      const feature = featureOf(pathname);
+      if (!feature) continue;
+      assert.equal(extensions.includes(`${featurePageExtensions[feature]}.tsx`), isGenerated(pathname, env), `${pathname}, SITE_INDEXABLE=${env === open}`);
+    }
+  }
+  for (const feature of features) {
+    assert.equal(isFeatureGenerated(feature, closed), true, `${feature} on the closed site`);
+    assert.equal(isFeatureGenerated(feature, open), siteConfig.features[feature], `${feature} on the open site`);
+  }
+  // No feature extension is one of Next's, or part of another: each one selects its own files only.
+  const own = Object.values(featurePageExtensions);
+  assert.equal(new Set(own).size, own.length);
+  for (const extension of own) assert.match(extension, /^[a-z]+$/);
 });
 
 test("Spanish lives at the root and English under /en, with translated slugs", () => {

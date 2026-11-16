@@ -13,18 +13,18 @@ import { isAppLocale } from "@/i18n/locales";
 import { clientLabel, lineNames, showCaseValue, visibleCases } from "@/lib/portfolio";
 import { breadcrumbJsonLd } from "@/lib/seo/json-ld";
 import { buildPageMetadata } from "@/lib/seo/metadata";
-import { breadcrumbTrail, entryPath } from "@/routes";
+import { type LocalePageProps, breadcrumbTrail, entryPath } from "@/routes";
 
 const PATHNAME = "/portafolio";
 
-export async function generateMetadata({ params }: PageProps<"/[locale]/portafolio">) {
+export async function generateMetadata({ params }: LocalePageProps) {
   const { locale } = await params;
   if (!isAppLocale(locale)) notFound();
   return buildPageMetadata(PATHNAME, locale);
 }
 
 /** Portfolio index (maqueta B-Portafolio, spec 005): the rule in view, the filter by line and one card per published case. */
-export default async function Page({ params }: PageProps<"/[locale]/portafolio">) {
+export default async function Page({ params }: LocalePageProps) {
   const { locale } = await params;
   if (!isAppLocale(locale)) notFound();
   const [t, sections] = await Promise.all([

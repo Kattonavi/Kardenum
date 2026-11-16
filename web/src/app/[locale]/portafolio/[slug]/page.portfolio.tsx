@@ -13,7 +13,7 @@ import { builtEntries, type Entry, generatedEntries, pathsOfEntry } from "@/lib/
 import { clientLabel, findCase, lineNames, nextCase, showCaseValue } from "@/lib/portfolio";
 import { breadcrumbJsonLd, creativeWorkJsonLd } from "@/lib/seo/json-ld";
 import { buildEntryMetadata, ogImagePath } from "@/lib/seo/metadata";
-import { breadcrumbTrail, entryPath } from "@/routes";
+import { type EntryPageProps, breadcrumbTrail, entryPath } from "@/routes";
 
 const COLLECTION = "/portafolio/[slug]";
 const INDEX = "/portafolio";
@@ -32,7 +32,7 @@ function findEntry(locale: AppLocale, slug: string): Entry | undefined {
   return builtEntries().find((entry) => entry.collection === COLLECTION && entry.slug[locale] === slug);
 }
 
-export async function generateMetadata({ params }: PageProps<"/[locale]/portafolio/[slug]">) {
+export async function generateMetadata({ params }: EntryPageProps) {
   const { locale, slug } = await params;
   const entry = isAppLocale(locale) ? findEntry(locale, slug) : undefined;
   // Unreachable: dynamicParams = false only lets the generated slugs in.
@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/portafol
 const sectionTitleClass = "type-label font-medium text-(--muted-text)";
 
 /** Page of a case (maqueta B-Caso, spec 005, RF-3). */
-export default async function Page({ params }: PageProps<"/[locale]/portafolio/[slug]">) {
+export default async function Page({ params }: EntryPageProps) {
   const { locale, slug } = await params;
   if (!isAppLocale(locale)) notFound();
   const item = findCase(locale, slug);

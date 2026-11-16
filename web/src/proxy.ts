@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
+import { comparablePath } from "./lib/comparable-path";
 import { shortLinkRedirects } from "./routes";
 
 const handleI18nRouting = createMiddleware(routing);
@@ -15,6 +16,11 @@ const shortLinks = new Map(shortLinkRedirects().map((redirect) => [redirect.sour
  * Pages hidden behind a feature that is off, on the open site (specs 004, 005 and 006, "Páginas
  * ocultas y sitio abierto"): the list is computed when the site is compiled (next.config.ts, env
  * BLOCKED_PATHS) and inlined here, so it is the mode of the build and not of the process.
+ *
+ * One of two layers. The other is the build itself: on the open site those pages are not
+ * compiled (pageExtensions in src/routes.ts), so an address that never reaches this file (the
+ * matcher below skips every path with a dot) or that is spelled in a way this file does not
+ * foresee still finds no page.
  */
 function readBlockedPaths(value: string | undefined): ReadonlySet<string> {
   const list: unknown = JSON.parse(value ?? "[]");
@@ -37,8 +43,9 @@ const NOT_FOUND_TARGET = "/_pagina-no-generada";
  * URL, so those redirects are permanent (308) instead of next-intl's temporary 307.
  */
 export default function proxy(request: NextRequest) {
-  // First of all: a hidden page is not there, whatever else the address would match.
-  if (blockedPaths.has(request.nextUrl.pathname)) {
+  // First of all: a hidden page is not there, whatever else the address would match and however
+  // it is spelled (an encoded letter, capitals, a trailing slash: src/lib/comparable-path.ts).
+  if (blockedPaths.has(comparablePath(request.nextUrl.pathname))) {
     const target = request.nextUrl.clone();
     target.pathname = NOT_FOUND_TARGET;
     target.search = "";

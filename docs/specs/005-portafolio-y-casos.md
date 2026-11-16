@@ -67,6 +67,20 @@ respondiendo 200 con `noindex`, para revisarlas; con el sitio abierto (`SITE_IND
 dirección responde el 404 de marca. Todo sigue estático (sin `ƒ`), y el 404 es la página completa con cabeceras, no
 un `notFound()` al renderizar. Las pruebas de humo y de navegador esperan una cosa u otra según el modo.
 
+**Cómo se cumple con el sitio abierto (dos capas, decisión del fundador del 2026-11-16):**
+
+1. **El proxy** responde el 404 de marca a la lista de direcciones ocultas, tanto a la página como a su petición de
+   datos RSC. Compara la ruta ya decodificada y normalizada (`web/src/lib/comparable-path.ts`): una letra codificada,
+   la doble codificación, las mayúsculas y la barra final son la misma dirección y reciben el mismo 404.
+2. **El build abierto no compila esas páginas.** El archivo de una página detrás de un flag se llama
+   `page.<flag>.tsx` (`subpages`, `portfolio`, `guides`) y `next.config.ts` solo acepta esa extensión cuando el build
+   genera la página (`pageExtensions()` en `web/src/routes.ts`). Sin ella la dirección no coincide con ninguna ruta y
+   Next responde como a cualquier dirección desconocida: el 404 de marca con HTML completo. No se usa `notFound()`
+   dentro de la página, que en Next 16.4.6 entrega un cascarón vacío.
+
+Hay un solo layout raíz: con el flag encendido, pasar de una página a otra sigue siendo navegación del lado del
+cliente, sin recarga completa. `web/src/routes.test.ts` falla si una página detrás de un flag se llama `page.tsx`.
+
 ## Cómo se escribe un caso reservado (revisión de seguridad del paso 5)
 
 El tipo impide el campo del cliente, pero el `id`, el `slug`, el nombre, los textos y los nombres de los archivos de
