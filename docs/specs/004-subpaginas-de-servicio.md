@@ -34,6 +34,13 @@ regla del plan de SEO es que una subpágina solo se publica con contenido propio
 - **"Launchers"** en servicios relacionados enlaza a la página de Minecraft: no tiene subpágina.
 - **Las pruebas recorren las páginas construidas**, no solo las públicas: humo, axe, texto al 200 % y desborde.
 
+## Páginas ocultas y sitio abierto (decisión del fundador, 2026-11-15)
+
+MIENTRAS el flag esté apagado: con el sitio cerrado (`SITE_INDEXABLE` distinto de `true`) estas páginas siguen
+respondiendo 200 con `noindex`, para revisarlas; con el sitio abierto (`SITE_INDEXABLE=true`) NO se generan y su
+dirección responde el 404 de marca. Todo sigue estático (sin `ƒ`), y el 404 es la página completa con cabeceras, no
+un `notFound()` al renderizar. Las pruebas de humo y de navegador esperan una cosa u otra según el modo.
+
 ## Fuera de alcance
 
 - Las tarjetas de trabajos y de guías dentro de cada subpágina: llegan con el portafolio (spec 005) y las guías (006).

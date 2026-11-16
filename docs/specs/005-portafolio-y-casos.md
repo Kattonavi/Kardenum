@@ -12,7 +12,7 @@ agregar un caso es agregar un archivo.
 
 | # | Requisito |
 |---|---|
-| RF-1 | El índice (`/portafolio`, `/en/work`) DEBE mostrar: migas (Inicio › Portafolio), el rótulo, el título "Trabajo que podemos mostrar.", la regla a la vista ("Cada proyecto aparece aquí con permiso del cliente. Los proyectos privados no se publican."), los filtros por línea (Todos y las cinco líneas) y una tarjeta por caso visible: portada 4:3, líneas, año, nombre y una frase. Cada tarjeta enlaza a su caso. |
+| RF-1 | El índice (`/portafolio`, `/en/work`) DEBE mostrar: migas (Inicio › Portafolio), el rótulo, el título "Trabajo que podemos mostrar.", la regla a la vista ("Cada proyecto aparece aquí con permiso del cliente. Los proyectos privados no se publican."), los filtros por línea (Todos y las líneas que tienen al menos un caso visible; decisión del fundador, 2026-11-15: un filtro sin resultados no se ofrece) y una tarjeta por caso visible: portada 4:3, líneas, año, nombre y una frase. Cada tarjeta enlaza a su caso. |
 | RF-2 | CUANDO la persona elige una línea en los filtros, el índice DEBE mostrar solo los casos de esa línea; "Todos" los muestra todos. El filtro DEBE funcionar sin JavaScript y con teclado, y decir cuál está elegido. |
 | RF-3 | Cada caso visible DEBE tener su página en `/portafolio/<slug>` y `/en/work/<slug>` (slug propio por idioma) con: ruta de regreso al portafolio, nombre, una frase, datos (líneas, año, cliente), imagen principal 16:9, el reto, qué hicimos (lista), resultado, piezas (4:3), enlace al siguiente proyecto y el cierre de contacto. |
 | RF-4 | El cliente DEBE mostrarse según su tipo: el nombre (público), "Cliente reservado" (reservado) o "Proyecto propio". Un caso reservado NO DEBE contener el nombre del cliente en ninguna parte del HTML. |
@@ -56,8 +56,16 @@ idioma y la ruta interna en el otro); `useParams()` sí.
   sus props de `getImageProps()` (optimizador de Next: AVIF, luego WebP, un archivo por ancho en `srcset`, con
   `sizes`, `width` y `height`) y descarta el estilo en línea que la CSP bloquea. Carga diferida por defecto; la
   imagen principal se marca como prioritaria (`fetchpriority="high"`, sin diferir). El optimizador solo sirve
-  imágenes importadas por el código. El original se guarda en WebP o AVIF, 1600 px de ancho como máximo y 300 KB
-  por archivo (prueba unitaria); la prueba de humo revisa cada `<img>` servido y que el optimizador convierta.
+  imágenes importadas por el código. El original se guarda en WebP o AVIF, 2400 px de ancho como máximo y 800 KB
+  por archivo (decisión del fundador, 2026-11-15; prueba unitaria). El optimizador solo genera los anchos que usan
+  las plantillas (`deviceSizes` e `imageSizes` acotados en `next.config.ts`); la prueba de humo revisa cada `<img>` servido y que el optimizador convierta.
+
+## Páginas ocultas y sitio abierto (decisión del fundador, 2026-11-15)
+
+MIENTRAS el flag esté apagado: con el sitio cerrado (`SITE_INDEXABLE` distinto de `true`) el índice y los casos siguen
+respondiendo 200 con `noindex`, para revisarlas; con el sitio abierto (`SITE_INDEXABLE=true`) NO se generan y su
+dirección responde el 404 de marca. Todo sigue estático (sin `ƒ`), y el 404 es la página completa con cabeceras, no
+un `notFound()` al renderizar. Las pruebas de humo y de navegador esperan una cosa u otra según el modo.
 
 ## Cómo se escribe un caso reservado (revisión de seguridad del paso 5)
 

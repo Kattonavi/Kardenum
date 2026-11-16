@@ -11,7 +11,7 @@ del lanzamiento): esta spec entrega la plantilla lista, de modo que publicar una
 
 | # | Requisito |
 |---|---|
-| RF-1 | El índice (`/guias`, `/en/guides`) DEBE mostrar: migas (Inicio › Guías), rótulo, título "Guías para entender antes de decidir.", el texto de la maqueta, los filtros por línea (Todas y las cinco líneas, sin JavaScript, como en el portafolio) y una tarjeta por guía: "Guía · línea", fecha de publicación, título, resumen y "Leer guía". |
+| RF-1 | El índice (`/guias`, `/en/guides`) DEBE mostrar: migas (Inicio › Guías), rótulo, título "Guías para entender antes de decidir.", el texto de la maqueta, los filtros por línea (Todas y las líneas que tienen al menos una guía; sin JavaScript, como en el portafolio; con una sola línea no se pinta el filtro) y una tarjeta por guía: "Guía · línea", fecha de publicación, título, resumen y "Leer guía". |
 | RF-2 | Cada guía DEBE tener su página en `/guias/<slug>` y `/en/guides/<slug>` (slug propio por idioma) con: migas (Inicio › Guías › nombre corto), rótulo "Guía · línea", título, resumen, "Por Kardenum", fecha de publicación y de actualización visibles (`<time datetime>`), minutos de lectura, el índice "En esta guía" con un enlace por sección, las secciones numeradas (00 · Antes de empezar … Siguientes pasos), el bloque "Servicio relacionado" con sus dos botones, "Guías relacionadas" (si hay otras) y el cierre de contacto. |
 | RF-3 | El contenido de una guía DEBE poder usar, además de párrafos, listas, enlaces y énfasis: la lista "Qué necesitas", una captura con su descripción (que también es su texto alternativo), un bloque de código, una nota y tablas. Un bloque de código largo o una tabla ancha NO DEBEN ensanchar la página: se desplazan dentro de su propia caja, que se puede enfocar con teclado y dice qué es. Las tablas llevan el estilo de la identidad (reglas finas, encabezados en la tipografía de rótulo) y respetan la alineación de cada columna. |
 | RF-4 | El bloque "Servicio relacionado" DEBE enlazar a la subpágina o línea de la guía ("Ver el servicio") y a su canal de cotización (Discord en Minecraft y Discord; el cotizador con la línea preseleccionada en las demás), con las mismas reglas de la spec 004 (RF-5). "Ver el servicio" solo se muestra si esa página es pública. |
@@ -48,6 +48,13 @@ enlaces automáticos. **Sin resaltado de sintaxis** (confirmado por el fundador)
 - **Componentes de guía** (`mdx-components.tsx`): sección numerada, "Qué necesitas", captura, código, nota y tabla, con la
   tipografía de la maqueta. Las capturas usan `next/image` con importación estática y el mismo tope de peso de la 005.
 - **Imagen social:** la del índice de guías (una por guía queda en el backlog).
+
+## Páginas ocultas y sitio abierto (decisión del fundador, 2026-11-15)
+
+MIENTRAS el flag esté apagado: con el sitio cerrado (`SITE_INDEXABLE` distinto de `true`) el índice y las guías siguen
+respondiendo 200 con `noindex`, para revisarlas; con el sitio abierto (`SITE_INDEXABLE=true`) NO se generan y su
+dirección responde el 404 de marca. Todo sigue estático (sin `ƒ`), y el 404 es la página completa con cabeceras, no
+un `notFound()` al renderizar. Las pruebas de humo y de navegador esperan una cosa u otra según el modo.
 
 ## Con qué se llena hoy
 

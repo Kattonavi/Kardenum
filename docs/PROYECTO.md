@@ -141,6 +141,12 @@ Detalle en `docs/handoff/docs/seo-sitio.md`. Nichos primero (Minecraft y Discord
 - **Los enlaces de las líneas en el pie y las migas en Nosotros se quedan** (confirmado por el fundador, 2026-11-15).
 - **Guías: sin resaltado de sintaxis y con tablas** (`remark-gfm`, solo compilación), con su propio desplazamiento
   horizontal y el estilo de la identidad (spec 006).
+- **Decisiones del cierre del paso 5 (fundador, 2026-11-15):** los filtros solo ofrecen las líneas con entradas; con
+  el sitio abierto, un flag apagado no genera sus páginas (404) y con el sitio cerrado siguen respondiendo; el
+  optimizador solo genera los anchos que usan las plantillas; el original de una imagen puede medir hasta 2400 px
+  y 800 KB; la regla de Lighthouse con imagen principal (backlog 48) se queda; los títulos de las subpáginas
+  esperan la validación de palabras clave.
+- **Paso 6 (legales):** comparadas contra `B-Legal-privacidad` y `B-Legal-terminos` el 2026-11-15: no falta nada.
 - **`SITE_LAUNCH_CHECK=off` solo en local:** en Railway o en CI ese interruptor hace fallar el build.
 - **Nosotros con migas** (cambio del 2026-11-15): la maqueta no las trae, pero el plan de SEO las pide en toda página
   interna y está por encima de las maquetas en el orden de fuentes. La prueba de humo las exige, con su `BreadcrumbList`.
