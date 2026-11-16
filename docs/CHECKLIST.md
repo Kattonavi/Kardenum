@@ -24,7 +24,7 @@ Lo que no aplique a la superficie real del proyecto se saca a **No aplica** con 
 - [x] `robots.txt` y `sitemap.xml` generados por Next (`app/robots.ts`, `app/sitemap.ts`). · **resp:** skill seo · **evidencia:** `pnpm smoke` (412/412 en producción, `docs/revisiones/evidencia-paso3.txt`): cerrado, `Disallow: /` y sitemap 404; abierto, sitemap con alternativas (build local con el guardia abierto)
 - [x] Open Graph + Twitter Card con imagen 1200×630 (`opengraph-image`). · **resp:** skill seo · **evidencia:** `pnpm smoke` (412/412 en producción, `docs/revisiones/evidencia-paso3.txt`): `og:image` propia por página e idioma, 200 `image/png`
 - [x] Favicon, `apple-icon`, `manifest`. · **resp:** skill seo · **evidencia:** `pnpm smoke` (412/412 en producción, `docs/revisiones/evidencia-paso3.txt`): manifest y `theme-color`; `icon.svg` y `apple-icon.png` en el build
-- [ ] Imágenes con `next/image`, `alt` descriptivo, AVIF/WebP, dimensiones fijas (sin CLS). · **resp:** skill seo · **evidencia:** pendiente
+- [x] Imágenes con `next/image`, `alt` descriptivo, AVIF/WebP, dimensiones fijas (sin CLS). · **resp:** skill seo · **evidencia:** componente de imagen sobre `getImageProps()` (sin el estilo en línea que la CSP bloquea); `pnpm smoke` revisa cada `<img>` servido (srcset, sizes, ancho, alto y alt) y que el optimizador convierta a AVIF; `src/lib/html-images.test.ts`. El sitio aún no tiene imágenes reales: verificado con contenido de prueba (`evidencia-paso5.txt`)
 - [x] Schema JSON-LD: `Organization` + `WebSite` (el hook valida el JSON-LD al editar). · **resp:** skill seo · **evidencia:** `pnpm smoke` (412/412 en producción, `docs/revisiones/evidencia-paso3.txt`): un documento válido en el inicio, sin datos entre corchetes
 - [x] Contenido indexable en el HTML del servidor (no depender de JS del cliente para el texto principal). · **resp:** skill seo · **evidencia:** `pnpm smoke` (412/412 en producción, `docs/revisiones/evidencia-paso3.txt`): líneas, preguntas, migas, avisos y el cotizador se leen en el HTML sin scripts
 - [ ] Core Web Vitals en verde (ver rendimiento.md). · **resp:** skill seo · **evidencia:** pendiente
@@ -62,7 +62,7 @@ Lo que no aplique a la superficie real del proyecto se saca a **No aplica** con 
 
 ## rendimiento
 - [ ] Server Components por defecto; `"use client"` solo donde hay interactividad (`react-best-practices`). · **resp:** seo-performance · **evidencia:** pendiente
-- [ ] Imágenes `next/image` con `sizes`; AVIF/WebP; `images.qualities` definido en `next.config`. · **resp:** seo-performance · **evidencia:** pendiente
+- [x] Imágenes `next/image` con `sizes`; AVIF/WebP; `images.qualities` definido en `next.config`. · **resp:** seo-performance · **evidencia:** `web/next.config.ts` (`formats`, `qualities`, `localPatterns`); en Railway el optimizador entrega AVIF y WebP (`evidencia-paso5.txt`)
 - [ ] Imagen LCP presente en el HTML inicial con `preload` o `fetchPriority="high"` (en 1–2 imágenes como máximo), nunca `lazy`. `priority` está deprecado en Next 16. · **resp:** seo-performance · **evidencia:** pendiente
 - [ ] Fuentes con `next/font` (fallback ajustado), máximo 2 familias; imágenes e iframes con dimensiones o `aspect-ratio` para no mover el layout (CLS). · **resp:** seo-performance · **evidencia:** pendiente
 - [ ] Sin librerías pesadas sin justificar (`pick-ui-library`); animar solo `transform`/`opacity` (`animation-performance`). · **resp:** seo-performance · **evidencia:** pendiente

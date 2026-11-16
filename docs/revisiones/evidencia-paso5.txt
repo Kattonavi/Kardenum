@@ -228,3 +228,52 @@ El sitio no tiene imágenes todavía; se probó el optimizador con el ícono que
   mismo, Accept webp -> 200 image/webp, 690 bytes, 64 x 64          (el archivo original: image/png, 2 590 bytes)
 $ pnpm smoke https://web-production-f1d7c246.up.railway.app --expect=noindex --site-url=self
 OK: all 988 checks passed (noindex)   (0 pictures in the pages fetched; las tres sondas de rechazo, 400)
+
+== Verificación de cierre: los tres flags encendidos, sitio abierto, contenido de prueba (clon de descarte) · 2026-11-15
+Contenido: docs/pruebas (dos guías ficticias; casos reservado, nombrado y privado; el nombrado con imagen principal).
+
+-- 1. Humo (commit f5e2789)
+OK: all 1171 checks passed (indexable)
+PASS every picture has srcset, sizes, width, height and alt, and is lazy unless it is the main one (4 pictures in the pages fetched)
+PASS the image optimizer converts a picture of the site to AVIF for a browser that accepts it (status 200, image/avif, 44215 bytes)
+Navegador (portafolio y guías, con la guardia de CSP): 112 passed.
+
+-- 2. Imagen principal de un caso (/portafolio/bot-de-prueba)
+<img>: alt, width="1600", height="900", decoding, class, sizes="(min-width: 75rem) 70rem, 100vw", srcset (9 anchos), src,
+loading="eager", fetchpriority="high"; sin atributo style.
+En el <head>: <link rel="preload" as="image" fetchpriority="high" imagesrcset=… imagesizes=…> (una sola petición de la imagen).
+
+-- 3. Lighthouse móvil (método por defecto, 13.6.0), flags encendidos y sitio abierto
+== p5-caso-con-imagen.json | http://127.0.0.1:4712/portafolio/bot-de-prueba | lighthouse 13.6.0
+scores: {'performance': 92, 'accessibility': 100, 'best-practices': 100, 'seo': 100, 'agentic-browsing': 100}
+== p5-caso-kardenum.json | http://127.0.0.1:4712/portafolio/kardenum | lighthouse 13.6.0
+scores: {'performance': 100, 'accessibility': 100, 'best-practices': 100, 'seo': 100, 'agentic-browsing': 100}
+== p5-guia.json | http://127.0.0.1:4712/guias/guia-de-prueba | lighthouse 13.6.0
+scores: {'performance': 100, 'accessibility': 100, 'best-practices': 100, 'seo': 100, 'agentic-browsing': 100}
+== p5-guias.json | http://127.0.0.1:4712/guias | lighthouse 13.6.0
+scores: {'performance': 99, 'accessibility': 100, 'best-practices': 100, 'seo': 100, 'agentic-browsing': 100}
+== p5-portafolio.json | http://127.0.0.1:4712/portafolio | lighthouse 13.6.0
+scores: {'performance': 100, 'accessibility': 100, 'best-practices': 100, 'seo': 100, 'agentic-browsing': 100}
+== p5-subpagina.json | http://127.0.0.1:4712/servicios/minecraft/plugins | lighthouse 13.6.0
+scores: {'performance': 100, 'accessibility': 100, 'best-practices': 100, 'seo': 100, 'agentic-browsing': 100}
+
+-- 4. La página con una imagen como elemento principal (LCP), medida aparte
+La primera medición dio 92 (arriba). Qué se hizo y qué se midió, tres corridas cada vez (método por defecto):
+  imagen de ruido (peor caso para comprimir, 55 KB en AVIF a 750 px), sin precarga:  92 · 93 (LCP simulado 3,2 a 3,3 s; LCP observado 0,2 s)
+  la misma, con precarga en el <head>:                                                89 · 94 · 93 (LCP simulado 3,1 a 3,7 s)
+  captura realista (4 KB en AVIF a 750 px), con precarga:                             95 · 95 · 95 (LCP simulado 2,8 a 2,9 s)
+Con la limitación de red y CPU aplicada de verdad (--throttling-method=devtools):
+  caso con imagen (captura realista): rendimiento 97 · primer render 1884 ms · LCP 1884 ms (la imagen se pinta con el primer render)
+  caso sin imagen (Kardenum):         rendimiento 90 · primer render 2006 ms · LCP 2006 ms · TBT 330 ms (ruido de esa corrida)
+Lectura: el peso de la imagen mueve poco el resultado (de 4 a 55 KB, 0,3 s). El método por defecto estima el LCP de una
+imagen con todo lo que cargó antes de pintarla, y en una máquina local eso es todo el sitio; por eso una página cuyo
+elemento principal es una imagen queda en el límite (95 con una captura, 89 a 94 con una foto pesada).
+Ninguna página real del sitio tiene hoy una imagen: todas dan 99 o 100. Queda como regla en el backlog 48.
+
+== Incidente de entorno (2026-11-15, al cerrar el paso 5)
+La unidad E: (donde vive el arbol principal del proyecto) dejo de existir en el sistema durante la sesion: Windows solo
+mostraba C: y D:. No se toco ningun disco. Los dos commits que aun no estaban en GitHub (f5e2789 y bacba84) estaban
+tambien en el clon de verificacion de la carpeta temporal (C:): desde ahi se verifico (build, humo y navegador del arbol
+limpio) y se subio. Por eso el commit de la precarga conserva su mensaje provisional ("wip: preload the main picture from
+the head (measuring)"): no se reescribio para que el arbol de E:, cuando vuelva, avance sin conflicto con un git pull.
+
