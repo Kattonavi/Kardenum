@@ -11,7 +11,7 @@ import { buildPageMetadata, ogImageName, ogImagePath } from "@/lib/seo/metadata"
 import { buildSitemapEntries } from "@/lib/seo/sitemap";
 import { hasPageMeta } from "@/content/pages";
 import { publicEntries } from "@/lib/entries";
-import { appPathnames, isListed, publicPathnames } from "@/routes";
+import { type AppPathname, isListed, publicPathnames } from "@/routes";
 import { type SiteConfig, siteConfig } from "@/site.config";
 
 // These tests describe the production origin: ignore the SITE_URL of the machine running them.
@@ -55,10 +55,11 @@ test("the social image is per page and language, on the production origin", () =
   assert.equal(ogImagePath("/servicios/minecraft/tebex", "en"), "/og/en/services-minecraft-tebex.png");
 });
 
-test("a page without texts cannot get metadata by accident", (t) => {
-  // Checked on a real route that has no texts yet (the portfolio, the guides, the legal pages…).
-  const withoutTexts = appPathnames.find((pathname) => !hasPageMeta(pathname));
-  if (!withoutTexts) return t.skip("every route has its texts");
+test("a page without texts cannot get metadata by accident", () => {
+  // A route added to the registry without its texts must fail the build, not borrow another page's title.
+  // Every real route has its texts now, so the route here is one that does not exist.
+  const withoutTexts = "/ruta-sin-textos" as AppPathname;
+  assert.equal(hasPageMeta(withoutTexts), false);
   assert.throws(() => buildPageMetadata(withoutTexts, "es", closed), /No page meta/);
 });
 

@@ -328,7 +328,7 @@ for (const entry of builtEntries()) {
       const work = graph.find((node) => node["@type"] === "CreativeWork");
       check(
         `${label} CreativeWork: the case, made by the organization, with an image and a year only when it is known`,
-        work?.name === entry.name &&
+        work?.name === entry.name[locale] &&
           work?.url === absoluteUrl(path) &&
           work?.description === entry.meta.description[locale] &&
           work?.creator?.["@id"] === absoluteUrl("/#organization") &&
