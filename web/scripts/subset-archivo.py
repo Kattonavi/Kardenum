@@ -71,6 +71,7 @@ def main() -> None:
     REPORT.write_text(
         json.dumps({"kept": "".join(chr(code) for code in kept), "source": "".join(chr(code) for code in sorted(in_source) if code >= 0x20)}, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
+        newline="\n",
     )
     result = TTFont(OUTPUT)
     axes = ", ".join(f"{axis.axisTag} {axis.minValue:g} to {axis.maxValue:g}" for axis in result["fvar"].axes)
