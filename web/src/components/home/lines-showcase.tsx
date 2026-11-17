@@ -28,7 +28,7 @@ export function LinesShowcase({ id, locale }: { id: string; locale: AppLocale })
   );
 
   return (
-    <section id={id} aria-labelledby="services-title" className="surface-ink">
+    <section id={id} aria-labelledby="services-title" className="band-later surface-ink [--band-size:170rem] md:[--band-size:145rem] lg:[--band-size:100rem]">
       <Container className="flex flex-col gap-12 pb-18 md:gap-20 md:pb-28">
         <div className="flex flex-col gap-4.5">
           <p className="flex items-center gap-3 type-label tracking-[0.14em] text-(--muted-text)">

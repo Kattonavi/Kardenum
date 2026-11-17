@@ -197,6 +197,24 @@
   }
 }
 
+/*
+ * A band of the page far below the first screen is not laid out or painted until the visitor
+ * comes near it (content-visibility: auto). The home page uses it for what follows the carousel.
+ *
+ * Why: the first layout of the home page was one long task (310 ms with the CPU slowed 6x, against
+ * 215 ms on a line page), and Lighthouse counted it as blocking time on the CI runner (TBT of 86 to
+ * 322 ms; docs/revisiones/fase-2-bitacora.md, slice 4). With the bands left for later it is the
+ * layout of a short page again.
+ *
+ * Until a band is drawn its height is a guess (--band-size, close to the real one at each width);
+ * once drawn, the browser remembers the real height. What is inside stays reachable: links to its
+ * anchors, find in page and screen readers all get it.
+ */
+@utility band-later {
+  content-visibility: auto;
+  contain-intrinsic-block-size: auto var(--band-size, 40rem);
+}
+
 /* Labels, numbering and data: JetBrains Mono, uppercase, wide tracking. */
 @utility type-label {
   font-family: var(--font-mono);
@@ -226,6 +244,13 @@
   @media (prefers-reduced-motion: no-preference) {
     html {
       scroll-behavior: smooth;
+    }
+
+    /* A smooth scroll to an anchor is aimed once, with the guessed heights of the bands it crosses;
+       they get their real height on the way and it would land short or long. A page with such
+       bands jumps to its anchors instead, which always lands on the anchor. */
+    html:has(.band-later) {
+      scroll-behavior: auto;
     }
   }
 

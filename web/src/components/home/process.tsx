@@ -12,7 +12,7 @@ export function HomeProcess({ locale }: { locale: AppLocale }) {
   const t = useTranslations("Home");
 
   return (
-    <section aria-labelledby="process-title" className="surface-stone">
+    <section aria-labelledby="process-title" className="band-later surface-stone [--band-size:56rem] sm:[--band-size:38rem] lg:[--band-size:31.5rem]">
       <Container className="flex flex-col gap-11 py-16 md:py-26">
         <div className="flex flex-col gap-4.5">
           <p className="flex items-center gap-3 type-label tracking-[0.14em] text-(--muted-text)">
