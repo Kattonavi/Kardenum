@@ -1,6 +1,7 @@
 # 013 · Ajustes tras la fase 2: decisiones del fundador
 
-**Estado:** en construcción (2026-11-17). Avance y evidencia: `docs/revisiones/fase-2b-bitacora.md`.
+**Estado:** en producción (2026-11-17), en seis rebanadas. Falta una corrida completa de `verify-deploy` sobre el `main`
+final, pendiente de que GitHub Actions vuelva a correr (backlog 81). Avance y evidencia: `docs/revisiones/fase-2b-bitacora.md`.
 **Fuente:** el encargo del fundador del 2026-11-17, después de leer `docs/revisiones/fase-2-informe-final.md`. Sus
 cinco decisiones son los requisitos; no hubo entrevista porque el encargo ya las trae resueltas.
 **Reemplaza** de la spec 012 y de su bitácora: la decisión 17 y la 46 (ancho de 1200 px), la 45 (cabecera intacta, solo
@@ -73,33 +74,36 @@ podía empezar a mitad de renglón.
 
 ## Decisiones tomadas sin preguntar
 
-1. **Los límites internos no cambian:** el título del inicio (1100 px), el pie del carrusel (1040 px) y el título del
+Cada una conserva su número, que es por el que la citan el código y el backlog; no van en orden porque se fueron
+añadiendo por rondas.
+
+- **Decisión 1.** **Los límites internos no cambian:** el título del inicio (1100 px), el pie del carrusel (1040 px) y el título del
    cierre (900 px) ya eran los de la maqueta; lo único distinto era el ancho de página.
-2. **En Contacto el botón "Cotizar" lleva además un borde en Piedra.** Relleno siempre, ya no puede marcar la página
+- **Decisión 2.** **En Contacto el botón "Cotizar" lleva además un borde en Piedra.** Relleno siempre, ya no puede marcar la página
    actual con el relleno; el borde es la señal a la vista y `aria-current` la del lector de pantalla.
-3. **El filete bajo la cabecera y la franja de idioma se quedan** (backlog 58): el fundador decidió solo el botón.
-4. **Junto a la escena los cortes del título van escritos con cada título** (`titleBeside`), y su tamaño sale del
+- **Decisión 3.** **El filete bajo la cabecera y la franja de idioma se quedan** (backlog 58): el fundador decidió solo el botón.
+- **Decisión 4.** **Junto a la escena los cortes del título van escritos con cada título** (`titleBeside`), y su tamaño sale del
    ancho de su columna (6,5 %), así los renglones son los mismos a todo ancho. Medido en la tipografía real, con solo
    `text-wrap: balance` el navegador dejaba una palabra sola en 12 de los 22 títulos: reparte anchos, no evita
    palabras solas. `text-wrap: balance` sigue puesto, pero quien cumple las reglas son los cortes.
-7. **La escena va al lado del texto desde 1216 px de ventana, no desde 1072.** La regla del fundador era el mínimo
+- **Decisión 7.** **La escena va al lado del texto desde 1216 px de ventana, no desde 1072.** La regla del fundador era el mínimo
    de 32 px, que se alcanza a 1072 px; pero ahí los dos botones bajo el título no cabían en un renglón (la revisión
    de diseño lo marcó). A 1216 px caben el título y los dos botones de las 22 páginas (el par más ancho mide
    568 px), y el título mide 37 px. **Consecuencia:** entre 1024 y 1215 px la escena va debajo del texto, con 640 px
    de ancho como máximo, y el título tiene el tamaño de cualquier título de página (47 a 56 px), mayor que los 41 px
    de cuando va junto a la escena.
-10. **Cortes que no tienen arreglo sin reescribir el título** (inglés, provisional): "Web / development and / custom
+- **Decisión 10.** **Cortes que no tienen arreglo sin reescribir el título** (inglés, provisional): "Web / development and / custom
     software." deja "WEB" sola en el primer renglón, porque "Web development and" no cabe en un renglón y el bronce
     debe empezar renglón. "Custom Minecraft / plugins." termina en una palabra sola: es toda la parte en bronce.
-8. **RF-40 se cumple en su parte de "no cambiar lo que se ve" y "no peor", no en la de aligerar el inicio.** Lo que
+- **Decisión 8.** **RF-40 se cumple en su parte de "no cambiar lo que se ve" y "no peor", no en la de aligerar el inicio.** Lo que
    se aplicó (hojas de estilo por página) le da margen a la página de preguntas y a las páginas sin escenas; el
    inicio queda igual en el runner y su documento pierde holgura (de 346 a 207 bytes libres). Lo que sí lo
    aligeraría toca fuentes o JavaScript y quedó como propuesta (backlog 78).
-9. **RF-51 se completó en dos pasadas:** 92 capturas; en la segunda, las páginas que faltaban de arriba al pie,
+- **Decisión 9.** **RF-51 se completó en dos pasadas:** 92 capturas; en la segunda, las páginas que faltaban de arriba al pie,
    Términos incluida (`docs/revisiones/fase-2b-diseno-celular.md`). El título junto a la escena tuvo además su
    revisión en escritorio (`docs/revisiones/fase-2b-diseno-titulos.md`).
-5. ~~Las preguntas de las subpáginas no se tocan.~~ Decidido después por el fundador: llevan el mismo cambio (RF-30).
-11. **Las letras de otros idiomas van en un segundo archivo** (decisión del fundador, tercera ronda). El base se
+- **Decisión 5.** ~~Las preguntas de las subpáginas no se tocan.~~ Decidido después por el fundador: llevan el mismo cambio (RF-30).
+- **Decisión 11.** **Las letras de otros idiomas van en un segundo archivo** (decisión del fundador, tercera ronda). El base se
     queda como estaba (40,5 KB: lo que usa el sitio más todo el español; hasta 42,9 KB llega en dos ráfagas de TCP).
     El segundo, `Archivo-ext.woff2` (73,8 KB, 436 caracteres: el resto de Latin-1, latín extendido A, B y adicional,
     puntuación y monedas), se recorta de la fuente completa de google/fonts y lleva `unicode-range`: el navegador lo
@@ -107,30 +111,36 @@ podía empezar a mitad de renglón.
     rango exacto de sus caracteres. Un carácter que los textos usan y la fuente latina no tenía (la flecha "→") queda
     fuera de los dos y se dibuja con la fuente del sistema, como siempre. Costo para todas las páginas: 0,5 KB más de
     hoja de estilos (los dos rangos); ni el documento ni las fuentes que baja el inicio cambian.
-12. **El calentamiento también abre una vez el navegador que mide.** Medido en el runner: al arrancar otra vez el
+- **Decisión 12.** **El calentamiento también abre una vez el navegador que mide.** Medido en el runner: al arrancar otra vez el
     servidor en el mismo trabajo la pasada lenta no vuelve, así que el costo está en el primer arranque del navegador
     tanto como en las primeras peticiones. `web/scripts/warm-up.mjs` hace las dos cosas y no cambia qué se mide.
-13. **Al tocar el workflow se arregló que no guardaba los informes de Lighthouse** (backlog 63:
+- **Decisión 13.** **Al tocar el workflow se arregló que no guardaba los informes de Lighthouse** (backlog 63:
     `include-hidden-files: true`).
-15. **El `verify-deploy` corto mide Lighthouse contra el despliegue, no sobre el build abierto.** El build abierto
-    cuesta un build completo en cada despliegue y es lo que se quería ahorrar; queda en el completo. Páginas del
+- **Decisión 15.** **El `verify-deploy` corto mide Lighthouse contra el despliegue, no sobre el build abierto. A decidir por el
+    fundador.** El modo contra el despliegue es el indulgente: en las tres comprobaciones locales dio 0,96 a 1,00 en
+    todas las páginas, mientras el build abierto tenía al inicio en 0,95; los dos rojos de la noche de la fase 2
+    fueron solo del build abierto, así que el corto no habría visto ninguno. Medir el build abierto en el corto cuesta
+    el build (48 s en el runner) más las pasadas: alrededor de un minuto más por despliegue. Se dejó fuera para
+    cumplir "Lighthouse del inicio y de dos páginas más" con el menor gasto; cambiarlo es pasar el corto a
+    `LHCI_MODE: open` con su build. El build abierto sigue en el completo. Páginas del
     corto: el inicio, una línea con escena (`/servicios/minecraft`) y la de preguntas, las tres que han estado más
     cerca del mínimo. Pruebas de navegador del corto: inicio, menús, cotizador, carrusel, preguntas, fuentes, idioma,
     ancho de página y política de contenido (las de accesibilidad con axe, 546 de las 1.160, quedan en el completo y
     en la puerta de clon limpio de cada push).
-16. **Sin GitHub Actions, las rebanadas 5 y 6 se subieron con la puerta de clon limpio y las tres comprobaciones del
+- **Decisión 16.** **Sin GitHub Actions, las rebanadas 5 y 6 se subieron con la puerta de clon limpio y las tres comprobaciones del
     workflow corridas desde un computador** (decisión del fundador). `verify-deploy` queda pendiente: una sola corrida
     completa sobre el `main` final cuando Actions vuelva.
-14. **JetBrains Mono conserva su precarga, contra lo pedido.** Medido en local con Lighthouse 12.6.1, con Archivo ya
+- **Decisión 14.** **JetBrains Mono conserva su precarga, contra lo pedido.** Medido en local con Lighthouse 12.6.1, con Archivo ya
     recortada: sin precarga el navegador la pide en el primer layout con prioridad máxima y Lighthouse la cuenta
     como bloqueante. Primer pintado simulado: inicio de 0,91 a 1,06 s; preguntas y Nosotros de 0,76 a 1,06 s. El LCP
     simulado es el mismo con y sin precarga (2,65 s). Quitarla es una línea (`preload: false` en
     `web/src/app/fonts.ts`), si el fundador la prefiere así por otra razón.
-6. **El título repetido entre el inicio y `/servicios` (backlog 65) sigue abierto:** no vino decidido.
+- **Decisión 6.** **El título repetido entre el inicio y `/servicios` (backlog 65) sigue abierto:** no vino decidido.
 
 ## Fuera de alcance
 
-- Borrar las ramas desechables (lo hace el fundador) y el punto de restauración de la fase 2 (lo decide él).
+- El punto de restauración de la fase 2 (lo decide el fundador). Las ramas desechables (`diag/*` y `wip/*`) se
+  borraron por orden suya al cerrar; `feat/motion-and-service-visuals` se conserva.
 - El filete de la cabecera, la franja de idioma, los títulos de grupo de la página de preguntas y los textos
   provisionales.
 - Bajar cualquier mínimo de Lighthouse o cambiar cómo se mide.
@@ -144,6 +154,9 @@ podía empezar a mitad de renglón.
 | 2 | "Cotizar", títulos junto a la escena y las dos preguntas | RF-10 a RF-31 | Puerta completa; prueba de renglones en las 22 combinaciones |
 | 3 | Rendimiento: inicio, dieta de la página de preguntas y su entrada a `verify-deploy` | RF-40 a RF-42 | Puerta completa; medida en el runner antes de `main` |
 | 4 | Contraste del rótulo y revisión de diseño en celular, con sus arreglos | RF-50, RF-51 | Puerta completa; informe de la revisión en `docs/revisiones/` |
+
+| 5 | Segunda ronda: un solo tamaño de título, cortes escritos, bronce al inicio de renglón; pregunta de las subpáginas | RF-20 a RF-26, RF-30 | Puerta completa; revisión de diseño en escritorio |
+| 6 | Tercera ronda: Archivo en dos archivos, calentamiento y `verify-deploy` en dos tamaños | RF-43 a RF-46 | Puerta completa; capturas y Lighthouse antes y después, en local |
 
 Si una rebanada no pasa `verify-deploy` tras dos intentos de arreglo: `git revert`, se documenta y se sigue con la
 siguiente que no dependa de ella. Un rojo solo por `/` con 0,94 se relanza una vez antes de contarlo como intento.
