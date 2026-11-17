@@ -64,7 +64,7 @@ export function TitleLines({ lines, accent, beside }: TitleLinesProps) {
     words.slice(from, to).map((word, offset) => {
       const position = from + offset + 1;
       const last = position === words.length;
-      const breakClass = narrow.has(position) && wide.has(position) ? "" : narrow.has(position) ? "lg:hidden" : wide.has(position) ? "max-lg:hidden" : null;
+      const breakClass = narrow.has(position) && wide.has(position) ? "" : narrow.has(position) ? "hero:hidden" : wide.has(position) ? "max-hero:hidden" : null;
       return (
         <Fragment key={position}>
           {word}

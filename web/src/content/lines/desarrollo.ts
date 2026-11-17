@@ -7,7 +7,7 @@ export const desarrollo: LinePageContent = {
   hero: {
     titleLines: { es: ["Desarrollo web y"], en: ["Web development and"] },
     titleAccent: { es: "software a la medida.", en: "custom software." },
-    titleBeside: { es: "Desarrollo web / y software / a la medida.", en: "Web development and / custom software." },
+    titleBeside: { es: "Desarrollo web y / software / a la medida.", en: "Web / development and / custom software." },
     text: {
       es: "Sitios web, tiendas online, aplicaciones web y software para tu empresa. Escuchamos cómo funciona tu negocio y construimos contigo la herramienta que necesita.",
       en: "Websites, online stores, web apps and software for your company. We listen to how your business works and build with you the tool it needs.",

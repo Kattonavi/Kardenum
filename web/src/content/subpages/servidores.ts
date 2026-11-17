@@ -8,7 +8,7 @@ export const servidores: SubpageContent = {
   hero: {
     titleLines: { es: ["Servidores y networks"], en: ["Minecraft server and"] },
     titleAccent: { es: "de Minecraft.", en: "network setup." },
-    titleBeside: { es: "Servidores y networks / de Minecraft.", en: "Minecraft server / and network setup." },
+    titleBeside: { es: "Servidores / y networks / de Minecraft.", en: "Minecraft / server and / network setup." },
     text: {
       es: "Montamos tu servidor o tu network completa: proxy, modalidades, permisos y todo conectado entre sí, listo para recibir a tus jugadores.",
       en: "We set up your server or your whole network: proxy, game modes, permissions and everything connected, ready to welcome your players.",
@@ -120,8 +120,8 @@ export const servidores: SubpageContent = {
       {
         id: "servidores-administracion",
         question: {
-          es: "¿Administran el servidor después de la entrega?",
-          en: "Do you manage the server after delivery?",
+          es: "¿Administran el servidor de Minecraft después de la entrega?",
+          en: "Do you manage the Minecraft server after delivery?",
         },
         answer: {
           es: "No. Entregamos el trabajo configurado y funcionando. Después de los 30 días de garantía, cualquier ajuste se atiende mediante una cotización nueva.",

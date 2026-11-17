@@ -34,6 +34,8 @@
   --color-chalk: #e9e8e3; /* Tiza: a well on stone */
   --color-white: #ffffff;
   --color-black: #000000;
+  /* From this width a scene fits beside the text of its page: the title at 32 px or more and its two buttons on one line (see hero-split). */
+  --breakpoint-hero: 76rem;
 }
 
 /*
@@ -418,19 +420,22 @@
 
 /*
  * First screen of a line or a sub-page (spec 013, RF-20 to RF-23): the text and, beside it on a
- * wide window, the scene, 55 to 45. There the title is sized by the width of its column (cqi), so
- * it keeps the same lines from 1024 px up: the breaks are written with the title
- * (`titleBeside`), at most three lines and none with a single word. A title with a longer line
- * takes the smaller size. On one column nothing changes: the size of every page title.
+ * wide window, the scene, 55 to 45. There the title has one size for every page, 6.5 % of the
+ * width of its column (41 px on a 1440 px window), so it keeps the same lines at every width: the
+ * breaks are written with each title (`titleBeside`). It never goes under 32 px, and the two
+ * buttons under it stay on one line (the widest pair is 568 px): the scene sits beside the text
+ * only from the width where both hold (the `hero` breakpoint, 76rem, where the title is 37 px).
+ * Below it the scene goes under the text, no wider than 40rem on a wide window, and the title has
+ * the size of every page title.
  */
 @utility hero-split {
-  @apply grid items-center gap-x-16 gap-y-12 lg:grid-cols-[minmax(0,55fr)_minmax(0,45fr)];
+  @apply grid items-center gap-x-16 gap-y-12 hero:grid-cols-[minmax(0,55fr)_minmax(0,45fr)];
 }
 
 @utility hero-text {
   @apply flex min-w-0 flex-col gap-6;
 
-  @media (min-width: 64rem) {
+  @media (min-width: 76rem) {
     container-type: inline-size;
   }
 }
@@ -438,14 +443,10 @@
 @utility title-beside {
   @apply text-[clamp(1.8125rem,4.6vw,3.625rem)];
 
-  @media (min-width: 64rem) {
-    font-size: clamp(1.5rem, var(--title-fit, 6.5cqi), 2.75rem);
+  @media (min-width: 76rem) {
+    font-size: clamp(2rem, 6.5cqi, 2.625rem);
     text-wrap: balance;
   }
-}
-
-@utility title-beside-long {
-  --title-fit: 5.2cqi;
 }
 
 /*

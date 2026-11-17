@@ -8,7 +8,7 @@ export const softwareALaMedida: SubpageContent = {
   hero: {
     titleLines: { es: ["Software"], en: ["Custom"] },
     titleAccent: { es: "a la medida.", en: "software." },
-    titleBeside: { es: "Software a la medida.", en: "Custom software." },
+    titleBeside: { es: "Software / a la medida.", en: "Custom / software." },
     text: {
       es: "Sistemas construidos alrededor de cómo opera tu empresa. Escuchamos tus procesos y reemplazamos hojas de cálculo y tareas manuales por una sola herramienta confiable.",
       en: "Systems built around how your company operates. We listen to your processes and replace spreadsheets and manual tasks with one reliable tool.",

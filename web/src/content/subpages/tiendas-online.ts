@@ -8,7 +8,7 @@ export const tiendasOnline: SubpageContent = {
   hero: {
     titleLines: { es: ["Desarrollo de"], en: ["Custom ecommerce"] },
     titleAccent: { es: "tiendas online.", en: "websites." },
-    titleBeside: { es: "Desarrollo de / tiendas online.", en: "Custom / ecommerce websites." },
+    titleBeside: { es: "Desarrollo de / tiendas online.", en: "Custom ecommerce / websites." },
     text: {
       es: "Tu catálogo, tu carrito y tus medios de pago en un solo lugar, con tu marca. Escuchamos cómo vendes hoy y construimos contigo la tienda que te deja vender sin intermediarios.",
       en: "Your catalog, your cart and your payment methods in one place, with your brand. We listen to how you sell today and build with you the store that lets you sell without middlemen.",

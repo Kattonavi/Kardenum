@@ -7,7 +7,7 @@ export const diseno: LinePageContent = {
   hero: {
     titleLines: { es: ["Identidad visual"], en: ["Brand identity"] },
     titleAccent: { es: "y diseño gráfico.", en: "and graphic design." },
-    titleBeside: { es: "Identidad visual / y diseño gráfico.", en: "Brand identity and / graphic design." },
+    titleBeside: { es: "Identidad visual / y diseño gráfico.", en: "Brand identity / and graphic design." },
     text: {
       es: "Logos, identidad de marca, presentaciones, catálogos y piezas para tus campañas. Entendemos lo que quieres transmitir y lo convertimos en una imagen que tus clientes reconocen.",
       en: "Logos, brand identity, presentations, catalogs and pieces for your campaigns. We understand what you want to convey and turn it into an image your customers recognize.",

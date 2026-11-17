@@ -1,3 +1,4 @@
+import { isGenerated } from "../src/routes";
 import { expect, test } from "./helpers";
 
 // The brand fonts are self-hosted and loaded with display: swap. While they load, a system
@@ -33,27 +34,32 @@ test("fonts are served from the site itself", async ({ page }) => {
   for (const url of fontRequests) expect(url.startsWith(origin), url).toBe(true);
 });
 
-test("nothing moves when the fonts arrive late (font swap)", async ({ page }) => {
-  // Hold every font for 600 ms so the page is first painted with the fallback fonts.
-  await page.route("**/*.woff2", async (route) => {
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    await route.continue();
+// The home page, and the pages whose title, next to its scene, has the longest written lines
+// (spec 013, RF-21): if the fallback font were wider there, a line would wrap and push the page.
+for (const pathname of ["/", "/en/services/design", "/servicios/discord", "/en/services/minecraft/tebex"]) {
+  test(`${pathname}: nothing moves when the fonts arrive late (font swap)`, async ({ page }) => {
+    test.skip(pathname.includes("/tebex") && !isGenerated("/servicios/minecraft/tebex"), "the sub-pages are hidden and this is an open site");
+    // Hold every font for 600 ms so the page is first painted with the fallback fonts.
+    await page.route("**/*.woff2", async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      await route.continue();
+    });
+    await page.goto(pathname, { waitUntil: "load" });
+    await page.evaluate(() => document.fonts.ready);
+    const shift = await page.evaluate(
+      () =>
+        new Promise<number>((resolve) => {
+          let total = 0;
+          new PerformanceObserver((list) => {
+            for (const entry of list.getEntries()) {
+              const layoutShift = entry as PerformanceEntry & { value: number; hadRecentInput: boolean };
+              if (!layoutShift.hadRecentInput) total += layoutShift.value;
+            }
+          }).observe({ type: "layout-shift", buffered: true });
+          setTimeout(() => resolve(total), 700);
+        }),
+    );
+    // Core Web Vitals asks for CLS <= 0.1 on the whole visit; the font swap gets a small share of it.
+    expect(shift).toBeLessThan(0.03);
   });
-  await page.goto("/", { waitUntil: "load" });
-  await page.evaluate(() => document.fonts.ready);
-  const shift = await page.evaluate(
-    () =>
-      new Promise<number>((resolve) => {
-        let total = 0;
-        new PerformanceObserver((list) => {
-          for (const entry of list.getEntries()) {
-            const layoutShift = entry as PerformanceEntry & { value: number; hadRecentInput: boolean };
-            if (!layoutShift.hadRecentInput) total += layoutShift.value;
-          }
-        }).observe({ type: "layout-shift", buffered: true });
-        setTimeout(() => resolve(total), 700);
-      }),
-  );
-  // Core Web Vitals asks for CLS <= 0.1 on the whole visit; the font swap gets a small share of it.
-  expect(shift).toBeLessThan(0.03);
-});
+}

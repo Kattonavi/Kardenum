@@ -46,9 +46,10 @@ test.describe("on a wide window", () => {
     for (const locale of locales) {
       const path = localizedPath(pathname, locale);
 
-      test(`${path}: RF-20, RF-21: text 55 %, scene 45 %, and the title in at most three lines with no word alone`, async ({ page }) => {
-        const words = [...hero.titleLines[locale], hero.titleAccent[locale]].join(" ").split(" ");
-        for (const width of [1024, 1280, 1440, 1920]) {
+      test(`${path}: RF-20, RF-21: beside its scene the title has one size, its written lines, and the bronze part starts a line`, async ({ page }) => {
+        const accent = hero.titleAccent[locale].split(" ");
+        // 1216 px is the narrowest window with the scene beside the text; 1215 and below stack them.
+        for (const width of [1216, 1280, 1440, 1920]) {
           await page.setViewportSize({ width, height: 900 });
           await page.goto(path);
           await page.evaluate(() => document.fonts.ready);
@@ -64,21 +65,60 @@ test.describe("on a wide window", () => {
           expect(columns?.beside, `${width} px: the scene is beside the text`).toBe(true);
           expect((columns?.text ?? 0) / ((columns?.text ?? 0) + (columns?.scene ?? 1)), `${width} px: share of the text column`).toBeCloseTo(0.55, 2);
 
+          // One size for every title: 6.5 % of the column, 41 px on a 1440 px window, never under 32 px.
+          const size = await title.evaluate((h1) => parseFloat(getComputedStyle(h1).fontSize));
+          expect(size, `${width} px: size of the title`).toBeGreaterThanOrEqual(32);
+          expect(size, `${width} px: size of the title`).toBeCloseTo((columns?.text ?? 0) * 0.065, 0);
+          if (width === 1440) expect(Math.round(size), "size of the title on a 1440 px window").toBe(41);
+
           // RF-21: the lines are the ones written with the title, at every width.
           const lines = await titleLines(page);
           const drawn = lines.map((line) => line.join(" "));
           expect(drawn, `${width} px`).toEqual(hero.titleBeside[locale].split(" / "));
-          expect(lines.length, `${width} px: lines of "${drawn.join(" / ")}"`).toBeLessThanOrEqual(3);
-          if (lines.length > 1) {
-            expect(lines.at(-1)?.length, `${width} px: the last line of "${drawn.join(" / ")}" is not a word alone`).toBeGreaterThan(1);
-            // A title of three words or fewer that does not fit in one line cannot avoid a word alone; the others can.
-            if (words.length > 3) for (const line of lines) expect(line.length, `${width} px: "${line.join(" ")}" in "${drawn.join(" / ")}"`).toBeGreaterThan(1);
+          expect(lines.length, `${width} px: lines of "${drawn.join(" / ")}"`).toBeLessThanOrEqual(4);
+          // The bronze part starts a line and is not shared with the rest of the title.
+          let fromTheEnd = 0;
+          let accentStartsLine = false;
+          for (const line of [...lines].reverse()) {
+            fromTheEnd += line.length;
+            if (fromTheEnd >= accent.length) {
+              accentStartsLine = fromTheEnd === accent.length;
+              break;
+            }
           }
+          expect(accentStartsLine, `${width} px: "${accent.join(" ")}" starts a line in "${drawn.join(" / ")}"`).toBe(true);
+          // The last line is never a short word alone. A word alone there is the whole bronze part, when it is one word.
+          const last = lines.at(-1) ?? [];
+          if (lines.length > 1 && last.length === 1) {
+            expect(accent.length, `${width} px: "${last[0]}" is alone on the last line of "${drawn.join(" / ")}"`).toBe(1);
+            expect((last[0] ?? "").length, `${width} px: "${last[0]}" is a short word alone on the last line`).toBeGreaterThan(5);
+          }
+          // The two buttons under the text share one line.
+          const buttonTops = await title.evaluate((h1) => [...(h1.parentElement?.querySelectorAll(":scope > div a") ?? [])].map((button) => Math.round(button.getBoundingClientRect().top)));
+          expect(buttonTops.length, `${width} px: buttons under the title`).toBe(2);
+          expect(new Set(buttonTops).size, `${width} px: the buttons are on one line`).toBe(1);
           // The title fits its column: nothing is cut or pushed under the scene.
           const overflow = await title.evaluate((h1) => h1.scrollWidth - h1.clientWidth);
           expect(overflow, `${width} px: the title fits its column`).toBeLessThanOrEqual(0);
         }
       });
+    }
+  }
+});
+
+test("where the text would not fit beside the scene, the scene goes under it, no wider than 640 px", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "a window between a tablet and a wide one");
+  for (const width of [1024, 1215]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const pathname of ["/servicios/discord", "/en/services/development"]) {
+      await page.goto(pathname);
+      const title = page.getByRole("heading", { level: 1 });
+      expect(await title.evaluate((h1) => parseFloat(getComputedStyle(h1).fontSize)), `${pathname} at ${width} px`).toBeGreaterThanOrEqual(32);
+      const titleBox = await title.boundingBox();
+      const sceneBox = await page.locator("[data-scene]").boundingBox();
+      expect(sceneBox?.y ?? 0, `${pathname} at ${width} px: the scene is under the title`).toBeGreaterThan((titleBox?.y ?? 0) + (titleBox?.height ?? 0));
+      expect(sceneBox?.width ?? 0, `${pathname} at ${width} px: width of the scene`).toBeLessThanOrEqual(640);
+      expect(sceneBox?.x, `${pathname} at ${width} px: the scene starts where the text starts`).toBe(titleBox?.x);
     }
   }
 });

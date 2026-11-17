@@ -206,20 +206,35 @@ test("each service sub-page is the one its line announces, with the sections of 
   }
 });
 
-test("spec 013, RF-21: next to its scene a title takes at most three lines, with the same words and none alone", () => {
+test("spec 013, RF-21: next to its scene a title keeps its words, the bronze part starts a line and no short word ends it alone", () => {
+  const lineHeroes = new Set<object>(Object.values(linePages).map((page) => page.hero));
   const heroes = [...Object.values(linePages), ...Object.values(subpages)].map((page) => page.hero);
   assert.equal(heroes.length, 11);
   for (const hero of heroes) {
     for (const locale of locales) {
-      const title = [...hero.titleLines[locale], hero.titleAccent[locale]].join(" ");
+      const accent = hero.titleAccent[locale];
+      const title = [...hero.titleLines[locale], accent].join(" ");
       const lines = hero.titleBeside[locale].split(" / ");
       assert.equal(lines.join(" "), title, `the words of "${title}"`);
-      assert.ok(lines.length >= 1 && lines.length <= 3, `"${title}" takes ${lines.length} lines`);
-      if (lines.length === 1) continue;
-      const counts = lines.map((line) => line.split(" ").length);
-      assert.ok((counts.at(-1) ?? 0) > 1, `"${title}" ends with a word alone`);
-      // A title of three words or fewer that does not fit in one line cannot avoid a word alone.
-      if (title.split(" ").length > 3) assert.ok(counts.every((count) => count > 1), `"${lines.join(" / ")}" leaves a word alone`);
+      // Three lines at most on the Spanish pages of the lines; a long title in English or on a hidden sub-page may take four.
+      const most = locale === "es" && lineHeroes.has(hero) ? 3 : 4;
+      assert.ok(lines.length >= 1 && lines.length <= most, `"${title}" takes ${lines.length} lines`);
+      // The bronze part is made of whole lines, the last ones.
+      assert.ok(
+        lines.some((_, index) => lines.slice(index).join(" ") === accent),
+        `the bronze part of "${lines.join(" / ")}" does not start a line`,
+      );
+      // A word alone on the last line is only the bronze part itself, when it is one long word.
+      const last = lines.at(-1) ?? "";
+      if (lines.length > 1 && !last.includes(" ")) assert.ok(last === accent && last.length > 5, `"${lines.join(" / ")}" ends with a short word alone`);
     }
+  }
+});
+
+test("the question about managing the server names its server wherever it is asked", () => {
+  const questions = [...Object.values(linePages), ...Object.values(subpages)].flatMap((page) => page.faq.items.map((faq) => faq.question));
+  for (const question of questions) {
+    assert.notEqual(question.es, "¿Administran el servidor después de la entrega?");
+    assert.notEqual(question.en, "Do you manage the server after delivery?");
   }
 });

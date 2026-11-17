@@ -8,7 +8,7 @@ export const plugins: SubpageContent = {
   hero: {
     titleLines: { es: ["Plugins de Minecraft"], en: ["Custom Minecraft"] },
     titleAccent: { es: "a la medida.", en: "plugins." },
-    titleBeside: { es: "Plugins de Minecraft / a la medida.", en: "Custom / Minecraft plugins." },
+    titleBeside: { es: "Plugins / de Minecraft / a la medida.", en: "Custom Minecraft / plugins." },
     text: {
       es: "Creamos el plugin que tu servidor necesita, o ajustamos el que ya tienes para que funcione como lo imaginaste. Tú nos cuentas la mecánica; nosotros la construimos contigo.",
       en: "We build the plugin your server needs, or adjust the one you already have so it works the way you imagined. You tell us the mechanic; we build it with you.",
@@ -132,8 +132,8 @@ export const plugins: SubpageContent = {
       {
         id: "plugins-administracion",
         question: {
-          es: "¿Administran el servidor después de la entrega?",
-          en: "Do you manage the server after delivery?",
+          es: "¿Administran el servidor de Minecraft después de la entrega?",
+          en: "Do you manage the Minecraft server after delivery?",
         },
         answer: {
           es: "No. Entregamos el trabajo configurado y funcionando. Después de los 30 días de garantía, cualquier ajuste se atiende mediante una cotización nueva.",

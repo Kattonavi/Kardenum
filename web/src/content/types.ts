@@ -79,9 +79,9 @@ export type LinePageContent = {
     /** Last line of the title, in bronze. */
     readonly titleAccent: Localized<string>;
     /**
-     * The same title in the lines it takes next to the scene on a wide window (spec 013, RF-21):
-     * at most three, and none with a single word when the words allow it. One text, its lines
-     * separated by " / ".
+     * The same title in the lines it takes next to the scene on a wide window (spec 013, RF-21),
+     * written by hand: one text, its lines separated by " / ". The bronze part starts a line, the
+     * last line is never a short word alone, and four lines are the most a long title takes.
      */
     readonly titleBeside: Localized<string>;
     readonly text: Localized<string>;
@@ -135,9 +135,9 @@ export type SubpageContent = {
     /** Last line of the title, in bronze. */
     readonly titleAccent: Localized<string>;
     /**
-     * The same title in the lines it takes next to the scene on a wide window (spec 013, RF-21):
-     * at most three, and none with a single word when the words allow it. One text, its lines
-     * separated by " / ".
+     * The same title in the lines it takes next to the scene on a wide window (spec 013, RF-21),
+     * written by hand: one text, its lines separated by " / ". The bronze part starts a line, the
+     * last line is never a short word alone, and four lines are the most a long title takes.
      */
     readonly titleBeside: Localized<string>;
     readonly text: Localized<string>;
