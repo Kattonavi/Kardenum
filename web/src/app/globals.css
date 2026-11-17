@@ -235,7 +235,8 @@
  * carries the name. Each one is the same utilities it replaces, nothing else.
  */
 @utility page-width {
-  @apply mx-auto w-full max-w-[1200px] px-5 lg:px-10;
+  /* 1320 px with 48 px at each side on a wide window: the page of the phase 2 mockups (spec 013, RF-1). */
+  @apply mx-auto w-full max-w-[1320px] px-5 lg:px-12;
 }
 
 /* Buttons (src/components/ui/button.ts). */
@@ -422,7 +423,7 @@
 
 /* Guessed heights of the two bands of the home page that are drawn later (band-later), by width. */
 @utility band-lines {
-  @apply [--band-size:170rem] md:[--band-size:145rem] lg:[--band-size:100rem];
+  @apply [--band-size:170rem] sm:[--band-size:205rem] md:[--band-size:145rem] lg:[--band-size:97rem] xl:[--band-size:109rem];
 }
 
 @utility band-process {
