@@ -134,8 +134,10 @@ test("the movement of the scenes and of the carousel exists only without a reduc
     const outside = sheet.css.replace(moving, "");
     const stray = [...outside.matchAll(/^\s*animation(?:-name)?\s*:[^;]+;/gm)].map((match) => `${name}: ${match[0].trim()}`);
     assert.deepEqual(stray, []);
-    // The pause control of the page (a native checkbox) stops it, without script.
-    assert.match(moving, /body:has\(\.motion-toggle > input:checked\)[^{]+\{\s*animation-play-state:\s*paused/, `${name}: the pause control stops the movement`);
+    // The pause control of the page (a native checkbox) stops it, without script. The carousel
+    // freezes where it is; a scene loses its movement, because frozen it could be left half drawn.
+    const stopped = name === "app/scenes.css" ? /animation-name:\s*none/ : /animation-play-state:\s*paused/;
+    assert.match(moving, new RegExp(String.raw`body:has\(\.motion-toggle > input:checked\)[^{]+\{\s*${stopped.source}`), `${name}: the pause control stops the movement`);
   }
 });
 

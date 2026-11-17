@@ -12,9 +12,9 @@ Este archivo se actualiza al cerrar cada rebanada: de aquí sale el informe fina
 | 3 | Carrusel | **en producción** | `2a93d0e` + `78962ae` | 44004820274: success (los tres trabajos) |
 | 4 | Inicio completo | **en producción** (verde al segundo arreglo; su margen de rendimiento volvió a fallar en la rebanada 5, ver abajo) | `3f672fd` + `d23fe40` + `68b1b80` | 44016256510: success (los tres trabajos). Antes: | 44006779132: humo y navegador success, Lighthouse contra el despliegue success, **Lighthouse sobre el build abierto failure** (rendimiento de `/`: 0,82 · 0,93 · 0,94; mínimo 0,95). Issue #3 abierto por el workflow |
 | 5 | Pie y preguntas frecuentes | **en producción** (verde tras la dieta `bb20f33`: corrida 44024408090, los tres trabajos) | `8b07a3b` + `5684ba2` + `bb20f33` | Antes: | 44017531353: humo, navegador y Lighthouse contra el despliegue success; **Lighthouse sobre el build abierto failure** en `/` (0,71 · 0,94 · 0,94) |
-| 6 | Índice de servicios y líneas | subida, verificando | `cebb917` | — |
-| 7 | Subpáginas, pie de la 404 y entrada al bajar en el resto | lista en local | — | — |
-| 8 | Revisiones del lote | pendiente | — | — |
+| 6 | Índice de servicios y líneas | **en producción** | `cebb917` | 44025551912: success (los tres trabajos) |
+| 7 | Subpáginas (tras su flag), pie de la 404 y entrada al bajar en el resto | **en producción** | `b1a3eb5` | 44026730842: success (los tres trabajos) |
+| 8 | Revisiones del lote y sus arreglos | **en producción** | ver «Rebanada 8» abajo | ver «Rebanada 8» abajo |
 
 ## Decisiones tomadas sin preguntar
 
@@ -64,6 +64,12 @@ Las diez primeras están razonadas en la spec 012 ("Decisiones"). Resumen:
 | 40 | Títulos en peso 800 en todo el sitio; mínimo del título de página de 30 a 29 px | Un solo peso de título en el sitio; en 800, "DEVELOPMENT" desbordaba 3 px a 320 px |
 | 41 | La entrada al bajar llega a las demás páginas por sus bloques compartidos | "Heredan la entrada al bajar" |
 | 42 | El pie de la 404 sigue al pie nuevo | Es un pie propio; si no, quedaba con el viejo |
+| 43 | No se cambia nada más por rendimiento esta noche: la hoja de estilos queda en 15,1 KB transferidos (500 bytes sobre su ráfaga) | Dos muestras en el runner: el exceso sube el primer pintado simulado 150 ms pero no mueve el LCP ni el puntaje. Bajarla exige cambiar cómo se cargan las fuentes; va al backlog con sus números |
+| 44 | Con la pausa, las escenas quedan completas y quietas en vez de congeladas (spec, decisión 28) | Hallazgo Medio de la revisión de código, en el control que el brief hace obligatorio: quien pausaba al llegar veía escenas a medio dibujar |
+| 45 | La cabecera no se toca aunque la revisión de diseño la marcó (botón "Cotizar" con borde y no relleno, filete inferior, franja de idioma) | El brief dice "Cabecera: la actual". Queda para que el fundador lo vea |
+| 46 | El ancho de página sigue en 1200 px (decisión 17) aunque la revisión de diseño pide los 1320 de la maqueta | Cambia todas las páginas y la cabecera, después de las revisiones y las capturas. Queda como primera cosa a decidir a ojo: es una línea en `globals.css` |
+| 47 | Las ramas desechables (`diag/*`, `wip/*`) no se borran | Borrar ramas del remoto es irreversible: lo decide el fundador. Comando en el informe |
+| 48 | Los hallazgos de texto de la revisión de SEO (una pregunta repetida en dos grupos; el título de "Lo que hacemos" igual al de `/servicios`) no se tocan | El brief no deja cambiar textos no listados. Al backlog |
 
 ## Evidencia
 
@@ -226,7 +232,87 @@ escritorio, en `/` y `/en` (882 passed, 2 failed). Tras reanudar, 63 animaciones
   de `3f672fd` y se sigue con la rebanada 5, que no depende del inicio nuevo.
 - El trabajo adelantado de la rebanada 5 está en la rama `wip/fase-2-rebanada-5` (no despliega).
 
+### Rebanadas 6 y 7 (`cebb917`, `b1a3eb5`)
+
+- Puerta de clon limpio de `cebb917`: build con 148 unitarias; humo `OK: all 1261 checks passed`; navegador
+  1026 passed, 18 skipped. Verificación oficial 44025551912: los tres trabajos en verde.
+- Puerta de clon limpio de `b1a3eb5`: humo `OK: all 1285 checks passed`; navegador 1124 passed, 18 skipped.
+  Verificación oficial 44026730842: los tres trabajos en verde.
+- Todas las páginas caben en la primera ráfaga salvo la de preguntas (ver riesgos): `/` 14.225 bytes transferidos,
+  `/en` 14.014, `/servicios` 11.867, `/servicios/minecraft` 12.765, `/nosotros` 10.553, `/contacto` 11.718,
+  `/legal/privacidad` 10.341.
+
+### Lighthouse por página, commit `b1a3eb5`, en el runner (corrida 44026678030, rama de diagnóstico)
+
+Build abierto del mismo commit, tres pasadas por página, misma configuración que `verify-deploy`. Accesibilidad,
+buenas prácticas y SEO: **1,00 en las 14 páginas y en las 42 pasadas**. CLS: **0 en todas**. Rendimiento y LCP
+simulado (el observado va de 0,14 a 0,23 s):
+
+| Página | Rendimiento (3 pasadas) | LCP simulado (s) | TBT (ms) | Documento (bytes) |
+|---|---|---|---|---|
+| `/` | 0,87 · 0,95 · 0,96 | 2,90 · 2,88 · 2,74 | 368 · 51 · 45 | 14.129 |
+| `/en` | 0,96 · 0,96 · 0,96 | 2,73 · 2,74 · 2,74 | 75 · 91 · 46 | 13.918 |
+| `/servicios` | 0,96 · 0,98 · 0,95 | 2,73 · 2,43 · 2,87 | 87 · 38 · 32 | 11.750 |
+| `/en/services` | 0,96 · 0,96 · 0,96 | 2,72 · 2,72 · 2,72 | 36 · 33 · 39 | 11.618 |
+| `/servicios/desarrollo` | 0,96 · 0,95 · 0,96 | 2,72 · 2,89 · 2,72 | 37 · 34 · 40 | 12.725 |
+| `/servicios/diseno` | 0,96 · 0,95 · 0,96 | 2,73 · 2,87 · 2,73 | 33 · 49 · 43 | 12.054 |
+| `/servicios/video` | 0,95 · 0,96 · 0,96 | 2,88 · 2,75 · 2,72 | 56 · 52 · 42 | 11.877 |
+| `/servicios/minecraft` | 0,96 · 0,96 · 0,96 | 2,75 · 2,72 · 2,73 | 51 · 43 · 75 | 12.643 |
+| `/servicios/discord` | 0,95 · 0,96 · 0,96 | 2,88 · 2,75 · 2,72 | 39 · 34 · 36 | 12.253 |
+| `/preguntas-frecuentes` | 0,95 · 0,95 · 0,95 | 2,87 · 2,87 · 2,87 | 98 · 53 · 97 | 16.446 |
+| `/en/faq` | 0,94 · 0,95 · 0,95 | 3,02 · 2,87 · 2,87 | 36 · 34 · 72 | 16.069 |
+| `/nosotros` | 0,96 · 0,96 · 0,98 | 2,72 · 2,71 · 2,42 | 42 · 68 · 27 | 10.424 |
+| `/contacto` | 0,96 · 0,96 · 0,96 | 2,73 · 2,73 · 2,75 | 49 · 49 · 50 | 11.611 |
+| `/legal/privacidad` | 0,96 · 0,98 · 0,96 | 2,74 · 2,43 · 2,74 | 52 · 37 · 50 | 10.228 |
+
+La primera pasada de `/` (0,87) es la del servidor recién arrancado: pasa siempre y no es del inicio (ver riesgos).
+INP no lo mide Lighthouse sin interacción; el sitio casi no ejecuta script (TBT de 30 a 100 ms con CPU limitada).
+
+### Rebanada 8: revisiones del lote (sobre `b1a3eb5`)
+
+Cinco revisores, cada uno con la spec y el código, no con conclusiones. **Ningún hallazgo Crítico. Un Alto, de
+diseño, que no se aplica porque contradice el brief** (decisión 45).
+
+| Revisión | Veredicto | Hallazgos |
+|---|---|---|
+| Código (veredicto del lote) | **APROBADO** | 0 Crítico · 0 Alto · 1 Medio (la pausa congelaba piezas invisibles) · 7 Bajo |
+| Seguridad | **NO BLOQUEA** | 0 Crítico · 0 Alto · 0 Medio · 0 Bajo · 2 Info |
+| Navegador (Chromium real, 320 a 1920 px) | sin fallas Crítico, Alto ni Medio | 2 Bajo. Los 9 puntos pasan: carrusel, movimiento reducido, sin script, menús, zoom 200 %, tarjetas, preguntas, áreas de 44 px, consola y CSP limpias |
+| SEO técnico | **no rompe SEO** | 0 Crítico · 0 Alto · 1 Medio y 1 Bajo de texto · 1 Bajo de vigilancia · 3 Info |
+| Diseño contra las maquetas | **FIEL CON AJUSTES** | 1 Alto (cabecera: fuera del encargo) · 4 Medio · 2 Bajo |
+
+Aplicado en la rebanada 8:
+
+- **Código, Medio:** la pausa deja las escenas completas (decisión 44). Medido por el revisor antes del arreglo: al
+  pausar a los 100 ms quedaban ocultos los 6 productos de la tienda; a los 700 ms, 4. Las pruebas de pausa ahora
+  comprueban que ninguna pieza queda transparente ni aplastada, con script y sin él.
+- **Código, Bajo:** comentarios que citaban una decisión inexistente ("32", es la 20) y el del desplegable de
+  Servicios, que decía que sus enlaces venían en el HTML. La prueba "la página de preguntas no está en el menú"
+  ahora abre el menú de celular y el desplegable antes de mirar (su contenido solo existe abierto).
+- **Diseño, Medio:** en celular la flecha del enlace a las preguntas quedaba sola al borde derecho; ahora baja con
+  la última palabra (decisión 29 de la spec).
+
+Probado y descartado: el pie en una sola fila a 1280 px (como la maqueta) cabe bajando la separación, pero los dos
+grupos de enlaces quedan pegados y se leen como uno. La causa es el ancho de página (decisión 46).
+
+No aplicado, al backlog (ítems 57 a 71 de `docs/BACKLOG.md`): todo lo demás.
+
 ## Riesgos medidos y abiertos
+
+- **La página de preguntas no cabe en la primera ráfaga** (16.446 bytes en español, 16.069 en inglés: lleva 23
+  respuestas). En el runner da 0,95 · 0,95 · 0,95 y, en inglés, 0,94 · 0,95 · 0,95: pasa sin margen. No está entre
+  las siete páginas que mide `verify-deploy`, así que hoy nada la vigila.
+- **El inicio pasa con margen corto y vigilado:** su documento tiene 356 bytes libres en español (lo comprueba la
+  prueba de humo). Completar los datos de contacto (correo, WhatsApp, Discord, redes) cambia el cierre y el pie de
+  todas las páginas: si el humo avisa, hay que recortar en otra parte.
+- **La primera pasada de `/` en el runner siempre sale fría** (0,71 a 0,90, TBT de 270 a 820 ms): la mediana de `/`
+  depende de que sus otras dos pasadas pasen las dos. Con la dieta lo hacen (cinco de seis en 0,96, una en 0,95).
+- **La hoja de estilos pesa 15.100 bytes transferidos**, 500 sobre su propia ráfaga: el primer pintado simulado de
+  todas las páginas pasó de 0,78 a 0,92 s. No movió el LCP ni el puntaje en tres corridas.
+
+Lo que sigue son los riesgos anotados en la rebanada 4, antes de la dieta del documento; se conservan como
+registro (el de los bytes por documento quedó resuelto para todas las páginas menos la de preguntas).
+
 
 - **Auditoría "font-size" de Lighthouse (buenas prácticas):** cuenta como ilegible todo texto de menos de 12 px,
   también el dibujado por CSS dentro de las escenas (en un celular miden unos 5 px). Falla si menos del 60 % del
@@ -247,7 +333,8 @@ escritorio, en `/` y `/en` (882 passed, 2 failed). Tras reanudar, 63 animaciones
 
 ## Pendiente para el backlog
 
-(se pasa a `docs/BACKLOG.md` al cerrar el lote)
+Pasado a `docs/BACKLOG.md` al cerrar el lote (ítems 57 a 71; el 13 y el 40 quedan cerrados). Lo de abajo es el
+registro de cómo se fue anotando durante la noche.
 
 - **Documento del inicio bajo 14.600 bytes** (hoy 16.935 en `/` y 16.722 en `/en`): quita la ida y vuelta extra
   que simula Lighthouse (150 ms de LCP) y da margen al rendimiento del build abierto. Emulado: acortar todas las
@@ -263,4 +350,25 @@ escritorio, en `/` y `/en` (882 passed, 2 failed). Tras reanudar, 63 animaciones
 
 ## Páginas que conviene revisar a ojo
 
-(se llena al cerrar cada rebanada)
+Capturas de la noche en `.impeccable/review/fase-2/` (74; la carpeta no se versiona): maquetas y sitio por
+pantallas, a 1440 y 390 px.
+
+1. **Inicio, a 1440 px, al lado de la maqueta** (`/`): el contenido mide 1120 px de ancho y el de la maqueta 1224
+   (decisión 46). Se nota en que los títulos de banda y los pasos del proceso se parten en más renglones, y en que
+   el pie ocupa dos filas en vez de una. Si se prefiere el ancho de la maqueta, es una línea (`page-width` en
+   `web/src/app/globals.css`: `max-w-[1320px]` y `lg:px-12`) y mueve todas las páginas y la cabecera.
+2. **Cabecera** (cualquier página): la maqueta dibuja "Cotizar" relleno en bronce y sin filete debajo; el sitio
+   conserva la cabecera actual, como pide el brief (decisión 45).
+3. **Primera pantalla de una línea** (`/servicios/desarrollo`, `/servicios/minecraft`): con la escena al lado, el
+   título ocupa cuatro renglones ("DESARROLLO / WEB Y / SOFTWARE A / LA MEDIDA."). Alternativas: título más
+   pequeño en esa pantalla, o escena debajo del texto también en escritorio.
+4. **Subpáginas** (ocultas tras su flag; para verlas hay que entrar por su dirección, por ejemplo
+   `/servicios/desarrollo/tiendas-online`): el mismo caso, con "DE" solo en un renglón.
+5. **Carrusel en celular** (`/` a 390 px): con la franja "This site is also available in English" arriba, la
+   escena del carrusel apenas asoma en la primera pantalla. Sin la franja entra entera.
+6. **Pausar animación** (`/`, botón bajo el carrusel): al pausar, el carrusel se queda donde está y las escenas
+   pasan a su dibujo completo (decisión 44). Conviene verlo una vez para confirmar que es lo esperado.
+7. **Índice de servicios** (`/servicios`): cinco tarjetas en Tinta, tres arriba y dos más anchas abajo.
+8. **Preguntas frecuentes** (`/preguntas-frecuentes`): "¿Administran el servidor después de la entrega?" aparece
+   en el grupo de Minecraft y en el de Discord, con respuestas distintas. Es el texto que venía de cada línea.
+9. **404** (cualquier dirección inexistente): pie nuevo y título en el peso nuevo.

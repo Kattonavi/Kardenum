@@ -154,6 +154,10 @@ Cada una queda también en la bitácora, con su fecha.
       un atributo: una prueba unitaria exige que cada palabra en español tenga su par en inglés.
     - **El interior de cada escena es un fragmento de HTML fijo por línea** (`scene.tsx`), no un árbol de
       elementos de React: como elementos, las escenas ocupaban una cuarta parte del documento.
+21. **Lo que no se ve al cargar se calcula después:** las bandas del inicio bajo el carrusel, y el cierre y el pie
+    de todas las páginas, llevan `content-visibility: auto`. El primer layout del inicio era una tarea larga que
+    Lighthouse contaba como bloqueo en el runner. En el inicio los saltos a un ancla son directos, no suaves, para
+    caer siempre en el ancla (las bandas de arriba tienen altura estimada hasta que se dibujan).
 22. **Índice de servicios en Tinta, con las mismas tarjetas del inicio.** Cinco tarjetas: tres en la primera fila y
     dos, más anchas, en la segunda (en una ventana ancha), para que ninguna fila quede corta. La orientación
     "¿No sabes cuál necesitas?" sigue debajo, sobre Piedra. El control de pausa va sobre la rejilla.
@@ -170,10 +174,12 @@ Cada una queda también en la bitácora, con su fecha.
     legales, índices de portafolio y guías).
 27. **El pie de la 404 sigue al pie del sitio** (es un pie propio y estático: esa página reemplaza al layout):
     sin separadores y con el enlace a Preguntas frecuentes.
-21. **Lo que no se ve al cargar se calcula después:** las bandas del inicio bajo el carrusel, y el cierre y el pie
-    de todas las páginas, llevan `content-visibility: auto`. El primer layout del inicio era una tarea larga que
-    Lighthouse contaba como bloqueo en el runner. En el inicio los saltos a un ancla son directos, no suaves, para
-    caer siempre en el ancla (las bandas de arriba tienen altura estimada hasta que se dibujan).
+28. **Pausar no congela una escena a medio dibujar** (hallazgo de la revisión de código): con la pausa, las piezas
+    de una escena dejan de animarse y quedan en su sitio, que es la composición completa (la misma que ve quien
+    pide menos movimiento). Congeladas, las piezas que aún no habían entrado quedaban invisibles: quien pausaba al
+    llegar veía la tienda sin productos. El carrusel sí se congela donde está.
+29. **En el enlace a las preguntas del cierre, la última palabra y la flecha bajan juntas** cuando el texto no cabe
+    en un renglón (celular). En la maqueta la flecha queda sola en un renglón.
 
 ## Fuera de alcance
 

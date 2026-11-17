@@ -441,7 +441,7 @@ for (const locale of locales) {
   const html = decode(page.body);
   const missingLines = serviceLines.filter((line) => !html.includes(line.name[locale]) || !html.includes(line.summary[locale]));
   check(`[${locale}] the five service lines are in the HTML`, missingLines.length === 0, missingLines.map((line) => line.id).join(", "));
-  // The document of the home page fits in the first TCP flight (spec 012, decision 32): 14,600
+  // The document of the home page fits in the first TCP flight (spec 012, decision 20): 14,600
   // bytes with the response headers, which take about 1,040. Over that, Lighthouse counts one more
   // round trip (150 ms of simulated LCP) and the performance of the open build falls under its
   // minimum. Measured the same way on any server: the body as written, gzip at the default level.

@@ -228,7 +228,7 @@
 }
 
 /*
- * Named looks (spec 012, decision 32). A long list of utility classes is written twice in every
+ * Named looks (spec 012, decision 20). A long list of utility classes is written twice in every
  * page: in the HTML and in the data Next sends along for the browser. On the home page that pushed
  * the document over what fits in the first TCP flight (14,600 bytes), and Lighthouse counts one
  * more round trip for it. A look that repeats, or that is long, gets a name here and the page
@@ -390,7 +390,17 @@
 
 /* A link in the label face, underlined (the way to the questions from the closing band). */
 @utility text-link {
-  @apply inline-flex min-h-11 items-center gap-2 font-mono text-xs tracking-[0.12em] text-(--muted-text) uppercase underline underline-offset-4 transition-colors duration-150 hover:text-(--accent-text);
+  /* A block of running text, not a row: when it takes two lines on a phone, the last word and
+     the arrow go down together. One line is 18 px tall; with the padding the target is 46 px. */
+  @apply inline-block py-3.5 font-mono text-xs leading-normal tracking-[0.12em] text-(--muted-text) uppercase underline underline-offset-4 transition-colors duration-150 hover:text-(--accent-text);
+
+  & > span {
+    @apply whitespace-nowrap;
+  }
+
+  & svg {
+    @apply ml-2 inline align-[-0.2em];
+  }
 }
 
 /* Home page: a line with its scene on one side and its text on the other; a step of the process. */

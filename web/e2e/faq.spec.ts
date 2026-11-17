@@ -38,9 +38,22 @@ test("the footer leads to the questions page, in each language", async ({ page }
   expect(await page.getByRole("heading", { level: 1 }).evaluate((h1) => h1.textContent)).toBe("Clarity before we start.");
 });
 
-test("the questions page is not in the menu", async ({ page }) => {
+test("the questions page is not in the menu", async ({ page }, testInfo) => {
   await page.goto("/");
-  await expect(page.getByRole("banner").locator('a[href="/preguntas-frecuentes"]')).toHaveCount(0);
+  const link = 'a[href="/preguntas-frecuentes"]';
+  await expect(page.getByRole("banner").locator(link)).toHaveCount(0);
+  // The content of each menu is drawn when it opens: it is looked at open.
+  if (testInfo.project.name === "mobile") {
+    await page.getByRole("button", { name: "Abrir menú" }).click();
+    const dialog = page.getByRole("dialog", { name: "Menú" });
+    await expect(dialog.getByRole("link").first()).toBeVisible();
+    await expect(dialog.locator(link)).toHaveCount(0);
+  } else {
+    const services = page.getByRole("banner").getByRole("button", { name: "Servicios" });
+    await services.click();
+    await expect(services).toHaveAttribute("aria-expanded", "true");
+    await expect(page.getByRole("banner").locator(link)).toHaveCount(0);
+  }
 });
 
 test("every question is there: the seven general ones first, then one group per line", async ({ page }) => {

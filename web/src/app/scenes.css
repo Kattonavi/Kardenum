@@ -1376,10 +1376,15 @@
     animation-delay: 0.4s;
   }
 
-  /* The pause control of the page stops every scene on it (WCAG 2.2.2). */
+  /*
+   * The pause control of the page stops every scene on it (WCAG 2.2.2). It takes their movement
+   * away instead of freezing it: frozen, a piece stays at the frame it was in, and one that had
+   * not come in yet (or was between two turns of its loop) would stay out of the picture. Without
+   * its animation every piece is in place: the complete picture, the same one reduced motion shows.
+   */
   body:has(.motion-toggle > input:checked) .scene-frame *,
   body:has(.motion-toggle > input:checked) .scene-frame *::before,
   body:has(.motion-toggle > input:checked) .scene-frame *::after {
-    animation-play-state: paused;
+    animation-name: none;
   }
 }

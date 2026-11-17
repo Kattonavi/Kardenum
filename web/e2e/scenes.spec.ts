@@ -45,6 +45,23 @@ async function openScenes(page: Page, path: string): Promise<Locator> {
  * on the CI runner, where 63 animations of scenes that had left the screen still said "paused"
  * after the page had resumed (verify-deploy run 44013432702).
  */
+/**
+ * Pieces of the scenes that are not whole: transparent, or squashed to nothing. A piece left at
+ * the first or last keyframe of its animation would be one of them.
+ */
+function missingPieces(scenes: Locator): Promise<string[]> {
+  return scenes.evaluateAll((all) =>
+    all.flatMap((scene) =>
+      [...scene.querySelectorAll<HTMLElement>("*")]
+        .filter((piece) => {
+          const style = getComputedStyle(piece);
+          return style.opacity !== "1" || /matrix\(0, |, 0, 0, 0\)|scale\(0/.test(style.transform);
+        })
+        .map((piece) => `${scene.getAttribute("data-scene")}: .${piece.className}`),
+    ),
+  );
+}
+
 function sceneAnimations(page: Page, within = "body"): Promise<{ running: number; paused: number }> {
   return page.evaluate((selector) => {
     const root = document.querySelector(selector);
@@ -102,7 +119,7 @@ for (const [path, lines] of Object.entries(PAGES)) {
     });
 
     test("the scenes move, and the control of the page pauses and resumes all of them", async ({ page }) => {
-      await openScenes(page, path);
+      const scenes = await openScenes(page, path);
       await expect.poll(async () => (await sceneAnimations(page)).running).toBeGreaterThan(0);
 
       const pause = page.getByRole("checkbox", { name: path.startsWith("/en") ? "Pause animation" : "Pausar animación" });
@@ -114,15 +131,17 @@ for (const [path, lines] of Object.entries(PAGES)) {
       await pause.focus();
       await page.keyboard.press("Space");
       await expect(pause).toBeChecked();
-      await expect.poll(() => sceneAnimations(page)).toMatchObject({ running: 0 });
-      expect((await sceneAnimations(page)).paused).toBeGreaterThan(0);
+      // Paused right after arriving, when most pieces have not come in yet: a scene does not
+      // freeze half drawn, it shows its complete picture.
+      await expect.poll(() => sceneAnimations(page)).toEqual({ running: 0, paused: 0 });
+      expect(await missingPieces(scenes)).toEqual([]);
 
-      // A scene further down is only drawn when the visitor gets to it: it arrives paused too.
+      // A scene further down is only drawn when the visitor gets to it: it arrives still too.
       const last = page.locator("[data-scene]").last();
       await last.evaluate((scene) => scene.setAttribute("data-last-scene", ""));
       await last.scrollIntoViewIfNeeded();
-      await expect.poll(() => sceneAnimations(page, "[data-last-scene]")).toMatchObject({ running: 0 });
-      await expect.poll(async () => (await sceneAnimations(page, "[data-last-scene]")).paused).toBeGreaterThan(0);
+      await expect.poll(() => sceneAnimations(page, "[data-last-scene]")).toEqual({ running: 0, paused: 0 });
+      expect(await missingPieces(page.locator("[data-last-scene]"))).toEqual([]);
 
       // Resumed from where the visitor is (a click on the control, without scrolling back to it):
       // what is on screen moves again at once.
@@ -140,18 +159,7 @@ for (const [path, lines] of Object.entries(PAGES)) {
       test("nothing moves, every piece of each scene is drawn and there is nothing to pause", async ({ page }) => {
         const scenes = await openScenes(page, path);
         expect(await sceneAnimations(page)).toEqual({ running: 0, paused: 0 });
-        // A piece left at the first or last keyframe of its animation would be transparent or squashed.
-        const hidden = await scenes.evaluateAll((all) =>
-          all.flatMap((scene) =>
-            [...scene.querySelectorAll<HTMLElement>("*")]
-              .filter((piece) => {
-                const style = getComputedStyle(piece);
-                return style.opacity !== "1" || /matrix\(0, |, 0, 0, 0\)|scale\(0/.test(style.transform);
-              })
-              .map((piece) => `${scene.getAttribute("data-scene")}: .${piece.className}`),
-          ),
-        );
-        expect(hidden).toEqual([]);
+        expect(await missingPieces(scenes)).toEqual([]);
         await expect(page.getByRole("checkbox", { name: /Pausar animación|Pause animation/ })).toBeHidden();
       });
     });
@@ -197,9 +205,10 @@ test.describe("before any script runs", () => {
 
   test("the pause control already works", async ({ page }) => {
     await openScenes(page, "/");
+    const scenes = page.locator("[data-scene]");
     const pause = page.getByRole("checkbox", { name: "Pausar animación" });
     await pause.check();
-    await expect.poll(() => sceneAnimations(page)).toMatchObject({ running: 0 });
-    expect((await sceneAnimations(page)).paused).toBeGreaterThan(0);
+    await expect.poll(() => sceneAnimations(page)).toEqual({ running: 0, paused: 0 });
+    expect(await missingPieces(scenes)).toEqual([]);
   });
 });

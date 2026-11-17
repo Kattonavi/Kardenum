@@ -19,8 +19,9 @@ type ServicesMenuProps = {
  * It comes from the server as a link to the services page and its script turns it into the
  * button of the panel: if the script is late or never loads, the click still leads there.
  * Tab moves through the links in order, Escape closes and returns focus to the button,
- * and it closes when focus or a click lands outside. The panel is in the HTML even when
- * closed, so its links are there without JavaScript-rendered content.
+ * and it closes when focus or a click lands outside. The links of the panel are drawn when it
+ * opens (spec 012, decision 20: closed, they weighed on every page); without script the same
+ * links are in the footer, and this control leads to the services page.
  */
 export function ServicesMenu({ label, lines, allServicesLabel, unsureLabel }: ServicesMenuProps) {
   const [open, setOpen] = useState(false);

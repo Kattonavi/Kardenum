@@ -51,6 +51,8 @@ export function ContactCta({ first = "whatsapp", community = false, line, lines 
   const lineOfPage = line ? serviceLines.find((candidate) => candidate.id === line) : undefined;
   const faqHref = `${localizedPath("/preguntas-frecuentes", appLocale)}${lineOfPage ? `#${faqAnchor(lineOfPage, appLocale)}` : ""}`;
   const writtenEmail = isMinecraftPage(lines) ? getWrittenEmail() : null;
+  const faqText = t("faq");
+  const lastWord = faqText.lastIndexOf(" ") + 1;
 
   return (
     // Never on the first screen: laid out when the visitor comes near (band-later, globals.css).
@@ -100,8 +102,12 @@ export function ContactCta({ first = "whatsapp", community = false, line, lines 
               data-faq-link
               className="text-link"
             >
-              {t("faq")}
-              <ArrowRightIcon size={14} />
+              {faqText.slice(0, lastWord)}
+              {/* The last word never leaves the arrow alone on a line of its own. */}
+              <span>
+                {faqText.slice(lastWord)}
+                <ArrowRightIcon size={14} />
+              </span>
             </a>
           ) : null}
         </section>

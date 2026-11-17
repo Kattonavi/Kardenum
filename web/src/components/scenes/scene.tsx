@@ -9,7 +9,7 @@ import type { ServiceLineId } from "@/content/types";
  * Server component, no script. Limits of what a scene may show: no client names, no result
  * figures, no official Minecraft art, no Discord logo or exact interface.
  *
- * Two things here are shaped by the weight of the page (spec 012, decisions 11 and 32; the home
+ * Two things here are shaped by the weight of the page (spec 012, decisions 11 and 20; the home
  * page shows thirteen scenes and its document has to fit in the first TCP flight):
  *
  * - The words inside a scene are not in the document: the stylesheet draws them, in the language
