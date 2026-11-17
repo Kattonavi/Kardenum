@@ -50,3 +50,9 @@ Este archivo solo agrega o endurece; nunca relaja.
 - Código con barras invertidas (regex) se escribe con Write/Edit, nunca con heredoc de Bash.
 - Las URL absolutas salen de `absoluteUrl()` / `getSiteUrl()` (variable `SITE_URL`), nunca de `siteConfig.url`.
 - En los títulos con `<br>` va un espacio antes de cada salto, para que el texto no quede pegado sin él.
+- **GitHub Actions cuesta minutos (regla del fundador, 2026-11-17):** `verify-deploy` corre solo y en corto tras cada
+  despliegue (unos 7 min); el completo (unos 30 min) se lanza a mano con `gh workflow run verify-deploy.yml --ref main`
+  y es obligatorio antes del lanzamiento. **No se lanzan corridas de diagnóstico en Actions sin pedírselo al
+  fundador:** se mide en local (Lighthouse 12.6.1 contra `pnpm start`, comparando dos builds en la misma máquina).
+- **Archivo se sirve en dos archivos** (`web/src/assets/fonts/README.md`): si el build falla por un carácter que no
+  está en el archivo base, se corre `py -3 scripts/subset-archivo.py` y se copian los dos rangos que imprime.

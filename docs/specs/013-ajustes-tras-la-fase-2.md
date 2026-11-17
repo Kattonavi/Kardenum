@@ -59,9 +59,10 @@ podía empezar a mitad de renglón.
 | RF-40 | El inicio DEBE aligerarse sin cambiar lo que se ve: capturas idénticas antes y después a 1280 y 390 px, y un resultado en el runner que no sea peor que el de hoy. Lo que tenga riesgo se propone y no se aplica. |
 | RF-41 | `verify-deploy` DEBE medir `/preguntas-frecuentes` y `/en/faq` con el mismo mínimo que las demás páginas. |
 | RF-42 | El documento de la página de preguntas DEBE caber en la primera ráfaga de TCP (14.600 bytes transferidos) en los dos idiomas, y la prueba de humo DEBE vigilarlo. |
-| RF-43 | La fuente Archivo DEBE servirse recortada a los ejes, pesos y caracteres que usa el sitio, sin cambiar lo que se ve. SI un texto del sitio usa un carácter que el recorte perdió, ENTONCES el build DEBE fallar. |
+| RF-43 | La fuente Archivo DEBE servirse en dos archivos: uno base, recortado a los ejes, pesos y caracteres que usa el sitio, que cargan todas las páginas; y uno con el resto del latín, con `unicode-range`, que el navegador baja solo donde se muestra una de esas letras. Ninguna página del sitio DEBE pedir el segundo. SI un texto del sitio usa un carácter que no está en el base, ENTONCES el build DEBE fallar. |
 | RF-44 | ~~JetBrains Mono NO DEBE precargarse.~~ Pedido por el fundador, probado y **no aplicado**: empeora el primer pintado y no mejora el LCP (decisión 14). Queda a su decisión. |
 | RF-45 | ANTES de medir, `verify-deploy` DEBE hacer una petición a cada página que mide, en el mismo orden. El orden de las páginas, el número de pasadas y el mínimo NO DEBEN cambiar. |
+| RF-46 | `verify-deploy` DEBE tener dos tamaños. Corto, tras cada despliegue: humo, Lighthouse del inicio y de dos páginas más, y un subconjunto de las pruebas de navegador. Completo, solo a mano (`workflow_dispatch`): todo lo que corría antes; es obligatorio antes del lanzamiento. Los paquetes de pnpm y los navegadores de Playwright DEBEN ir en caché. NO se lanzan corridas de diagnóstico en Actions sin pedirlo al fundador: se mide en local. |
 
 ### F · Carrusel y revisión de diseño
 
@@ -98,16 +99,28 @@ podía empezar a mitad de renglón.
    Términos incluida (`docs/revisiones/fase-2b-diseno-celular.md`). El título junto a la escena tuvo además su
    revisión en escritorio (`docs/revisiones/fase-2b-diseno-titulos.md`).
 5. ~~Las preguntas de las subpáginas no se tocan.~~ Decidido después por el fundador: llevan el mismo cambio (RF-30).
-11. **El recorte de Archivo deja fuera las letras de otros idiomas** (ã, ç, è, ö…): 40,5 KB con lo que usa el sitio
-    más todo el español; 44,4 KB con las letras del portugués y el francés; 52,2 KB con todo el bloque Latin-1. Hasta
-    42,9 KB el archivo llega en dos ráfagas de TCP; por encima, en tres, igual que el de 90 KB. Un visitante que
-    escriba "João" en el cotizador ve esa letra en la fuente del sistema. Los textos del sitio nunca: el build falla
-    antes (`web/src/lib/fonts.test.ts`).
+11. **Las letras de otros idiomas van en un segundo archivo** (decisión del fundador, tercera ronda). El base se
+    queda como estaba (40,5 KB: lo que usa el sitio más todo el español; hasta 42,9 KB llega en dos ráfagas de TCP).
+    El segundo, `Archivo-ext.woff2` (73,8 KB, 436 caracteres: el resto de Latin-1, latín extendido A, B y adicional,
+    puntuación y monedas), se recorta de la fuente completa de google/fonts y lleva `unicode-range`: el navegador lo
+    baja solo si la página muestra una de esas letras, como un "João" escrito en el cotizador. El base declara el
+    rango exacto de sus caracteres. Un carácter que los textos usan y la fuente latina no tenía (la flecha "→") queda
+    fuera de los dos y se dibuja con la fuente del sistema, como siempre. Costo para todas las páginas: 0,5 KB más de
+    hoja de estilos (los dos rangos); ni el documento ni las fuentes que baja el inicio cambian.
 12. **El calentamiento también abre una vez el navegador que mide.** Medido en el runner: al arrancar otra vez el
     servidor en el mismo trabajo la pasada lenta no vuelve, así que el costo está en el primer arranque del navegador
     tanto como en las primeras peticiones. `web/scripts/warm-up.mjs` hace las dos cosas y no cambia qué se mide.
 13. **Al tocar el workflow se arregló que no guardaba los informes de Lighthouse** (backlog 63:
     `include-hidden-files: true`).
+15. **El `verify-deploy` corto mide Lighthouse contra el despliegue, no sobre el build abierto.** El build abierto
+    cuesta un build completo en cada despliegue y es lo que se quería ahorrar; queda en el completo. Páginas del
+    corto: el inicio, una línea con escena (`/servicios/minecraft`) y la de preguntas, las tres que han estado más
+    cerca del mínimo. Pruebas de navegador del corto: inicio, menús, cotizador, carrusel, preguntas, fuentes, idioma,
+    ancho de página y política de contenido (las de accesibilidad con axe, 546 de las 1.160, quedan en el completo y
+    en la puerta de clon limpio de cada push).
+16. **Sin GitHub Actions, las rebanadas 5 y 6 se subieron con la puerta de clon limpio y las tres comprobaciones del
+    workflow corridas desde un computador** (decisión del fundador). `verify-deploy` queda pendiente: una sola corrida
+    completa sobre el `main` final cuando Actions vuelva.
 14. **JetBrains Mono conserva su precarga, contra lo pedido.** Medido en local con Lighthouse 12.6.1, con Archivo ya
     recortada: sin precarga el navegador la pide en el primer layout con prioridad máxima y Lighthouse la cuenta
     como bloqueante. Primer pintado simulado: inicio de 0,91 a 1,06 s; preguntas y Nosotros de 0,76 a 1,06 s. El LCP
@@ -148,6 +161,6 @@ siguiente que no dependa de ella. Un rojo solo por `/` con 0,94 se relanza una v
 | RF-41 | `web/lighthouserc.cjs` · corrida de `verify-deploy` |
 | RF-42 | `pnpm smoke` |
 | RF-43, RF-44 | `web/src/lib/fonts.test.ts` · `web/e2e/fonts.spec.ts` · capturas antes y después |
-| RF-45 | `.github/workflows/verify-deploy.yml` · `web/scripts/warm-up.mjs` (solo se puede probar entero en GitHub Actions) |
+| RF-45, RF-46 | `.github/workflows/verify-deploy.yml` · `web/scripts/warm-up.mjs` · `web/lighthouse-paths.cjs` · `pnpm test:e2e:short` (el workflow solo se puede probar entero en GitHub Actions) |
 | RF-50 | `web/e2e/carousel.spec.ts` |
 | RF-51 | `docs/revisiones/fase-2b-diseno-celular.md` |
