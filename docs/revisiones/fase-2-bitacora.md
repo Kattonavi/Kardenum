@@ -46,6 +46,8 @@ Las diez primeras están razonadas en la spec 012 ("Decisiones"). Resumen:
 | 22 | Entre la rebanada 4 y la 5 las siete preguntas generales no están en ninguna página | El brief saca las preguntas del inicio en la 4 y crea su página en la 5; el sitio sigue cerrado a buscadores |
 | 23 | La galería de prueba se retira al cerrar la rebanada 4 | El inicio real ya lleva escenas y carrusel: las mismas pruebas corren contra `/` y `/en`, también en `verify-deploy` |
 | 24 | En celular, el nombre de la pestaña del carrusel sale antes de que entre el siguiente (la maqueta los cruza) | Dos nombres encimados durante el cruce no se leen |
+| 25 | Rama desechable `diag/lighthouse-open` con un workflow propio que repite "lighthouse-open" e imprime las métricas de cada pasada | `verify-deploy` solo dice pasa o falla y no guarda los informes; así se mide en el runner sin desplegar, sin abrir issues y sin tocar el workflow real. No se fusiona; se borra al cerrar el lote |
+| 26 | En el inicio, las bandas bajo el carrusel se dibujan al acercarse (`content-visibility: auto`) y los saltos a un ancla son directos, no suaves | Arreglo del fallo de `verify-deploy` de la rebanada 4 (tiempo de bloqueo en el runner) |
 
 ## Evidencia
 
@@ -110,6 +112,48 @@ Las diez primeras están razonadas en la spec 012 ("Decisiones"). Resumen:
   recalculaciones de estilo por segundo en el hilo principal (medido); si en el runner eso se vuelve tiempo de
   bloqueo, aligerar el documento no lo arregla. Por eso el siguiente paso es medir en el runner, por pasada, desde
   una rama de diagnóstico que no despliega.
+**Medido en el runner (rama `diag/lighthouse-open`, corrida 44009883667; mismo build abierto, métricas por pasada):**
+
+| Página | Rendimiento | LCP simulado | TBT | Documento |
+|---|---|---|---|---|
+| `/` | 0,87 · 0,93 · 0,94 | 3,04 · 2,94 · 2,96 s | **322 · 160 · 86 ms** | 16.716 bytes |
+| `/en` | 0,95 · 0,93 · 0,94 | 2,92 · 2,98 · 2,92 s | **60 · 136 · 94 ms** | 16.516 |
+| `/servicios/minecraft` | 0,95 · 0,97 · 0,95 | 2,89 · 2,58 · 2,91 s | 58 · 47 · 73 ms | 15.432 |
+| `/servicios` | 0,96 · 0,98 · 0,96 | 2,78 · 2,43 · 2,76 s | 62 · 48 · 66 ms | 11.306 |
+
+- **El diagnóstico local estaba incompleto.** El escalón de 14.600 bytes existe (la línea Minecraft también lo
+  paga desde antes y pasa), pero no es lo que tumba al inicio: su LCP es el mismo que el de la línea Minecraft. Lo
+  que lo tumba es el **tiempo de bloqueo**, que en mi máquina no se veía (20 a 30 ms en todas las páginas) porque
+  el runner es 1,5 veces más lento (índice de CPU 2.350 frente a 3.600).
+- Causa, con una traza y la CPU frenada 6×: la primera tarea de layout del inicio dura 310 ms (215 ms en la línea
+  Minecraft, 173 ms en `/servicios`); la tarea de scripts es igual en todas (203 ms).
+- **Intento de arreglo 1:** las bandas del inicio que quedan bajo el carrusel ("Lo que hacemos" y "Cómo
+  trabajamos") no se calculan ni se pintan hasta que el visitante se acerca (`content-visibility: auto`), con una
+  altura estimada por ancho. Para que un salto a un ancla caiga siempre en su sitio, una página con esas bandas
+  salta en vez de desplazarse suave. Con el multiplicador de CPU del runner (6× aquí), el inicio queda en 56 a 90 ms
+  de bloqueo, el rango de las demás páginas (42 a 80 ms). Se mide en el runner desde la rama de diagnóstico antes de
+  subirlo a `main`.
+
+**El arreglo medido en el runner (corrida de diagnóstico 44012172057 sobre `ce9e22f`, mismo código que `d23fe40`):**
+
+| Página | Rendimiento | LCP simulado | TBT |
+|---|---|---|---|
+| `/` | 0,81 · 0,95 · 0,95 → pasa | 2,98 · 2,88 · 2,88 s | 528 · **42 · 41 ms** |
+| `/en` | 0,95 · 0,95 · 0,94 → pasa | 2,88 · 2,88 · 3,02 s | 43 · 70 · 26 ms |
+| `/servicios/minecraft` | 0,94 · 0,95 · 0,95 → pasa | 3,02 · 2,87 · 2,88 s | 23 · 31 · 43 ms |
+
+- El bloqueo del inicio en caliente queda igual al de las demás páginas. La primera pasada de `/` sigue siendo mala
+  (es la primera página que mide Lighthouse CI con el servidor recién arrancado); la regla de la pasada mediana la
+  absorbe, pero deja al inicio sin tolerancia: sus otras dos pasadas tienen que dar 0,95 las dos.
+- **Margen fino, y no es nuevo:** toda página cuyo documento pasa de 14.600 bytes (el inicio, y la línea Minecraft
+  desde antes de esta fase) da 0,94 a 0,95 en el build abierto. Un `verify-deploy` en rojo por un 0,94 aislado en
+  `/` es posible sin que nada haya cambiado. Bajar el documento del inicio de 16,9 a menos de 14,6 KB daría ese
+  margen (LCP de 2,88 a 2,72 s), pero emulado sobre el HTML servido exige acortar las 116 cadenas largas de clases
+  del sitio, cabecera incluida: va al backlog con sus números.
+- El runner de esta corrida era más rápido que el de la primera (índice de CPU 3.700 a 4.000 frente a 2.350): las
+  cifras absolutas no se comparan entre corridas; la comparación válida es el inicio contra las demás páginas de
+  la misma corrida.
+
 - **Criterio de reversión (intento 1 de 2):** si tras el segundo intento `verify-deploy` sigue en rojo, `git revert`
   de `3f672fd` y se sigue con la rebanada 5, que no depende del inicio nuevo.
 - El trabajo adelantado de la rebanada 5 está en la rama `wip/fase-2-rebanada-5` (no despliega).
@@ -137,6 +181,10 @@ Las diez primeras están razonadas en la spec 012 ("Decisiones"). Resumen:
 
 (se pasa a `docs/BACKLOG.md` al cerrar el lote)
 
+- **Documento del inicio bajo 14.600 bytes** (hoy 16.935 en `/` y 16.722 en `/en`): quita la ida y vuelta extra
+  que simula Lighthouse (150 ms de LCP) y da margen al rendimiento del build abierto. Emulado: acortar todas las
+  cadenas largas de clases (116, cabecera incluida) y dibujar las palabras de las escenas desde CSS lo deja en
+  13.498. Solo las clases del contenido y del pie no alcanza (14.765). Lo mismo para la línea Minecraft (15.530).
 - `verify-deploy` no guarda los informes de Lighthouse: `upload-artifact` descarta la carpeta oculta
   `.lighthouseci` ("No files were found with the provided path"). Hace falta `include-hidden-files: true`. No se
   tocó porque el brief pide no tocar el workflow: los puntajes por página del informe son medidas locales.
