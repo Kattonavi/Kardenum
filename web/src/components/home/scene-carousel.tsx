@@ -45,12 +45,9 @@ export function SceneCarousel({ locale }: { locale: AppLocale }) {
             {serviceLines.map((line) => (
               <li key={line.id} className="carousel-tab">
                 <span className="carousel-tab-bar" />
-                <span className="carousel-tab-name">
-                  <span className="md:hidden">
-                    {line.numeral} · {line.name[locale]}
-                  </span>
-                  <span className="hidden md:inline">{line.shortName[locale]}</span>
-                </span>
+                {/* Drawn by the stylesheet, like the words of a scene: on a phone the five names share
+                    one row and take turns, and five texts on top of each other are not text to read. */}
+                <span className="carousel-tab-name" data-name={`${line.numeral} · ${line.name[locale]}`} data-short={line.shortName[locale]} />
               </li>
             ))}
           </ol>

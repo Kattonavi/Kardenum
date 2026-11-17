@@ -5,8 +5,6 @@ import { expect, sidewaysOverflow, test } from "./helpers";
 // CSS only, so its clock can be set from here: every animation of the page is paused and moved
 // to the same moment, which is what the page looks like that long after it loaded.
 //
-// Until the home page carries it (slice 4 of the spec) the tests run against the test gallery
-// of docs/pruebas/escenas-de-prueba and skip themselves on a site without a carousel.
 
 const STEP = 3500;
 const STILL = 2800;
@@ -16,14 +14,16 @@ const LINES = ["desarrollo", "diseno", "video", "minecraft", "discord"] as const
 async function openCarousel(page: Page, path = "/"): Promise<Locator> {
   await page.goto(path);
   const carousel = page.locator(".carousel");
-  test.skip((await carousel.count()) === 0, `${path} has no carousel in this build`);
+  await expect(carousel).toHaveCount(1);
   return carousel;
 }
 
-/** Freezes every animation of the page at `ms` after the load. */
+/** Freezes every animation of the carousel at `ms` after the load. (The entrances of the page follow the scroll and have no clock.) */
 async function setClock(page: Page, ms: number): Promise<void> {
   await page.evaluate((time) => {
     for (const animation of document.getAnimations()) {
+      const target = animation.effect instanceof KeyframeEffect ? animation.effect.target : null;
+      if (!target?.closest(".carousel")) continue;
       animation.pause();
       animation.currentTime = time;
     }
@@ -281,6 +281,7 @@ test("in English the carousel has its own names", async ({ page }) => {
   const carousel = await openCarousel(page, "/en");
   await expect(carousel).toHaveAttribute("aria-label", "What each line delivers");
   await expect(carousel.getByRole("group", { name: "Scenes of the five lines" })).toBeVisible();
-  await expect(carousel.locator(".carousel-tab-name").first()).toContainText("Development");
+  await expect(carousel.locator(".carousel-tab-name").first()).toHaveAttribute("data-short", "Development");
+  await expect(carousel.locator(".carousel-tab-name").nth(2)).toHaveAttribute("data-name", "III · Video and animation");
   await expect(page.getByRole("checkbox", { name: "Pause animation" })).toBeVisible();
 });

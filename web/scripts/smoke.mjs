@@ -439,8 +439,13 @@ for (const locale of locales) {
   const html = decode(page.body);
   const missingLines = serviceLines.filter((line) => !html.includes(line.name[locale]) || !html.includes(line.summary[locale]));
   check(`[${locale}] the five service lines are in the HTML`, missingLines.length === 0, missingLines.map((line) => line.id).join(", "));
-  const missingFaqs = homeFaqs.filter((faq) => !html.includes(faq.question[locale]) || !html.includes(faq.answer[locale]));
-  check(`[${locale}] the seven questions and their answers are in the HTML, folded or not`, missingFaqs.length === 0, missingFaqs.map((faq) => faq.id).join(", "));
+  // Since the phase 2 redesign the questions are not on the home page (spec 012, RF-32).
+  const strayFaqs = homeFaqs.filter((faq) => html.includes(faq.question[locale]));
+  check(`[${locale}] the home page does not carry the questions`, strayFaqs.length === 0, strayFaqs.map((faq) => faq.id).join(", "));
+  // The five scenes of the carousel and the pause control arrive in the server HTML, with no inline style.
+  const scenes = new Set([...html.matchAll(/data-scene="([a-z]+)"/g)].map((match) => match[1]));
+  check(`[${locale}] the scenes of the five lines are in the HTML`, serviceLines.every((line) => scenes.has(line.id)), [...scenes].join(", "));
+  check(`[${locale}] the page has its pause control and no inline style`, html.includes('class="motion-toggle') && !/\sstyle="/.test(page.body) && !/<style[\s>]/.test(page.body));
 }
 const logo = await fetch(new URL("/logo.png", base));
 check("GET /logo.png -> 200 image/png", logo.status === 200 && logo.headers.get("content-type") === "image/png", `status ${logo.status}`);

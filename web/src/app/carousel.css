@@ -88,6 +88,10 @@
     opacity: 0;
   }
 
+  .carousel-tab-name::before {
+    content: attr(data-name);
+  }
+
   .carousel-tab:first-child > .carousel-tab-name {
     opacity: 1;
   }
@@ -102,12 +106,16 @@
       row-gap: 0.625rem;
     }
 
-    /* On a wide screen each name sits under its own bar, dimmed until its turn. */
+    /* On a wide screen each name sits under its own bar, in its short form, dimmed until its turn. */
     .carousel-tab-name {
       grid-column: auto;
       font-size: 0.6875rem;
       letter-spacing: 0.1em;
       opacity: 0.5;
+    }
+
+    .carousel-tab-name::before {
+      content: attr(data-short);
     }
   }
 }
@@ -203,15 +211,16 @@
   }
 }
 
+/* On a phone the names share one row: a name leaves before the next one comes in, so two are never read on top of each other. */
 @keyframes carousel-tab-turn {
   0% {
     opacity: 0;
   }
   2%,
-  20% {
+  18% {
     opacity: 1;
   }
-  22%,
+  20%,
   100% {
     opacity: 0;
   }

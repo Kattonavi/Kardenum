@@ -25,7 +25,8 @@ type ContactCtaProps = {
 };
 
 /**
- * Closing band of every page: "Hablemos de tu proyecto." with the three contact channels.
+ * Closing band of every page: "Hablemos de tu proyecto." with the three contact channels,
+ * centred (docs/handoff/fase-2/maquetas; one closing for the whole site, spec 012, decision 8).
  * WhatsApp leads to the quote form, which builds the message (plan §4: "llamado a cotizar con
  * la línea ya preseleccionada"). Discord and e-mail are shown inert while they have no data,
  * with a bracketed note (the handoff's convention for pending content).
@@ -44,46 +45,46 @@ export function ContactCta({ first = "whatsapp", community = false, line, lines 
   return (
     <div className="surface-ink">
       <Container>
-        <section id={t("id")} aria-labelledby="contact-cta-title" className="flex flex-wrap items-end justify-between gap-x-16 gap-y-8 py-22">
-          <div className="flex flex-[1_1_24rem] flex-col gap-4">
-            <h2 id="contact-cta-title" className="text-[clamp(1.5rem,3.4vw,2.75rem)] leading-[1.1] tracking-[0.01em] type-display">
-              {t("title")}
-            </h2>
-            <p className="max-w-[34rem] text-lg leading-[1.6] text-(--muted-text)">{t("text")}</p>
-          </div>
-          <div className="flex flex-col gap-3">
-            <ul aria-label={channels("label")} className="flex flex-wrap gap-3">
-              {CHANNEL_ORDER[first].map((channel, index) => (
-                <li key={channel}>
-                  {channel === "whatsapp" ? (
-                    <a href={quoteHref} className={index === 0 ? buttonClass.primary : buttonClass.secondary}>
-                      {channels(channel)}
-                    </a>
-                  ) : (
-                    <ChannelLink channel={channel} className={index === 0 ? buttonClass.primary : buttonClass.secondary}>
-                      {channels(channel)}
-                    </ChannelLink>
-                  )}
-                </li>
-              ))}
-            </ul>
-            {writtenEmail ? (
-              <p data-written-email className="flex flex-wrap items-center gap-x-2.5 type-label text-(--muted-text)">
-                {channels("email")}
-                {writtenEmail.href ? (
-                  <a
-                    href={writtenEmail.href}
-                    className="inline-flex min-h-11 items-center text-sm tracking-normal text-stone normal-case underline underline-offset-4 transition-colors duration-150 hover:text-(--accent-text)"
-                  >
-                    {writtenEmail.text}
+        <section id={t("id")} aria-labelledby="contact-cta-title" className="flex flex-col items-center gap-6.5 py-18 text-center md:py-30">
+          <p className="flex items-center gap-3 type-label tracking-[0.14em] text-(--muted-text)">
+            <span aria-hidden="true" className="size-2 shrink-0 bg-bronze" />
+            {t("label")}
+          </p>
+          <h2 id="contact-cta-title" className="max-w-[56.25rem] text-[clamp(2rem,1.124rem+3.596vw,4rem)] leading-[1.02] font-extrabold type-display">
+            {t("title")}
+          </h2>
+          <p className="max-w-[50ch] text-[clamp(1rem,0.918rem+0.337vw,1.1875rem)] leading-[1.55] text-(--muted-text)">{t("text")}</p>
+          <ul aria-label={channels("label")} className="flex flex-wrap justify-center gap-3.5">
+            {CHANNEL_ORDER[first].map((channel, index) => (
+              <li key={channel}>
+                {channel === "whatsapp" ? (
+                  <a href={quoteHref} className={index === 0 ? buttonClass.primary : buttonClass.secondary}>
+                    {channels(channel)}
                   </a>
                 ) : (
-                  <span className="text-sm tracking-normal normal-case">{writtenEmail.text}</span>
+                  <ChannelLink channel={channel} className={index === 0 ? buttonClass.primary : buttonClass.secondary}>
+                    {channels(channel)}
+                  </ChannelLink>
                 )}
-              </p>
-            ) : null}
-            {hasPendingChannels(["discord", "email"]) ?<p className="type-label text-(--muted-text)">[{channels("pending")}]</p> : null}
-          </div>
+              </li>
+            ))}
+          </ul>
+          {writtenEmail ? (
+            <p data-written-email className="flex flex-wrap items-center justify-center gap-x-2.5 type-label text-(--muted-text)">
+              {channels("email")}
+              {writtenEmail.href ? (
+                <a
+                  href={writtenEmail.href}
+                  className="inline-flex min-h-11 items-center text-sm tracking-normal text-stone normal-case underline underline-offset-4 transition-colors duration-150 hover:text-(--accent-text)"
+                >
+                  {writtenEmail.text}
+                </a>
+              ) : (
+                <span className="text-sm tracking-normal normal-case">{writtenEmail.text}</span>
+              )}
+            </p>
+          ) : null}
+          {hasPendingChannels(["discord", "email"]) ? <p className="type-label text-(--muted-text)">[{channels("pending")}]</p> : null}
         </section>
         {community ? (
           <section aria-label={channels("discord")} className="flex flex-wrap items-center justify-between gap-x-8 gap-y-4 border-t border-line py-10">

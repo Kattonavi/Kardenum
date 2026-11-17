@@ -9,7 +9,6 @@ guías. Para verlas y probarlas completas se usa este contenido ficticio, **solo
 | Dos guías ficticias con todos los componentes (captura, código largo, tabla alineada, nota) y slug distinto por idioma | `py -3 docs/pruebas/guias-de-prueba/install.py web` (y `--uninstall` para quitarlas) |
 | Encender el portafolio | `py -3 docs/pruebas/casos-de-prueba.py web flag` |
 | Tres casos ficticios: uno reservado (Video), uno con cliente nombrado (Discord) y uno privado | `py -3 docs/pruebas/casos-de-prueba.py web fixtures` |
-| Galería de las cinco escenas (y del carrusel) en lugar del inicio, para abrirlas en el navegador antes de que una página real las use (spec 012) | `py -3 docs/pruebas/escenas-de-prueba/install.py web`, luego `pnpm exec next build && node scripts/copy-standalone-assets.mjs` y `pnpm test:e2e e2e/scenes.spec.ts` |
 | Imagen principal real en el caso con cliente nombrado (ejercita la imagen prioritaria) | `py -3 docs/pruebas/caso-con-imagen-principal.py web docs/pruebas/imagen-principal-de-prueba.webp` (después del anterior) |
 
 Con eso instalado, las pruebas que hoy no tienen sobre qué correr sí corren: las de cada guía (`e2e/guides.spec.ts`),

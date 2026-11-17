@@ -66,15 +66,16 @@
   },
   "Home": {
     "heroLabel": "Estudio de desarrollo, diseño y video",
-    "heroTitleLine1": "Software, diseño",
-    "heroTitleLine2": "y video.",
+    "heroTitle": "Software, diseño y video.",
     "heroTitleAccent": "Un solo estudio.",
     "heroText": "Un estudio para llevar tu proyecto de la idea a algo que puedas mostrar con orgullo. Escuchamos, proponemos y construimos contigo cada parte.",
     "heroPrimary": "Cotizar proyecto",
     "heroSecondary": "Ver servicios",
     "servicesTitle": "Cinco líneas, un mismo criterio.",
-    "faqId": "preguntas",
-    "faqTitle": "Claridad antes de empezar."
+    "linesLabel": "Lo que hacemos",
+    "processLabel": "Proceso",
+    "processTitle": "Cómo trabajamos",
+    "viewLine": "Ver {name}"
   },
   "Scenes": {
     "pause": "Pausar animación",
@@ -124,6 +125,7 @@
   },
   "ContactCta": {
     "id": "contacto",
+    "label": "Contacto",
     "title": "Hablemos de tu proyecto.",
     "text": "Elige el canal de tu preferencia. Analizamos tu solicitud y respondemos con una cotización a la medida."
   },

@@ -65,7 +65,7 @@
 @font-face {
   font-family: "Kardenum Display Fallback";
   src: local("Arial Bold"), local("Arial-BoldMT"), local("Liberation Sans Bold"), local("LiberationSans-Bold");
-  font-weight: 100 900;
+  font-weight: 100 650;
   size-adjust: 127.9%;
   ascent-override: 68.65%;
   descent-override: 16.42%;
@@ -75,10 +75,37 @@
 @font-face {
   font-family: "Kardenum Display Fallback Android";
   src: local("Roboto Bold"), local("Roboto-Bold");
-  font-weight: 100 900;
+  font-weight: 100 650;
   size-adjust: 139.19%;
   ascent-override: 63.08%;
   descent-override: 15.09%;
+  line-gap-override: 0%;
+}
+
+/*
+ * The titles of the phase 2 mockups are set at weight 800 and the buttons at 700, a little wider
+ * than weight 600. Measured in the browser on 2026-11-16 over the headings of the site, in
+ * capitals: Archivo at width 125 is 1.2805 times as wide as Arial Bold at weight 600 (the value
+ * above, found again), 1.2883 at 700 and 1.3000 at 800. These faces take the heavy weights with
+ * the ratio of 800; the vertical measures are the same ones, divided by the new ratio.
+ */
+@font-face {
+  font-family: "Kardenum Display Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT"), local("Liberation Sans Bold"), local("LiberationSans-Bold");
+  font-weight: 651 900;
+  size-adjust: 130%;
+  ascent-override: 67.54%;
+  descent-override: 16.15%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Kardenum Display Fallback Android";
+  src: local("Roboto Bold"), local("Roboto-Bold");
+  font-weight: 651 900;
+  size-adjust: 141.31%;
+  ascent-override: 62.13%;
+  descent-override: 14.86%;
   line-gap-override: 0%;
 }
 
@@ -112,6 +139,8 @@
   --focus-ring: var(--color-bronze);
   --primary-hover: var(--color-stone);
   --primary-hover-text: var(--color-ink);
+  /* Border of a button without fill: quiet on ink, as in the phase 2 mockups; its text names it. */
+  --button-rule: var(--color-graphite);
 }
 
 @utility surface-stone {
@@ -123,6 +152,7 @@
   --focus-ring: var(--color-ink);
   --primary-hover: var(--color-ink);
   --primary-hover-text: var(--color-stone);
+  --button-rule: var(--color-ink);
 }
 
 /* Headings and buttons: Archivo at width 125, weight 600, uppercase. */
@@ -138,6 +168,33 @@
   font-family: var(--font-display);
   font-stretch: 125%;
   font-weight: 600;
+}
+
+/*
+ * Entrance while scrolling (spec 012, RF-34): a block comes in with a short move and a fade as it
+ * enters the screen. The animation follows the scroll (animation-timeline: view()), so nothing
+ * runs by itself. It is an improvement: a browser without the feature, or a visitor who asked for
+ * reduced motion, gets the block in place from the start.
+ */
+@utility reveal {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 80%;
+    }
+  }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(1.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* Labels, numbering and data: JetBrains Mono, uppercase, wide tracking. */

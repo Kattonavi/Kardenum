@@ -66,15 +66,16 @@
   },
   "Home": {
     "heroLabel": "Software, design and video studio",
-    "heroTitleLine1": "Software, design",
-    "heroTitleLine2": "and video.",
+    "heroTitle": "Software, design and video.",
     "heroTitleAccent": "One studio.",
     "heroText": "A studio to take your project from an idea to something you can show with pride. We listen, propose and build every part with you.",
     "heroPrimary": "Get a quote",
     "heroSecondary": "View services",
     "servicesTitle": "Five lines, one standard.",
-    "faqId": "questions",
-    "faqTitle": "Clarity before we start."
+    "linesLabel": "What we do",
+    "processLabel": "Process",
+    "processTitle": "How we work",
+    "viewLine": "View {name}"
   },
   "Scenes": {
     "pause": "Pause animation",
@@ -124,6 +125,7 @@
   },
   "ContactCta": {
     "id": "contact",
+    "label": "Contact",
     "title": "Let's talk about your project.",
     "text": "Choose the channel you prefer. We review your request and reply with a quote made to fit."
   },

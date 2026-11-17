@@ -1,4 +1,25 @@
-import type { Faq, ProcessStep } from "./types";
+import type { Localized } from "../i18n/locales";
+import type { Faq, ProcessStep, ServiceLineId } from "./types";
+
+/**
+ * Lines shown as a large block on the home page, with the services named next to their scene
+ * (docs/handoff/fase-2/maquetas). The other lines are cards. The names are the ones of each
+ * line page, in the short form of the mockup.
+ */
+export const featuredLineServices: Partial<Record<ServiceLineId, readonly Localized<string>[]>> = {
+  desarrollo: [
+    { es: "Sitios web", en: "Websites" },
+    { es: "Tiendas online", en: "Online stores" },
+    { es: "Aplicaciones web", en: "Web applications" },
+    { es: "Software a la medida", en: "Custom software" },
+  ],
+  diseno: [
+    { es: "Identidad visual", en: "Brand identity" },
+    { es: "Piezas para redes", en: "Social media graphics" },
+    { es: "Presentaciones", en: "Presentations" },
+    { es: "Catálogos", en: "Catalogs" },
+  ],
+};
 
 /** How we work, in four steps (texts approved in docs/handoff/docs/textos-sitio.md). */
 export const processSteps: readonly ProcessStep[] = [

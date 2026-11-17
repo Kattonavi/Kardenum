@@ -3,20 +3,15 @@ import { expect, test } from "./helpers";
 
 // Scenes (docs/specs/012-fase-2-rediseno-visual.md, RF-10 to RF-15): what each service line
 // delivers, drawn with HTML and CSS. These tests open every page that carries scenes.
-//
-// Until the home page uses them (slice 4 of the spec) no published page has a scene: the tests
-// then run against the test gallery of docs/pruebas/escenas-de-prueba, installed over the home
-// page of a scratch clone, and skip themselves on a site without scenes.
 
 const PAGES = ["/", "/en"] as const;
 
 const LINES = ["desarrollo", "diseno", "video", "minecraft", "discord"] as const;
 
-/** Whether the page has scenes; without them there is nothing to test yet. */
 async function openScenes(page: Page, path: string): Promise<Locator> {
   await page.goto(path);
   const scenes = page.locator("[data-scene]");
-  test.skip((await scenes.count()) === 0, `${path} has no scenes in this build`);
+  await expect(scenes.first()).toBeAttached();
   return scenes;
 }
 
