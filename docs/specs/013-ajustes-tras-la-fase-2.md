@@ -94,8 +94,9 @@ podía empezar a mitad de renglón.
    se aplicó (hojas de estilo por página) le da margen a la página de preguntas y a las páginas sin escenas; el
    inicio queda igual en el runner y su documento pierde holgura (de 346 a 207 bytes libres). Lo que sí lo
    aligeraría toca fuentes o JavaScript y quedó como propuesta (backlog 78).
-9. **RF-51 queda parcial:** la revisión vio 51 capturas de 13 páginas, no todas las pantallas de todas
-   (`docs/revisiones/fase-2b-diseno-celular.md`).
+9. **RF-51 se completó en dos pasadas:** 92 capturas; en la segunda, las páginas que faltaban de arriba al pie,
+   Términos incluida (`docs/revisiones/fase-2b-diseno-celular.md`). El título junto a la escena tuvo además su
+   revisión en escritorio (`docs/revisiones/fase-2b-diseno-titulos.md`).
 5. ~~Las preguntas de las subpáginas no se tocan.~~ Decidido después por el fundador: llevan el mismo cambio (RF-30).
 11. **El recorte de Archivo deja fuera las letras de otros idiomas** (ã, ç, è, ö…): 40,5 KB con lo que usa el sitio
     más todo el español; 44,4 KB con las letras del portugués y el francés; 52,2 KB con todo el bloque Latin-1. Hasta

@@ -1,26 +1,24 @@
 # Fase 2b · Revisión de diseño en celular de las páginas interiores
 
-2026-11-17. Avanza la revisión de diseño de la fase 2, que había quedado parcial (`fase-2-informe-final.md`,
-sección 2). **Sigue siendo parcial:** vio 51 capturas de 13 páginas, pero no todas las pantallas de todas (ver "Qué
-vio y qué no"), y Términos no se capturó. Spec 013, RF-51. Revisor independiente (`impeccable-finish-reviewer`): recibió el brief, el plan de la fase, las
-specs 012 y 013, la maqueta de celular del inicio y 51 capturas a 390 × 844 px, no conclusiones.
+2026-11-17. Completa la revisión de diseño de la fase 2, que había quedado parcial (`fase-2-informe-final.md`,
+sección 2). Spec 013, RF-51. Revisor independiente (`impeccable-finish-reviewer`), en dos pasadas: recibió el brief, el
+plan de la fase, las specs 012 y 013, la maqueta de celular del inicio y 92 capturas a 390 × 844 px, no conclusiones.
 
-**Veredicto: FIEL CON AJUSTES.** Las piezas del sistema están en su sitio y siguen la maqueta: botones con borde de
-44 px, botones de cierre de 52 px, pie nuevo, tarjetas con escena, escena 16:10 debajo del texto y márgenes de 20 px.
-**Ningún hallazgo Crítico. Un Alto, aplicado.** Lo demás va al backlog (ítems 73 a 77).
+**Veredicto: FIEL CON AJUSTES**, en las dos pasadas. Las piezas del sistema están en su sitio y siguen la maqueta:
+botones con borde de 44 px, botones de cierre de 52 px, pie nuevo, tarjetas con escena, escena 16:10 debajo del texto
+y márgenes de 20 px. **Ningún hallazgo Crítico. Un Alto, aplicado y comprobado por el mismo revisor.** Lo demás va al
+backlog (ítems 73 a 77 y 83).
 
-## Qué vio y qué no
+## Qué vio
 
-Capturas en `.impeccable/review/fase-2b/` (no se versionan; `INDEX.txt` dice qué es cada serie). Tomadas sobre el
-código de la rebanada 3, con movimiento reducido para que las escenas salgan completas.
-
-- **Vistas completas:** índice de servicios (5 pantallas), línea Desarrollo (8), línea Minecraft (7), Nosotros (4),
-  Contacto (5), 404 (2) y el menú de celular abierto.
-- **Vistas en parte:** Diseño, Video, Discord y Minecraft en inglés (2 de 6 pantallas cada una: comparten plantilla
-  con las dos líneas vistas completas), preguntas (5 de 7), privacidad (3 de 4) y una subpágina (3 de 7).
-- **No vistas:** el resto de esas páginas: de Diseño, Video, Discord y Minecraft en inglés, de la tercera pantalla
-  en adelante; en preguntas, el grupo de Discord y el pie; el final de privacidad; la subpágina desde su cuarta
-  pantalla.
+- **Primera pasada** (51 capturas del código de la rebanada 3, en `.impeccable/review/fase-2b/`): completos el
+  índice de servicios, las líneas Desarrollo y Minecraft, Nosotros, Contacto, la 404 y el menú de celular abierto; en
+  parte Diseño, Video, Discord, Minecraft en inglés, preguntas, privacidad y una subpágina.
+- **Segunda pasada** (41 capturas de producción con la rebanada 4, en `.impeccable/review/fase-2b-celular-2/`, sin
+  tope de pantallas): completas, de arriba al pie, Diseño (6 pantallas), Video (6), Discord (7), preguntas (7),
+  privacidad (4), Términos (4) y la subpágina de tiendas online (7). El revisor listó los 41 archivos como vistos.
+- **Lo que queda sin ver:** Minecraft en inglés pasó solo con sus dos primeras pantallas (comparte plantilla con la
+  línea Minecraft en español, vista completa); las otras cinco subpáginas y las páginas en inglés no se capturaron.
 - **Sin evidencia posible en capturas quietas:** el control "Pausar animación" (se oculta con movimiento reducido),
   la entrada al bajar y los botones hacia subpáginas (siguen tras su flag). Los tres tienen pruebas de navegador.
 
@@ -47,3 +45,15 @@ código de la rebanada 3, con movimiento reducido para que las escenas salgan co
 - Botones de cierre de 52 px y "Ver X →" de 44 px en mono de 12 px.
 - Bronce como texto solo sobre Tinta; sobre Piedra solo en cuadros y filetes.
 - Ningún texto desbordado ni cortado en lo que se vio.
+
+## Segunda pasada: qué confirmó y qué añadió
+
+- **El arreglo de la lista numerada quedó bien:** número, nombre y descripción comparten columna, también con
+  nombres de dos renglones (Diseño, Video y Discord).
+- **Confirmados** en las pantallas nuevas: los dos filetes para un solo corte (preguntas, líneas y subpágina), la
+  palabra sola en el título de Video y Discord en celular, las migas partidas de la subpágina, el título numerado de
+  las legales (también en Términos), el filete del pie pegado al cambio de fondo (privacidad y Términos) y el enlace
+  "Entrar al servidor" con poca altura tocable.
+- **Nuevos, los dos Bajo y en la subpágina (oculta tras su flag), al backlog 83:** "Qué hacemos" usa el bloque de
+  pasos y no la lista numerada de su línea, y con "Cómo trabajamos" justo después las dos secciones parecen una; las
+  tarjetas de "Servicios relacionados" dejan la flecha sola en un renglón y entre las cuatro llenan casi una pantalla.
