@@ -123,7 +123,7 @@ Cada una queda también en la bitácora, con su fecha.
     de servicio. Si tu duda no está aquí, escríbenos."), el título del grupo general ("Para empezar."), el título
     y la descripción para buscadores, y sus equivalentes en inglés. El título de la página es el que tenía la
     sección en el inicio: "Claridad antes de empezar.". Sin datos estructurados `FAQPage`, como el resto del sitio.
-16. **La página de preguntas no lleva escenas** (es texto: 34 respuestas), ni avisos de Minecraft o Discord en el
+16. **La página de preguntas no lleva escenas** (es texto: 23 preguntas con su respuesta), ni avisos de Minecraft o Discord en el
     pie (habla de las cinco líneas, como el inicio; spec 008). Una respuesta de una línea que repite palabra por
     palabra una general se muestra una sola vez, con las generales.
 17. **Cada línea enlaza a su grupo desde el cierre:** en la página de una línea (y en sus subpáginas), el enlace
