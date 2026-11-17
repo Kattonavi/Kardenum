@@ -22,5 +22,20 @@ ninguna palabra corta sola en el último. **Ningún hallazgo Crítico ni Alto.**
 | Bajo | Dos subpáginas en inglés | Una palabra sola al final del párrafo bajo el título | Backlog 79 |
 | Bajo, a confirmar | Migas en inglés | El hueco después de "HOME" es mayor | Ya está en el backlog 75 |
 
-No vio las capturas con los ajustes aplicados: los cubren las pruebas (22 títulos a 1216, 1280, 1440 y 1920 px; los
-botones en un renglón; la escena debajo y de 640 px como máximo a 1024 y 1215 px; nada se mueve al llegar las fuentes).
+## Segunda pasada: el estado final, con los ajustes aplicados
+
+El mismo revisor vio 7 capturas del estado que queda (`.impeccable/review/fase-2b-titulos-2/`): Discord en español y
+Desarrollo en inglés a 1024, 1215 y 1216 px, y la subpágina de tiendas en inglés a 1440 px. **Veredicto: APROBADO CON
+AJUSTES; los tres cambios funcionan.**
+
+- A 1216 px los dos botones quedan en un renglón, las columnas se ven equilibradas y el título de 37,8 px se lee bien.
+- A 1024 y 1215 px la escena de 640 px bajo el texto se ve proporcionada, y el vacío a su derecha no se ve descuidado:
+  el párrafo y los botones terminan a la misma altura y todo comparte el borde izquierdo.
+- "Custom ecommerce / websites." queda en dos renglones, con el bronce al inicio del segundo.
+- **Bajo, nuevo (backlog 79):** al pasar de 1215 a 1216 px el título baja de 56 a 38 px de golpe, y a 1215 px es
+  mayor que a 1440 (56 contra 41). Arreglo propuesto: por debajo de 1216 px, limitar el título de estas páginas a
+  48 px (`clamp(1.8125rem, 4.6vw, 3rem)`); en celular no cambia nada.
+- **Medio, sigue abierto (backlog 79):** la jerarquía frente a los títulos de sección.
+
+Además de las capturas, lo cubren las pruebas: 22 títulos a 1216, 1280, 1440 y 1920 px, los botones en un renglón, la
+escena debajo y de 640 px como máximo a 1024 y 1215 px, y nada se mueve al llegar las fuentes.

@@ -13,7 +13,7 @@ Sesión del 2026-11-17, desde otro computador. Encargo: el mensaje del fundador 
 | 3 | Rendimiento: hojas de estilo por página, dieta de la página de preguntas y su entrada a `verify-deploy` | **en producción** | `ece59cf` | 151 unitarias · humo 1287 · navegador 1152 passed | 44100140091: los tres trabajos en verde |
 | 4 | Contraste del rótulo del carrusel y lista numerada de las líneas (revisión de diseño en celular) | **en producción, sin `verify-deploy`** (ver "Bloqueo") | `849e9d8`, `1269710` (desplegado `605d6e1`) | 151 unitarias · humo 1287 · navegador 1155 passed | No corrió. Comprobación local contra producción: humo 1287 en verde · navegador 1154 de 1155 · Lighthouse 0,96 a 1,00 |
 | 5 | Títulos junto a la escena con un solo tamaño; la pregunta de las subpáginas de Minecraft | **en local, sin subir** | `3c4f00f` | 152 unitarias · humo 1287 · navegador 1162 passed | — |
-| 6 | Archivo recortada y calentamiento en `verify-deploy` | **en local, sin subir** | `2d2ad8a`, `7e38cc0` | 154 unitarias · humo 1287 · navegador 1162 passed | — |
+| 6 | Archivo recortada y calentamiento en `verify-deploy` | **en local, sin subir** (copia en la rama `wip/fase-2b-retenido`) | `2d2ad8a`, `7e38cc0`, `cacdae1` | 154 unitarias · humo 1287 · navegador 1162 passed (repetida sobre `cacdae1`) | — |
 
 ## Bloqueo: GitHub Actions no corre desde las 15:16 UTC del 2026-11-17
 
@@ -196,7 +196,8 @@ Medido en local con Lighthouse 12.6.1, celular, tres pasadas en el inicio y dos 
 - **No es idéntica byte a byte.** Las 38 capturas conservan su tamaño (mismos renglones, misma altura de página), pero
   entre el 0,04 % y el 0,21 % de los píxeles cambia en los bordes de las letras. Causa medida: al limitar los ejes,
   fontTools redondea los contornos; difieren como máximo 1,3 unidades de 1.000 por eme (0,05 px en un título de
-  41 px) y el avance de algunas letras, 1 unidad. A simple vista no se distingue.
+  41 px) y el avance de algunas letras, 1 unidad. Comparadas a doble tamaño, antes y después, el título del
+  inicio y un párrafo de la página de preguntas no se distinguen.
 - **JetBrains Mono sin precarga se probó y no se aplicó** (spec 013, decisión 14): mismo LCP y peor primer pintado.
 - **Calentamiento:** `web/scripts/warm-up.mjs` probado en local (nueve páginas en 200 y una carga en Chrome); la
   configuración de Lighthouse CI no arranca servidor con `LHCI_SERVER=running` y sí sin ella. **El paso del workflow
