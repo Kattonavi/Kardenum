@@ -4,9 +4,21 @@ import { expect, test } from "./helpers";
 // Scenes (docs/specs/012-fase-2-rediseno-visual.md, RF-10 to RF-15): what each service line
 // delivers, drawn with HTML and CSS. These tests open every page that carries scenes.
 
-const PAGES = ["/", "/en"] as const;
-
 const LINES = ["desarrollo", "diseno", "video", "minecraft", "discord"] as const;
+
+/** Every kind of page that carries scenes, with the lines whose scene it shows. */
+const PAGES: Record<string, readonly string[]> = {
+  "/": LINES,
+  "/en": LINES,
+  "/servicios": LINES,
+  "/en/services": LINES,
+  "/servicios/desarrollo": ["desarrollo"],
+  "/servicios/diseno": ["diseno"],
+  "/servicios/video": ["video"],
+  "/servicios/minecraft": ["minecraft"],
+  "/servicios/discord": ["discord"],
+  "/en/services/design": ["diseno"],
+};
 
 async function openScenes(page: Page, path: string): Promise<Locator> {
   await page.goto(path);
@@ -38,7 +50,7 @@ function sceneAnimations(page: Page, within = "body"): Promise<{ running: number
   }, within);
 }
 
-for (const path of PAGES) {
+for (const [path, lines] of Object.entries(PAGES)) {
   test.describe(`scenes on ${path}`, () => {
     test("each scene is a picture with a description, and what is inside stays out of the reading order", async ({ page }) => {
       const scenes = await openScenes(page, path);
@@ -48,10 +60,10 @@ for (const path of PAGES) {
         await expect(scene.locator("> *")).toHaveCount(1);
         await expect(scene.locator("> *")).toHaveAttribute("aria-hidden", "true");
       }
-      // The five lines are all there, each with its own description.
-      for (const line of LINES) await expect(page.locator(`[data-scene="${line}"]`).first()).toBeAttached();
+      // The lines of the page are all there (the five of them, or the one of a line page), each with its own description.
+      for (const line of lines) await expect(page.locator(`[data-scene="${line}"]`).first()).toBeAttached();
       const labels = await scenes.evaluateAll((all) => all.map((scene) => `${scene.getAttribute("data-scene")}|${scene.getAttribute("aria-label")}`));
-      expect(new Set(labels).size).toBe(LINES.length);
+      expect(new Set(labels).size).toBe(lines.length);
     });
 
     test("each scene keeps a 16:10 box and scales with its container", async ({ page }) => {
@@ -84,7 +96,7 @@ for (const path of PAGES) {
       await openScenes(page, path);
       await expect.poll(async () => (await sceneAnimations(page)).running).toBeGreaterThan(0);
 
-      const pause = page.getByRole("checkbox", { name: path === "/en" ? "Pause animation" : "Pausar animación" });
+      const pause = page.getByRole("checkbox", { name: path.startsWith("/en") ? "Pause animation" : "Pausar animación" });
       await expect(pause).toHaveCount(1);
       const box = await pause.locator("xpath=..").boundingBox();
       expect(box?.height ?? 0, "a 44 px target").toBeGreaterThanOrEqual(44);

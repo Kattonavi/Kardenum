@@ -18,18 +18,21 @@ type PageHeroProps = {
   before?: ReactNode;
   /** Buttons under the text. */
   actions?: ReactNode;
-  /** Decorative piece next to the title. */
+  /** The piece next to the title: the scene of the line (HeroScene). It goes under the text on a narrow window. */
   visual?: ReactNode;
   /** Strip under the hero, inside the same ink band. */
   after?: ReactNode;
 };
 
+// The smallest size is 29 px, one less than in the first mockups: at weight 800 the longest word of
+// a title ("DEVELOPMENT") was 3 px wider than a 320 px screen.
 const TITLE_SIZE = {
-  base: "text-[clamp(1.875rem,4.6vw,3.625rem)]",
+  base: "text-[clamp(1.8125rem,4.6vw,3.625rem)]",
   large: "text-[clamp(2.125rem,5.4vw,4.25rem)]",
 } as const;
 
-// Opening band of an inner page (maquetas B-Linea-*): type and color only, on ink.
+// Opening band of an inner page (maquetas B-Linea-*), on ink. With a scene it is two columns
+// on a wide window: the text on the left and the scene on the right (spec 012, RF-51).
 export function PageHero({
   label,
   titleLines,
@@ -53,7 +56,7 @@ export function PageHero({
               <span aria-hidden="true" className="size-2 shrink-0 bg-bronze" />
               {label}
             </p>
-            <h1 className={`${TITLE_SIZE[size]} ${tight ? "leading-[1.02]" : "leading-[1.05]"} tracking-[0.01em] type-display`}>
+            <h1 className={`${TITLE_SIZE[size]} ${tight ? "leading-[1.02]" : "leading-[1.05]"} font-extrabold tracking-[0.01em] type-display`}>
               <TitleLines lines={titleLines} accent={titleAccent} />
             </h1>
             <p className="max-w-[36rem] text-lg leading-[1.6] text-(--muted-text)">{text}</p>
@@ -64,20 +67,6 @@ export function PageHero({
         {after}
       </Container>
     </section>
-  );
-}
-
-/** The logo's bracket drawn in outline, with the accent square: the piece of the community landings. */
-export function BracketVisual() {
-  return (
-    <div aria-hidden="true" className="flex flex-[1_1_16rem] justify-center">
-      <svg viewBox="-24 -24 688 688" className="h-auto w-full max-w-[340px]" focusable="false">
-        <path fill="none" stroke="var(--color-line)" strokeWidth="3" d="M0 0 L160 0 L160 80 L80 80 L80 560 L160 560 L160 640 L0 640 Z" />
-        <path fill="none" stroke="var(--color-line)" strokeWidth="3" d="M526.86 0 L640 0 L320 320 L640 640 L526.86 640 L206.86 320 Z" />
-        <path fill="none" stroke="var(--color-line)" strokeWidth="1" strokeDasharray="6 10" d="M0 320 L640 320 M320 0 L320 640" />
-        <path fill="var(--color-bronze)" d="M416 272 L512 272 L512 368 L416 368 Z" />
-      </svg>
-    </div>
   );
 }
 

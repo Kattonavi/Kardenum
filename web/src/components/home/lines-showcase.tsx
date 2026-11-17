@@ -1,12 +1,12 @@
 import { useTranslations } from "next-intl";
 import { Container } from "@/components/layout/container";
+import { LineCard } from "@/components/scenes/line-card";
 import { Scene } from "@/components/scenes/scene";
 import { AppLink } from "@/components/ui/app-link";
 import { buttonClass } from "@/components/ui/button";
 import { ArrowRightIcon } from "@/components/ui/icons";
 import { featuredLineServices } from "@/content/home";
 import { serviceLines } from "@/content/service-lines";
-import type { ServiceLine } from "@/content/types";
 import type { AppLocale } from "@/i18n/locales";
 
 /**
@@ -19,13 +19,6 @@ export function LinesShowcase({ id, locale }: { id: string; locale: AppLocale })
   const t = useTranslations("Home");
   const featured = serviceLines.filter((line) => line.id in featuredLineServices);
   const cards = serviceLines.filter((line) => !(line.id in featuredLineServices));
-
-  const lineLink = (line: ServiceLine, className: string) => (
-    <AppLink href={line.pathname} className={`${buttonClass.line} mt-2 self-start ${className}`}>
-      {t("viewLine", { name: line.name[locale] })}
-      <ArrowRightIcon size={14} />
-    </AppLink>
-  );
 
   return (
     <section id={id} aria-labelledby="services-title" className="band-later band-jump band-lines surface-ink">
@@ -55,25 +48,17 @@ export function LinesShowcase({ id, locale }: { id: string; locale: AppLocale })
                   </li>
                 ))}
               </ul>
-              {lineLink(line, "")}
+              <AppLink href={line.pathname} className={`${buttonClass.line} mt-2 self-start`}>
+                {t("viewLine", { name: line.name[locale] })}
+                <ArrowRightIcon size={14} />
+              </AppLink>
             </div>
           </article>
         ))}
 
         <ul className="grid gap-5 md:grid-cols-3">
           {cards.map((line) => (
-            // The whole card is the link: the button stretches over it (its ::after covers the card).
-            <li key={line.id} className="reveal line-card">
-              <Scene line={line.id} bare />
-              <div className="line-card-body">
-                <span aria-hidden="true" className="numeral">
-                  {line.numeral}
-                </span>
-                <h3 className="title-card">{line.name[locale]}</h3>
-                <p className="text-[0.9375rem] leading-normal text-(--muted-text)">{line.summary[locale]}</p>
-                {lineLink(line, "mt-auto after:absolute after:inset-0")}
-              </div>
-            </li>
+            <LineCard key={line.id} line={line} locale={locale} headingLevel={3} />
           ))}
         </ul>
       </Container>

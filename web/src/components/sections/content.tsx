@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { AppLink } from "@/components/ui/app-link";
+import { buttonClass } from "@/components/ui/button";
 import { ArrowRightIcon } from "@/components/ui/icons";
 import type { AppPathname } from "@/routes";
 
@@ -18,7 +19,7 @@ export function SectionHeader({ label, title, titleId }: SectionHeaderProps) {
   return (
     <div className="flex flex-col gap-4">
       <p className="type-label text-(--muted-text)">{label}</p>
-      <h2 id={titleId} className="max-w-[40rem] text-[clamp(1.5rem,2.8vw,2.25rem)] leading-[1.15] tracking-[0.01em] type-display">
+      <h2 id={titleId} className="max-w-[40rem] text-[clamp(1.5rem,2.8vw,2.25rem)] leading-[1.15] font-extrabold tracking-[0.01em] type-display">
         {title}
       </h2>
     </div>
@@ -95,12 +96,9 @@ export function NumberedList({ items, linkLabel }: { items: readonly NumberedIte
           <h3 className="flex-[1_1_14rem] text-lg leading-[1.3] tracking-[0.08em] type-display">{item.title}</h3>
           <p className="flex-[2_1_22rem] leading-[1.55] text-(--muted-text)">{item.text}</p>
           {item.href ? (
-            <AppLink
-              href={item.href}
-              className="inline-flex min-h-11 min-w-38 items-center gap-2 text-xs tracking-[0.14em] type-display transition-colors duration-150 hover:text-(--accent-text)"
-            >
+            <AppLink href={item.href} className={`${buttonClass.line} min-w-38`}>
               {linkLabel}
-              <ArrowRightIcon size={16} />
+              <ArrowRightIcon size={14} />
             </AppLink>
           ) : hasLinks ? (
             <span aria-hidden="true" className="min-w-38" />

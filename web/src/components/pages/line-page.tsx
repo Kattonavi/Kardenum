@@ -5,7 +5,8 @@ import { ContactCta } from "@/components/contact/contact-cta";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { Container } from "@/components/layout/container";
 import { ChooserGrid, MarkedList, NumberedList, SplitSection, StackedSection, StepsSection } from "@/components/sections/content";
-import { BracketVisual, HeroStrip, PageHero } from "@/components/sections/page-hero";
+import { HeroStrip, PageHero } from "@/components/sections/page-hero";
+import { HeroScene } from "@/components/scenes/line-card";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buttonClass } from "@/components/ui/button";
 import { processSteps } from "@/content/home";
@@ -73,11 +74,10 @@ export async function LinePage({ id, params }: { id: ServiceLineId; params: Loca
         titleLines={page.hero.titleLines[locale]}
         titleAccent={page.hero.titleAccent[locale]}
         text={page.hero.text[locale]}
-        size={community ? "large" : "base"}
         tight
         before={<Breadcrumbs pathname={line.pathname} locale={locale} label={sections("breadcrumb")} />}
-        // The reel of the video line joins here once the studio has one.
-        visual={page.hero.visual === "bracket" ? <BracketVisual /> : null}
+        // The scene of the line (spec 012, RF-51). The reel of the video line replaces it once the studio has one.
+        visual={<HeroScene line={id} />}
         actions={
           <>
             <a href={primaryHref} className={buttonClass.primary} {...(externalPrimary ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
