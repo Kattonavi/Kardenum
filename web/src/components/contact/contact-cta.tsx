@@ -53,17 +53,15 @@ export function ContactCta({ first = "whatsapp", community = false, line, lines 
   const writtenEmail = isMinecraftPage(lines) ? getWrittenEmail() : null;
 
   return (
-    <div className="surface-ink">
+    // Never on the first screen: laid out when the visitor comes near (band-later, globals.css).
+    <div className="band-later surface-ink">
       <Container>
-        <section id={t("id")} aria-labelledby="contact-cta-title" className="flex flex-col items-center gap-6.5 py-18 text-center md:py-30">
-          <p className="flex items-center gap-3 type-label tracking-[0.14em] text-(--muted-text)">
-            <span aria-hidden="true" className="size-2 shrink-0 bg-bronze" />
-            {t("label")}
-          </p>
-          <h2 id="contact-cta-title" className="max-w-[56.25rem] text-[clamp(2rem,1.124rem+3.596vw,4rem)] leading-[1.02] font-extrabold type-display">
+        <section id={t("id")} aria-labelledby="contact-cta-title" className="centred-stack py-18 md:py-30">
+          <p className="eyebrow">{t("label")}</p>
+          <h2 id="contact-cta-title" className="title-closing">
             {t("title")}
           </h2>
-          <p className="max-w-[50ch] text-[clamp(1rem,0.918rem+0.337vw,1.1875rem)] leading-[1.55] text-(--muted-text)">{t("text")}</p>
+          <p className="max-w-[50ch] lede">{t("text")}</p>
           <ul aria-label={channels("label")} className="flex flex-wrap justify-center gap-3.5">
             {CHANNEL_ORDER[first].map((channel, index) => (
               <li key={channel}>
@@ -100,7 +98,7 @@ export function ContactCta({ first = "whatsapp", community = false, line, lines 
             <a
               href={faqHref}
               data-faq-link
-              className="inline-flex min-h-11 items-center gap-2 font-mono text-xs tracking-[0.12em] text-(--muted-text) uppercase underline underline-offset-4 transition-colors duration-150 hover:text-(--accent-text)"
+              className="text-link"
             >
               {t("faq")}
               <ArrowRightIcon size={14} />

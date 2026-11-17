@@ -82,7 +82,7 @@ export function ServicesMenu({ label, lines, allServicesLabel, unsureLabel }: Se
         aria-controls={hydrated ? panelId : undefined}
         onClick={onTriggerClick}
         onKeyDown={onTriggerKeyDown}
-        className={`inline-flex min-h-11 cursor-pointer items-center gap-2 border-b-2 text-[0.9375rem] transition-colors duration-150 hover:text-(--accent-text) ${
+        className={`nav-trigger ${
           open || inSection ? "border-bronze" : "border-transparent"
         }`}
       >
@@ -90,7 +90,11 @@ export function ServicesMenu({ label, lines, allServicesLabel, unsureLabel }: Se
         <ChevronDownIcon size={14} className={`transition-transform duration-150 ${open ? "rotate-180" : ""}`} />
       </AppLink>
 
-      <div id={panelId} hidden={!open} className="absolute inset-x-0 top-full z-40 border border-ink surface-stone">
+      {/* The panel is always there (the trigger names it), but what is inside is rendered only while
+          it is open: closed, it was 3 KB of every document that nobody could see. */}
+      <div id={panelId} hidden={!open} className="nav-panel">
+        {open ? (
+        <>
         <ul className="grid grid-cols-5">
           {lines.map((line) => (
             <li key={line.href} className="flex flex-col gap-2.5 border-r border-mist p-6 last:border-r-0">
@@ -138,6 +142,8 @@ export function ServicesMenu({ label, lines, allServicesLabel, unsureLabel }: Se
             {unsureLabel}
           </AppLink>
         </div>
+        </>
+        ) : null}
       </div>
     </div>
   );

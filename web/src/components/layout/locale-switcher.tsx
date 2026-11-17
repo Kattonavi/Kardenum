@@ -70,7 +70,7 @@ export function LocaleSwitcher({ locale, label, names, variant, entries }: Local
               title={names[option]}
               aria-current={current ? "true" : undefined}
               onClick={() => rememberLanguage(option)}
-              className={`inline-flex min-h-11 min-w-11 items-center uppercase transition-colors duration-150 hover:text-(--accent-text) ${
+              className={`lang-link ${
                 index === 0 ? "justify-end pr-2" : "justify-start pl-2"
               } ${current ? "" : "text-(--muted-text)"}`}
             >

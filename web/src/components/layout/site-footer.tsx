@@ -15,7 +15,7 @@ const YEAR = new Date().getFullYear();
 /** The main pages, for the navigation shown when the phone menu cannot open. The five lines follow in the footer itself. */
 const FALLBACK_LINKS: readonly AppPathname[] = ["/servicios", "/nosotros", "/contacto"];
 
-const footerLinkClass = "inline-flex min-h-11 min-w-11 items-center transition-colors duration-150 hover:text-stone";
+const footerLinkClass = "quiet-link";
 
 /**
  * Site footer (docs/handoff/fase-2/maquetas; spec 012, RF-40): brand, the five lines, the
@@ -27,14 +27,14 @@ export async function SiteFooter({ locale }: { locale: AppLocale }) {
   const [t, nav] = await Promise.all([getTranslations({ locale, namespace: "Footer" }), getTranslations({ locale, namespace: "Nav" })]);
 
   return (
-    <footer className="surface-ink">
+    <footer className="band-later surface-ink [--band-size:12rem]">
       <Container>
         <div className="flex flex-col gap-5 border-t border-line pt-7 pb-10">
           {/* Where the phone menu control leads before its script runs (or if it never loads). It is
               shown only when it is the target of that link: with the script, the menu opens instead. */}
           <nav id={t("id")} aria-label={nav("label")} className="hidden flex-wrap gap-x-6 border-b border-line pb-5 target:flex">
             {FALLBACK_LINKS.map((pathname) => (
-              <AppLink key={pathname} href={pathname} className="inline-flex min-h-11 min-w-11 items-center text-lg tracking-[0.08em] type-display transition-colors duration-150 hover:text-(--accent-text)">
+              <AppLink key={pathname} href={pathname} className="fallback-link">
                 {getPageName(pathname)[locale]}
               </AppLink>
             ))}
@@ -45,7 +45,7 @@ export async function SiteFooter({ locale }: { locale: AppLocale }) {
               <span className="text-sm tracking-[0.16em] type-display">Kardenum</span>
             </span>
             <nav aria-label={t("linesLabel")}>
-              <ul className="flex flex-wrap items-center gap-x-5.5 font-mono text-xs tracking-[0.1em] text-(--muted-text) uppercase">
+              <ul className="label-row">
                 {serviceLines.map((line) => (
                   <li key={line.id}>
                     <AppLink href={line.pathname} className={footerLinkClass}>
@@ -55,7 +55,7 @@ export async function SiteFooter({ locale }: { locale: AppLocale }) {
                 ))}
               </ul>
             </nav>
-            <div className="flex flex-wrap items-center gap-x-5.5 font-mono text-xs tracking-[0.1em] text-(--muted-text) uppercase">
+            <div className="label-row">
               <nav aria-label={t("legalLabel")} className="flex flex-wrap gap-x-5.5">
                 <AppLink href="/preguntas-frecuentes" className={footerLinkClass}>
                   {t("faq")}

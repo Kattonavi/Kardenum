@@ -40,7 +40,7 @@ export function SceneCarousel({ locale }: { locale: AppLocale }) {
         </div>
       </div>
       <Container>
-        <div className="mx-auto flex max-w-[65rem] flex-col gap-4 pt-5.5 md:flex-row md:items-start md:gap-6">
+        <div className="carousel-foot">
           <ol aria-hidden="true" className="carousel-tabs md:flex-1">
             {serviceLines.map((line) => (
               <li key={line.id} className="carousel-tab">

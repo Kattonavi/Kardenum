@@ -47,7 +47,7 @@ export function LanguageBar({ locale, offered, regionLabel, text, action, dismis
             href={languageHref(pathname, params, entries, offered)}
             hrefLang={offered}
             onClick={() => rememberLanguage(offered)}
-            className="inline-flex min-h-11 items-center gap-2 border border-ink px-4 text-xs tracking-[0.12em] type-display transition-colors duration-150 hover:bg-ink hover:text-stone"
+            className="lang-offer-link"
           >
             {action}
             <ArrowRightIcon size={16} />
@@ -57,7 +57,7 @@ export function LanguageBar({ locale, offered, regionLabel, text, action, dismis
             disabled={!hydrated}
             aria-label={dismissLabel}
             onClick={dismiss}
-            className="inline-flex size-11 cursor-pointer items-center justify-center transition-colors duration-150 hover:text-(--accent-text)"
+            className="icon-button"
           >
             <CloseIcon size={18} />
           </button>

@@ -15,8 +15,7 @@ import { ServicesMenu } from "./services-menu";
 
 export const MAIN_CONTENT_ID = "contenido";
 
-const navLinkClass =
-  "inline-flex min-h-11 min-w-11 items-center justify-center text-[0.9375rem] transition-colors duration-150 hover:text-(--accent-text)";
+const navLinkClass = "nav-link";
 
 /**
  * Site header (maquetas B-Nav-escritorio and B-Movil-menu): language bar, logo and menu.
@@ -54,7 +53,7 @@ export async function SiteHeader({ locale }: { locale: AppLocale }) {
     <>
       <a
         href={`#${MAIN_CONTENT_ID}`}
-        className="sr-only bg-bronze text-sm font-semibold text-ink focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:inline-flex focus:min-h-11 focus:items-center focus:px-4"
+        className="skip-link"
       >
         {t("skipToContent")}
       </a>
@@ -69,11 +68,11 @@ export async function SiteHeader({ locale }: { locale: AppLocale }) {
           entries={entries}
         />
         <Container>
-          <nav aria-label={nav("label")} className="relative flex items-center justify-between gap-x-3 border-b border-line py-4 @5xl:gap-x-8 @5xl:py-6">
+          <nav aria-label={nav("label")} className="header-row">
             <AppLink href="/" aria-label={t("homeLink")} className="inline-flex min-h-11 items-center gap-2.5 @5xl:gap-3">
               <KardenumSymbol size={26} variant="negative" className="size-[1.375rem] @5xl:size-[1.625rem]" />
               {/* With very large text on a narrow screen the symbol alone stays; the link keeps its name. */}
-              <span className="text-[0.9375rem] tracking-[0.16em] type-display whitespace-nowrap @5xl:text-lg @max-[15rem]:hidden">Kardenum</span>
+              <span className="wordmark">Kardenum</span>
             </AppLink>
 
             <div className="flex items-center gap-2 @5xl:gap-7">
@@ -95,7 +94,7 @@ export async function SiteHeader({ locale }: { locale: AppLocale }) {
               {/* Filled in bronze on the Contact page itself (maqueta B-Contacto). */}
               <NavLink
                 href="/contacto"
-                className="inline-flex min-h-11 items-center border px-5 text-xs tracking-[0.14em] type-display transition-colors duration-150 @max-5xl:hidden"
+                className="nav-quote @max-5xl:hidden"
                 currentClassName="border-bronze bg-bronze text-ink"
                 idleClassName="border-stone hover:border-bronze hover:text-bronze"
               >

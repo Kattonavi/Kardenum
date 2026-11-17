@@ -37,14 +37,247 @@
     border: 0;
   }
 
-  .scene-frame :where(span, div) {
+  /* Every piece of a scene is a span (scene.tsx): each rule below says how it is laid out. */
+  .scene-frame :where(span) {
     display: block;
   }
 
-  /* The words of a scene are drawn from an attribute: they belong to the picture, not to the text of the page. */
-  .sc-t::before {
-    content: attr(data-t);
+  /*
+   * The words of the scenes. They are drawn here, not written in the page: they belong to the
+   * picture (scene.tsx explains why). Three groups, and src/lib/motion-rules.test.ts checks that
+   * every word of the second one has its pair in the third:
+   *   1. the same in every language,
+   *   2. Spanish, the language of the site by default,
+   *   3. English, for pages in English (:lang(en)).
+   */
+
+  /* words: any language */
+  .sc-des-sample::before {
+    content: "Aa";
   }
+
+  .sc-des-face::before {
+    content: "Archivo Expanded";
+  }
+
+  .sc-vid-time::before {
+    content: "00:12:08";
+  }
+
+  .sc-vid-format:nth-child(1)::before {
+    content: "16:9";
+  }
+
+  .sc-vid-format:nth-child(2)::before {
+    content: "9:16";
+  }
+
+  .sc-vid-format:nth-child(3)::before {
+    content: "1:1";
+  }
+
+  .sc-vid-format:nth-child(4)::before {
+    content: "4:5";
+  }
+
+  .sc-mc-prompt::before {
+    content: ">";
+  }
+
+  .sc-mc-cursor::before {
+    content: "_";
+  }
+
+  .sc-dc-channel:nth-child(3)::before {
+    content: "# general";
+  }
+
+  /* words: es */
+  .sc-dev-url::before {
+    content: "tutienda.com/catalogo";
+  }
+
+  .sc-dev-cart-title::before {
+    content: "Carrito";
+  }
+
+  .sc-dev-pay::before {
+    content: "Pagar";
+  }
+
+  .sc-des-caption::before {
+    content: "Pieza para redes · 1:1";
+  }
+
+  .sc-mc-title::after {
+    content: "Consola";
+  }
+
+  .sc-mc-line:nth-child(2)::before {
+    content: "[12:04:11] Iniciando servidor";
+  }
+
+  .sc-mc-line:nth-child(3)::before {
+    content: "[12:04:12] Mundo cargado";
+  }
+
+  .sc-mc-line:nth-child(4)::before {
+    content: "[12:04:13] Plugins activos";
+  }
+
+  .sc-mc-line:nth-child(5)::before {
+    content: "[12:04:14] Tienda conectada";
+  }
+
+  .sc-mc-line:nth-child(6)::before {
+    content: "[12:04:16] Listo · TPS 20.0";
+  }
+
+  .sc-mc-box:nth-child(1) > .sc-mc-label::before {
+    content: "Jugadores en línea";
+  }
+
+  .sc-mc-box:nth-child(2) > .sc-mc-label::before {
+    content: "Rendimiento";
+  }
+
+  .sc-mc-box:nth-child(3) > .sc-mc-label::before {
+    content: "Tienda del servidor";
+  }
+
+  .sc-dc-server::before {
+    content: "Tu comunidad";
+  }
+
+  .sc-dc-channel:nth-child(2)::before {
+    content: "# anuncios";
+  }
+
+  .sc-dc-channel:nth-child(4)::before {
+    content: "# soporte";
+  }
+
+  .sc-dc-channel:nth-child(5)::before {
+    content: "# tienda";
+  }
+
+  .sc-dc-message:nth-child(1) .sc-dc-author::before {
+    content: "Miembro";
+  }
+
+  .sc-dc-command::before {
+    content: "/ticket abrir";
+  }
+
+  .sc-dc-message:nth-child(2) .sc-dc-author::before {
+    content: "Bot del servidor";
+  }
+
+  .sc-dc-card-title::before {
+    content: "Ticket creado en #soporte";
+  }
+
+  .sc-dc-action:nth-child(1)::before {
+    content: "Asignar";
+  }
+
+  .sc-dc-action:nth-child(2)::before {
+    content: "Cerrar";
+  }
+
+  /* words: en */
+  :lang(en) .sc-dev-url::before {
+    content: "yourstore.com/catalog";
+  }
+
+  :lang(en) .sc-dev-cart-title::before {
+    content: "Cart";
+  }
+
+  :lang(en) .sc-dev-pay::before {
+    content: "Checkout";
+  }
+
+  :lang(en) .sc-des-caption::before {
+    content: "Social media piece · 1:1";
+  }
+
+  :lang(en) .sc-mc-title::after {
+    content: "Console";
+  }
+
+  :lang(en) .sc-mc-line:nth-child(2)::before {
+    content: "[12:04:11] Starting server";
+  }
+
+  :lang(en) .sc-mc-line:nth-child(3)::before {
+    content: "[12:04:12] World loaded";
+  }
+
+  :lang(en) .sc-mc-line:nth-child(4)::before {
+    content: "[12:04:13] Plugins enabled";
+  }
+
+  :lang(en) .sc-mc-line:nth-child(5)::before {
+    content: "[12:04:14] Store connected";
+  }
+
+  :lang(en) .sc-mc-line:nth-child(6)::before {
+    content: "[12:04:16] Ready · TPS 20.0";
+  }
+
+  :lang(en) .sc-mc-box:nth-child(1) > .sc-mc-label::before {
+    content: "Players online";
+  }
+
+  :lang(en) .sc-mc-box:nth-child(2) > .sc-mc-label::before {
+    content: "Performance";
+  }
+
+  :lang(en) .sc-mc-box:nth-child(3) > .sc-mc-label::before {
+    content: "Server store";
+  }
+
+  :lang(en) .sc-dc-server::before {
+    content: "Your community";
+  }
+
+  :lang(en) .sc-dc-channel:nth-child(2)::before {
+    content: "# announcements";
+  }
+
+  :lang(en) .sc-dc-channel:nth-child(4)::before {
+    content: "# support";
+  }
+
+  :lang(en) .sc-dc-channel:nth-child(5)::before {
+    content: "# store";
+  }
+
+  :lang(en) .sc-dc-message:nth-child(1) .sc-dc-author::before {
+    content: "Member";
+  }
+
+  :lang(en) .sc-dc-command::before {
+    content: "/ticket open";
+  }
+
+  :lang(en) .sc-dc-message:nth-child(2) .sc-dc-author::before {
+    content: "Server bot";
+  }
+
+  :lang(en) .sc-dc-card-title::before {
+    content: "Ticket created in #support";
+  }
+
+  :lang(en) .sc-dc-action:nth-child(1)::before {
+    content: "Assign";
+  }
+
+  :lang(en) .sc-dc-action:nth-child(2)::before {
+    content: "Close";
+  }
+  /* words: end */
 
   /* Labels inside the drawings are set in capitals, like the labels of the site. */
   .sc-dev-cart-title,
@@ -231,6 +464,12 @@
   .sc-des-symbol > svg {
     width: 46%;
     height: auto;
+    fill: var(--color-stone);
+  }
+
+  /* The square of the symbol is the accent. */
+  .sc-des-symbol path:last-child {
+    fill: var(--color-bronze);
   }
 
   .sc-des-palette {
@@ -622,7 +861,7 @@
 
   .sc-mc-items::before,
   .sc-mc-items::after,
-  .sc-mc-items > span {
+  .sc-mc-item {
     content: "";
     width: 1.6em;
     height: 1.6em;
@@ -630,7 +869,7 @@
     background: var(--color-graphite);
   }
 
-  .sc-mc-items > span {
+  .sc-mc-item {
     background: var(--color-mist);
   }
 
@@ -779,7 +1018,7 @@
     padding-left: 2.8em;
   }
 
-  .sc-dc-typing > span {
+  .sc-dc-dot {
     width: 0.45em;
     height: 0.45em;
     background: var(--color-ash);
@@ -1073,7 +1312,7 @@
     animation-delay: 2.4s;
   }
 
-  .sc-mc-prompt > span {
+  .sc-mc-cursor {
     animation: scene-blink 1s steps(1) infinite;
   }
 
@@ -1125,15 +1364,15 @@
     animation: scene-pop 9s 2.4s infinite both;
   }
 
-  .sc-dc-typing > span {
+  .sc-dc-dot {
     animation: scene-dot 1.2s infinite;
   }
 
-  .sc-dc-typing > span:nth-child(2) {
+  .sc-dc-dot:nth-child(2) {
     animation-delay: 0.2s;
   }
 
-  .sc-dc-typing > span:nth-child(3) {
+  .sc-dc-dot:nth-child(3) {
     animation-delay: 0.4s;
   }
 

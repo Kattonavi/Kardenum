@@ -12,24 +12,21 @@ export function HomeProcess({ locale }: { locale: AppLocale }) {
   const t = useTranslations("Home");
 
   return (
-    <section aria-labelledby="process-title" className="band-later surface-stone [--band-size:56rem] sm:[--band-size:38rem] lg:[--band-size:31.5rem]">
+    <section aria-labelledby="process-title" className="band-later band-jump band-process surface-stone">
       <Container className="flex flex-col gap-11 py-16 md:py-26">
         <div className="flex flex-col gap-4.5">
-          <p className="flex items-center gap-3 type-label tracking-[0.14em] text-(--muted-text)">
-            <span aria-hidden="true" className="size-2 shrink-0 bg-bronze" />
-            {t("processLabel")}
-          </p>
-          <h2 id="process-title" className="text-[clamp(1.75rem,1.312rem+1.8vw,2.75rem)] leading-[1.05] font-extrabold type-display">
+          <p className="eyebrow">{t("processLabel")}</p>
+          <h2 id="process-title" className="title-band">
             {t("processTitle")}
           </h2>
         </div>
         <ol className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {processSteps.map((step) => (
-            <li key={step.number} className="reveal flex flex-col gap-3.5 border-t-2 border-ink pt-6.5">
-              <span aria-hidden="true" className="font-mono text-[0.8125rem] tracking-[0.14em] text-(--accent-text)">
+            <li key={step.number} className="reveal process-step">
+              <span aria-hidden="true" className="numeral text-[0.8125rem]">
                 {step.number}
               </span>
-              <h3 className="text-[1.375rem] leading-[1.1] font-extrabold type-display">{step.title[locale]}</h3>
+              <h3 className="title-step">{step.title[locale]}</h3>
               <p className="leading-[1.55] text-(--muted-text)">{step.text[locale]}</p>
             </li>
           ))}

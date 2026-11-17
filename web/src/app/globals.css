@@ -218,10 +218,205 @@
  * Until a band is drawn its height is a guess (--band-size, close to the real one at each width);
  * once drawn, the browser remembers the real height. What is inside stays reachable: links to its
  * anchors, find in page and screen readers all get it.
+ *
+ * The closing band and the footer of every page are left for later too: they are never on the
+ * first screen. A band that has anchors below it is also marked band-jump (see the base rules).
  */
 @utility band-later {
   content-visibility: auto;
   contain-intrinsic-block-size: auto var(--band-size, 40rem);
+}
+
+/*
+ * Named looks (spec 012, decision 32). A long list of utility classes is written twice in every
+ * page: in the HTML and in the data Next sends along for the browser. On the home page that pushed
+ * the document over what fits in the first TCP flight (14,600 bytes), and Lighthouse counts one
+ * more round trip for it. A look that repeats, or that is long, gets a name here and the page
+ * carries the name. Each one is the same utilities it replaces, nothing else.
+ */
+@utility page-width {
+  @apply mx-auto w-full max-w-[1200px] px-5 lg:px-10;
+}
+
+/* Buttons (src/components/ui/button.ts). */
+@utility btn {
+  @apply inline-flex min-h-13 items-center justify-center px-7 text-[0.8125rem] font-bold tracking-[0.12em] type-display transition-colors duration-150;
+}
+
+@utility btn-primary {
+  @apply btn bg-bronze text-ink hover:bg-(--primary-hover) hover:text-(--primary-hover-text);
+}
+
+@utility btn-dark {
+  @apply btn bg-ink text-stone hover:bg-bronze-deep;
+}
+
+@utility btn-secondary {
+  @apply btn border border-(--button-rule) hover:border-(--accent-text) hover:text-(--accent-text);
+}
+
+@utility btn-line {
+  @apply inline-flex min-h-11 items-center gap-2 border border-(--button-rule) px-4 font-mono text-xs tracking-[0.12em] uppercase transition-colors duration-150 hover:border-(--accent-text) hover:text-(--accent-text);
+}
+
+/* The small label over a title, with its bronze square. */
+@utility eyebrow {
+  @apply flex items-center gap-3 type-label tracking-[0.14em] text-(--muted-text);
+
+  &::before {
+    content: "";
+    @apply size-2 shrink-0 bg-bronze;
+  }
+}
+
+/* Titles of the phase 2 mockups: Archivo at width 125 and weight 800, sized between a phone and a wide window. */
+@utility title-hero {
+  @apply max-w-[68.75rem] text-[clamp(2.125rem,1.084rem+4.27vw,4.5rem)] leading-[1.02] font-extrabold type-display;
+}
+
+@utility title-closing {
+  @apply max-w-[56.25rem] text-[clamp(2rem,1.124rem+3.596vw,4rem)] leading-[1.02] font-extrabold type-display;
+}
+
+@utility title-band {
+  @apply text-[clamp(1.75rem,1.312rem+1.8vw,2.75rem)] leading-[1.05] font-extrabold type-display;
+}
+
+@utility title-block {
+  @apply text-[clamp(1.625rem,1.296rem+1.348vw,2.375rem)] leading-[1.05] font-extrabold type-display;
+}
+
+@utility title-step {
+  @apply text-[1.375rem] leading-[1.1] font-extrabold type-display;
+}
+
+@utility title-card {
+  @apply text-xl leading-[1.1] font-bold type-display;
+}
+
+/* The paragraph under a centred title. */
+@utility lede {
+  @apply text-[clamp(1rem,0.918rem+0.337vw,1.1875rem)] leading-[1.55] text-(--muted-text);
+}
+
+/* A centred column: the first screen of the home page and the closing band. */
+@utility centred-stack {
+  @apply flex flex-col items-center gap-6.5 text-center;
+}
+
+/* Numbering in the accent of the surface (roman numeral of a line, number of a step). */
+@utility numeral {
+  @apply font-mono text-xs tracking-[0.14em] text-(--accent-text);
+}
+
+/* A service named next to its scene: text, not a link. */
+@utility chip {
+  @apply border border-line px-3 py-2 font-mono text-xs tracking-[0.08em];
+}
+
+/* A line as a card: the scene on top and the text under it. */
+@utility line-card {
+  @apply relative flex flex-col border border-line bg-coal transition-colors duration-150 hover:border-graphite;
+}
+
+@utility line-card-body {
+  @apply flex flex-1 flex-col gap-2.5 px-5.5 pt-5 pb-6;
+}
+
+/* A link that is only text in the label face (footer, the link to the questions). */
+@utility quiet-link {
+  @apply inline-flex min-h-11 min-w-11 items-center transition-colors duration-150 hover:text-stone;
+}
+
+@utility label-row {
+  @apply flex flex-wrap items-center gap-x-5.5 font-mono text-xs tracking-[0.1em] text-(--muted-text) uppercase;
+}
+
+/* The link that takes the keyboard straight to the content: out of sight until it has focus. */
+@utility skip-link {
+  @apply sr-only bg-bronze text-sm font-semibold text-ink focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:inline-flex focus:min-h-11 focus:items-center focus:px-4;
+}
+
+/* Header: the row, the name next to the symbol, and each kind of link in it. */
+@utility header-row {
+  @apply relative flex items-center justify-between gap-x-3 border-b border-line py-4 @5xl:gap-x-8 @5xl:py-6;
+}
+
+@utility wordmark {
+  @apply text-[0.9375rem] tracking-[0.16em] type-display whitespace-nowrap @5xl:text-lg @max-[15rem]:hidden;
+}
+
+@utility nav-link {
+  @apply inline-flex min-h-11 min-w-11 items-center justify-center text-[0.9375rem] transition-colors duration-150 hover:text-(--accent-text);
+}
+
+@utility nav-trigger {
+  @apply inline-flex min-h-11 cursor-pointer items-center gap-2 border-b-2 text-[0.9375rem] transition-colors duration-150 hover:text-(--accent-text);
+}
+
+@utility nav-quote {
+  @apply inline-flex min-h-11 items-center border px-5 text-xs tracking-[0.14em] type-display transition-colors duration-150;
+}
+
+@utility nav-panel {
+  @apply absolute inset-x-0 top-full z-40 border border-ink surface-stone;
+}
+
+@utility lang-link {
+  @apply inline-flex min-h-11 min-w-11 items-center uppercase transition-colors duration-150 hover:text-(--accent-text);
+}
+
+@utility lang-offer-link {
+  @apply inline-flex min-h-11 items-center gap-2 border border-ink px-4 text-xs tracking-[0.12em] type-display transition-colors duration-150 hover:bg-ink hover:text-stone;
+}
+
+/* A square control with only an icon: 44 px, the minimum touch target. */
+@utility icon-button {
+  @apply inline-flex size-11 cursor-pointer items-center justify-center transition-colors duration-150 hover:text-(--accent-text);
+}
+
+@utility menu-control {
+  @apply inline-flex size-11 cursor-pointer items-center justify-center border border-line transition-colors duration-150 hover:border-stone;
+}
+
+@utility menu-dialog {
+  @apply fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none overflow-y-auto overscroll-contain border-0 p-0 surface-ink;
+}
+
+/* Footer: the links shown when the phone menu cannot open. */
+@utility fallback-link {
+  @apply inline-flex min-h-11 min-w-11 items-center text-lg tracking-[0.08em] type-display transition-colors duration-150 hover:text-(--accent-text);
+}
+
+/* A link in the label face, underlined (the way to the questions from the closing band). */
+@utility text-link {
+  @apply inline-flex min-h-11 items-center gap-2 font-mono text-xs tracking-[0.12em] text-(--muted-text) uppercase underline underline-offset-4 transition-colors duration-150 hover:text-(--accent-text);
+}
+
+/* Home page: a line with its scene on one side and its text on the other; a step of the process. */
+@utility feature-row {
+  @apply flex flex-wrap items-center gap-6 md:gap-14;
+}
+
+@utility feature-scene {
+  @apply min-w-0 flex-[1.5_1_30rem];
+}
+
+@utility feature-text {
+  @apply flex min-w-0 flex-[1_1_20rem] flex-col gap-4;
+}
+
+@utility process-step {
+  @apply flex flex-col gap-3.5 border-t-2 border-ink pt-6.5;
+}
+
+/* Guessed heights of the two bands of the home page that are drawn later (band-later), by width. */
+@utility band-lines {
+  @apply [--band-size:170rem] md:[--band-size:145rem] lg:[--band-size:100rem];
+}
+
+@utility band-process {
+  @apply [--band-size:56rem] sm:[--band-size:38rem] lg:[--band-size:31.5rem];
 }
 
 /* Labels, numbering and data: JetBrains Mono, uppercase, wide tracking. */
@@ -256,9 +451,9 @@
     }
 
     /* A smooth scroll to an anchor is aimed once, with the guessed heights of the bands it crosses;
-       they get their real height on the way and it would land short or long. A page with such
-       bands jumps to its anchors instead, which always lands on the anchor. */
-    html:has(.band-later) {
+       they get their real height on the way and it would land short or long. A page with bands
+       above its anchors (band-jump) jumps to them instead, which always lands on the anchor. */
+    html:has(.band-jump) {
       scroll-behavior: auto;
     }
   }

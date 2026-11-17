@@ -10,8 +10,8 @@ Este archivo se actualiza al cerrar cada rebanada: de aquí sale el informe fina
 | 1 | Spec, plan y bitácora | **hecha** | `87cfd88` | corrida manual 44001275728: success (línea base; un push sin `web/**` no despliega) |
 | 2 | Cinco escenas y control de pausa | **en producción** | `d438bd1` | 44002958854: success (los tres trabajos) |
 | 3 | Carrusel | **en producción** | `2a93d0e` + `78962ae` | 44004820274: success (los tres trabajos) |
-| 4 | Inicio completo | **desplegada, verificación en rojo** (intento de arreglo 1 de 2 en curso) | `3f672fd` | 44006779132: humo y navegador success, Lighthouse contra el despliegue success, **Lighthouse sobre el build abierto failure** (rendimiento de `/`: 0,82 · 0,93 · 0,94; mínimo 0,95). Issue #3 abierto por el workflow |
-| 5 | Pie y preguntas frecuentes | lista en local, espera a que la 4 quede en verde | — | — |
+| 4 | Inicio completo | **en producción** (verde al segundo arreglo; su margen de rendimiento volvió a fallar en la rebanada 5, ver abajo) | `3f672fd` + `d23fe40` + `68b1b80` | 44016256510: success (los tres trabajos). Antes: | 44006779132: humo y navegador success, Lighthouse contra el despliegue success, **Lighthouse sobre el build abierto failure** (rendimiento de `/`: 0,82 · 0,93 · 0,94; mínimo 0,95). Issue #3 abierto por el workflow |
+| 5 | Pie y preguntas frecuentes | **desplegada, verificación en rojo** por el margen del inicio (no por la rebanada) | `8b07a3b` + `5684ba2` | 44017531353: humo, navegador y Lighthouse contra el despliegue success; **Lighthouse sobre el build abierto failure** en `/` (0,71 · 0,94 · 0,94) |
 | 6 | Índice de servicios y líneas | pendiente | — | — |
 | 7 | Subpáginas (tras su flag) | pendiente | — | — |
 | 8 | Revisiones del lote | pendiente | — | — |

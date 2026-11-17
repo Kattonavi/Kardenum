@@ -18,15 +18,12 @@ export function Hero({ contactId, servicesId }: HeroProps) {
 
   return (
     <section className="surface-ink">
-      <Container className="flex flex-col items-center gap-6.5 py-11 text-center md:pt-18 md:pb-16">
-        <p className="flex items-center gap-3 type-label tracking-[0.14em] text-(--muted-text)">
-          <span aria-hidden="true" className="size-2 shrink-0 bg-bronze" />
-          {t("heroLabel")}
-        </p>
-        <h1 className="max-w-[68.75rem] text-[clamp(2.125rem,1.084rem+4.27vw,4.5rem)] leading-[1.02] font-extrabold type-display">
+      <Container className="centred-stack py-11 md:pt-18 md:pb-16">
+        <p className="eyebrow">{t("heroLabel")}</p>
+        <h1 className="title-hero">
           {t("heroTitle")} <span className="text-(--accent-text)">{t("heroTitleAccent")}</span>
         </h1>
-        <p className="max-w-[52ch] text-[clamp(1rem,0.918rem+0.337vw,1.1875rem)] leading-[1.55] text-(--muted-text)">{t("heroText")}</p>
+        <p className="max-w-[52ch] lede">{t("heroText")}</p>
         <div className="flex flex-wrap justify-center gap-3.5">
           <a href={`#${contactId}`} className={buttonClass.primary}>
             {t("heroPrimary")}

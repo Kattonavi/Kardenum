@@ -92,6 +92,34 @@ test("a scene has a fixed 16:10 box and scales with its container", () => {
   assert.deepEqual(fixed, [], "font sizes inside a scene are in cqw or em");
 });
 
+// The words inside the scenes are drawn by the stylesheet, in the language of the page (RF-4 and
+// RF-13: both languages side by side). The interface messages have their own test for that; these
+// words do not live there, so the stylesheet is read here: every word written for Spanish has
+// its pair for English, on the same piece.
+test("every word of a scene drawn in Spanish has its English pair", () => {
+  const raw = readFileSync(path.join(srcDir, "app", "scenes.css"), "utf8");
+  const between = (from: string, to: string) => {
+    const start = raw.indexOf(from);
+    const end = raw.indexOf(to, start);
+    assert.ok(start !== -1 && end !== -1, `markers "${from}" and "${to}" not found in scenes.css`);
+    return raw.slice(start + from.length, end);
+  };
+  const words = (block: string) => [...block.matchAll(/^\s*([^\n{}]+?)\s*\{\s*content:\s*"([^"]*)";\s*\}/gm)].map((match) => ({ selector: match[1] ?? "", word: match[2] ?? "" }));
+
+  const spanish = words(between("/* words: es */", "/* words: en */"));
+  const english = words(between("/* words: en */", "/* words: end */"));
+  assert.ok(spanish.length >= 20, `only ${spanish.length} Spanish words found: the scan is not reading the block`);
+  assert.deepEqual(
+    english.map(({ selector }) => selector),
+    spanish.map(({ selector }) => `:lang(en) ${selector}`),
+    "each English rule is the Spanish one under :lang(en), in the same order",
+  );
+  for (const [index, { selector, word }] of spanish.entries()) {
+    assert.notEqual(word.trim(), "", `${selector} has no word`);
+    assert.notEqual(english[index]?.word, word, `${selector} says the same in both languages: it belongs with the words of any language`);
+  }
+});
+
 // Without animation a scene must be its finished composition (reduced motion, a paused page, a
 // browser that does not know the feature): every animation of a scene is declared only for
 // visitors who have not asked for reduced motion, so the styles outside that block are what they see.

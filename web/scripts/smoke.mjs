@@ -4,6 +4,7 @@
 // It reads the route registry and the page texts from src/, so every public page is checked
 // in both languages without listing URLs here. Exits with code 1 if any check fails.
 import { readFileSync } from "node:fs";
+import { gzipSync } from "node:zlib";
 import { portfolioCases } from "@/content/cases";
 import { guides } from "@/content/guides";
 import { faqAnchor, faqGroups } from "@/content/faq";
@@ -440,6 +441,12 @@ for (const locale of locales) {
   const html = decode(page.body);
   const missingLines = serviceLines.filter((line) => !html.includes(line.name[locale]) || !html.includes(line.summary[locale]));
   check(`[${locale}] the five service lines are in the HTML`, missingLines.length === 0, missingLines.map((line) => line.id).join(", "));
+  // The document of the home page fits in the first TCP flight (spec 012, decision 32): 14,600
+  // bytes with the response headers, which take about 1,040. Over that, Lighthouse counts one more
+  // round trip (150 ms of simulated LCP) and the performance of the open build falls under its
+  // minimum. Measured the same way on any server: the body as written, gzip at the default level.
+  const documentBytes = gzipSync(Buffer.from(page.body)).length;
+  check(`[${locale}] the document of the home page fits in the first TCP flight (${documentBytes} of 13560 bytes, gzip)`, documentBytes <= 13560, documentBytes <= 13560 ? "" : `${documentBytes - 13560} bytes over`);
   // Since the phase 2 redesign the questions are not on the home page (spec 012, RF-32).
   const strayFaqs = homeFaqs.filter((faq) => html.includes(faq.question[locale]));
   check(`[${locale}] the home page does not carry the questions`, strayFaqs.length === 0, strayFaqs.map((faq) => faq.id).join(", "));

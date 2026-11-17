@@ -1,6 +1,7 @@
 "use client";
 
 import { type KeyboardEvent, type MouseEvent, useEffect, useId, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { KardenumSymbol } from "@/components/brand/kardenum-symbol";
 import { ChannelLink } from "@/components/contact/channel-link";
 import { AppLink } from "@/components/ui/app-link";
@@ -57,16 +58,24 @@ const itemClass =
  *
  * Only that control is hidden in the full header. The dialog is never inside an element the
  * layout can hide: an open modal dialog that stops being displayed leaves the page inert.
+ *
+ * The dialog itself is always in the page, empty until it first opens.
  */
 export function MobileMenu({ locale, lines, showPortfolio, footerId, channels, languageNames, entries, labels }: MobileMenuProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const openRef = useRef<HTMLAnchorElement>(null);
   const [servicesOpen, setServicesOpen] = useState(true);
+  // What is inside the menu is rendered the first time it opens, and stays. A closed menu is not
+  // in the HTML of the page: it could never be seen there (without its script the control leads
+  // to the footer), and it weighed 5 KB in every document, twice with the data Next sends along.
+  const [rendered, setRendered] = useState(false);
   const servicesId = useId();
   const hydrated = useHydrated();
 
   function open() {
+    // Synchronously: the dialog must have its content, and its close button, before it opens.
+    flushSync(() => setRendered(true));
     dialogRef.current?.showModal();
     closeRef.current?.focus();
   }
@@ -104,7 +113,7 @@ export function MobileMenu({ locale, lines, showPortfolio, footerId, channels, l
         aria-label={hydrated ? labels.open : labels.footerNav}
         onClick={onControlClick}
         onKeyDown={onControlKeyDown}
-        className="inline-flex size-11 cursor-pointer items-center justify-center border border-line transition-colors duration-150 hover:border-stone @5xl:hidden"
+        className="menu-control @5xl:hidden"
       >
         <MenuIcon size={22} />
       </a>
@@ -112,8 +121,9 @@ export function MobileMenu({ locale, lines, showPortfolio, footerId, channels, l
       <dialog
         ref={dialogRef}
         aria-label={labels.menu}
-        className="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none overflow-y-auto overscroll-contain border-0 p-0 surface-ink"
+        className="menu-dialog"
       >
+        {rendered ? (
         <div className="flex min-h-full flex-col px-5 pb-7">
           <div className="flex items-center justify-between border-b border-line py-4">
             <AppLink href="/" onClick={close} aria-label={labels.home} className="inline-flex min-h-11 items-center gap-2.5">
@@ -125,7 +135,7 @@ export function MobileMenu({ locale, lines, showPortfolio, footerId, channels, l
               type="button"
               aria-label={labels.close}
               onClick={close}
-              className="inline-flex size-11 cursor-pointer items-center justify-center border border-line transition-colors duration-150 hover:border-stone"
+              className="menu-control"
             >
               <CloseIcon size={22} />
             </button>
@@ -210,6 +220,7 @@ export function MobileMenu({ locale, lines, showPortfolio, footerId, channels, l
             </ul>
           </div>
         </div>
+        ) : null}
       </dialog>
     </>
   );

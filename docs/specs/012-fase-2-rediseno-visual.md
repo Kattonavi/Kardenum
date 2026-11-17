@@ -138,6 +138,26 @@ Cada una queda también en la bitácora, con su fecha.
     AA) sobre maqueta.
 19. **El pie no lleva separadores entre las líneas** (como la maqueta): cierra el ítem 40 del backlog (el "·"
     colgando en celular).
+20. **Presupuesto de peso del documento: el del inicio cabe en la primera ráfaga de TCP** (14.600 bytes con las
+    cabeceras de respuesta; 13.560 de cuerpo en gzip). Por encima, Lighthouse simula una ida y vuelta más (150 ms
+    de LCP) y el rendimiento del build abierto queda al filo del mínimo: `verify-deploy` falló por eso en las
+    rebanadas 4 y 5. Lo vigila la prueba de humo. Para caber, sin cambiar un píxel (26 capturas idénticas contra
+    producción, a 1280 y 390 px, con los menús abiertos):
+    - **Looks con nombre** en `globals.css`: una lista larga de utilidades viaja dos veces en cada documento (el
+      HTML y los datos que Next escribe para el navegador). Los botones, los títulos, los enlaces de la cabecera y
+      del pie y los bloques del inicio llevan ahora un nombre (`btn-primary`, `title-hero`, `eyebrow`, `nav-link`…),
+      definido con las mismas utilidades.
+    - **Los menús cerrados no van en el HTML:** el contenido del menú de celular y el del desplegable de Servicios
+      se dibuja al abrirlos. Cerrados no se podían ver (sin script, sus controles ya eran enlaces al pie y a
+      `/servicios`) y pesaban 5 KB y 3 KB en cada página. Los enlaces a las cinco líneas siguen en el pie.
+    - **Las palabras de las escenas las escribe la hoja de estilos por idioma** (`content` bajo `:lang(en)`), ya no
+      un atributo: una prueba unitaria exige que cada palabra en español tenga su par en inglés.
+    - **El interior de cada escena es un fragmento de HTML fijo por línea** (`scene.tsx`), no un árbol de
+      elementos de React: como elementos, las escenas ocupaban una cuarta parte del documento.
+21. **Lo que no se ve al cargar se calcula después:** las bandas del inicio bajo el carrusel, y el cierre y el pie
+    de todas las páginas, llevan `content-visibility: auto`. El primer layout del inicio era una tarea larga que
+    Lighthouse contaba como bloqueo en el runner. En el inicio los saltos a un ancla son directos, no suaves, para
+    caer siempre en el ancla (las bandas de arriba tienen altura estimada hasta que se dibujan).
 
 ## Fuera de alcance
 
