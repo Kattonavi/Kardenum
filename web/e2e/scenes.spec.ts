@@ -15,18 +15,27 @@ async function openScenes(page: Page, path: string): Promise<Locator> {
   return scenes;
 }
 
-/** Animations running or paused inside the scenes of the page, by state. */
-function sceneAnimations(page: Page): Promise<{ running: number; paused: number }> {
-  return page.evaluate(() => {
-    const inScene = document.getAnimations().filter((animation) => {
+/**
+ * Animations running or paused inside the scenes the browser is drawing, by state; `within`
+ * narrows it to the scenes inside one element.
+ *
+ * A scene far from the screen is not rendered (content-visibility: auto) and its animations stay
+ * as they were left until it is drawn again: they are not counted. Counting them made this fail
+ * on the CI runner, where 63 animations of scenes that had left the screen still said "paused"
+ * after the page had resumed (verify-deploy run 44013432702).
+ */
+function sceneAnimations(page: Page, within = "body"): Promise<{ running: number; paused: number }> {
+  return page.evaluate((selector) => {
+    const root = document.querySelector(selector);
+    const drawn = document.getAnimations().filter((animation) => {
       const target = animation.effect instanceof KeyframeEffect ? animation.effect.target : null;
-      return target?.closest("[data-scene]") != null;
+      return target?.closest("[data-scene]") != null && root?.contains(target) === true && target.checkVisibility({ contentVisibilityAuto: true });
     });
     return {
-      running: inScene.filter((animation) => animation.playState === "running").length,
-      paused: inScene.filter((animation) => animation.playState === "paused").length,
+      running: drawn.filter((animation) => animation.playState === "running").length,
+      paused: drawn.filter((animation) => animation.playState === "paused").length,
     };
-  });
+  }, within);
 }
 
 for (const path of PAGES) {
@@ -87,8 +96,20 @@ for (const path of PAGES) {
       await expect.poll(() => sceneAnimations(page)).toMatchObject({ running: 0 });
       expect((await sceneAnimations(page)).paused).toBeGreaterThan(0);
 
-      await page.keyboard.press("Space");
+      // A scene further down is only drawn when the visitor gets to it: it arrives paused too.
+      const last = page.locator("[data-scene]").last();
+      await last.evaluate((scene) => scene.setAttribute("data-last-scene", ""));
+      await last.scrollIntoViewIfNeeded();
+      await expect.poll(() => sceneAnimations(page, "[data-last-scene]")).toMatchObject({ running: 0 });
+      await expect.poll(async () => (await sceneAnimations(page, "[data-last-scene]")).paused).toBeGreaterThan(0);
+
+      // Resumed from where the visitor is (a click on the control, without scrolling back to it):
+      // what is on screen moves again at once.
+      await pause.dispatchEvent("click");
       await expect(pause).not.toBeChecked();
+      await expect.poll(() => sceneAnimations(page, "[data-last-scene]")).toMatchObject({ paused: 0 });
+      expect((await sceneAnimations(page, "[data-last-scene]")).running).toBeGreaterThan(0);
+      // And so does everything else that is being drawn.
       await expect.poll(async () => (await sceneAnimations(page)).paused).toBe(0);
     });
 

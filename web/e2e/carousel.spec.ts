@@ -48,12 +48,16 @@ function slides(carousel: Locator): Promise<Slide[]> {
   );
 }
 
-/** Animations of the carousel (row, slides, tabs and the scenes inside), by state. */
+/**
+ * Animations of the carousel (row, slides, tabs and the scenes inside), by state. Only what the
+ * browser is drawing: the scene of a slide far from the screen is not rendered
+ * (content-visibility: auto) and its animations wait as they were left (see scenes.spec.ts).
+ */
 function carouselAnimations(page: Page): Promise<{ running: number; paused: number }> {
   return page.evaluate(() => {
     const inside = document.getAnimations().filter((animation) => {
       const target = animation.effect instanceof KeyframeEffect ? animation.effect.target : null;
-      return target?.closest(".carousel") != null;
+      return target?.closest(".carousel") != null && target.checkVisibility({ contentVisibilityAuto: true });
     });
     return {
       running: inside.filter((animation) => animation.playState === "running").length,
