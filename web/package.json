@@ -8,6 +8,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "node --import ./scripts/test-register.mjs --test \"src/**/*.test.ts\"",
     "test:e2e": "playwright test",
+    "test:e2e:short": "playwright test e2e/home.spec.ts e2e/navigation.spec.ts e2e/contact.spec.ts e2e/carousel.spec.ts e2e/faq.spec.ts e2e/fonts.spec.ts e2e/language.spec.ts e2e/layout.spec.ts e2e/security.spec.ts",
     "build": "eslint --max-warnings=0 && next typegen && tsc --noEmit && node --import ./scripts/test-register.mjs --test \"src/**/*.test.ts\" && next build && node scripts/copy-standalone-assets.mjs",
     "start": "node scripts/start.mjs",
     "smoke": "node --import ./scripts/test-register.mjs scripts/smoke.mjs"

@@ -12,9 +12,10 @@
 
 const MINIMUM = 0.95;
 
-// The pages, in the order they are measured. The workflow asks for each one once before measuring
-// (scripts/warm-up.mjs): the first run after a start is slower than the rest, and without that
-// the first page of the list always lost one of its three runs to it.
+// The pages, in the order they are measured: nine in the complete check, three in the short one
+// that follows every deployment (LHCI_PAGES=short; lighthouse-paths.cjs). The workflow asks for
+// each one once before measuring (scripts/warm-up.mjs): the first run after a start is slower than
+// the rest, and without that the first page of the list always lost one of its three runs to it.
 // eslint-disable-next-line @typescript-eslint/no-require-imports -- a CommonJS file, as Lighthouse CI reads it
 const PATHS = require("./lighthouse-paths.cjs");
 

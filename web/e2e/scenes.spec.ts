@@ -148,7 +148,9 @@ for (const [path, lines] of Object.entries(PAGES)) {
       await pause.dispatchEvent("click");
       await expect(pause).not.toBeChecked();
       await expect.poll(() => sceneAnimations(page, "[data-last-scene]")).toMatchObject({ paused: 0 });
-      expect((await sceneAnimations(page, "[data-last-scene]")).running).toBeGreaterThan(0);
+      // Read until it holds, not once: between "none is paused" and this reading a turn of the
+      // scene can end, and against a remote server the single reading failed now and then.
+      await expect.poll(async () => (await sceneAnimations(page, "[data-last-scene]")).running).toBeGreaterThan(0);
       // And so does everything else that is being drawn.
       await expect.poll(async () => (await sceneAnimations(page)).paused).toBe(0);
     });

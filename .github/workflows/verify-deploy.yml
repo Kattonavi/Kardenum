@@ -1,11 +1,22 @@
 # Verifies the site after Railway has deployed it (docs/specs/007-verificacion-tras-despliegue.md).
 # It deploys nothing and changes nothing: it checks the live site and tells when something is wrong.
+#
+# Two sizes (docs/specs/013-ajustes-tras-la-fase-2.md, RF-46):
+#
+# - Short, after every deployment, in one job: smoke, Lighthouse on three pages of the deployment
+#   and part of the browser tests. About 7 minutes.
+# - Complete, only by hand (Actions tab, or `gh workflow run verify-deploy.yml --ref main`): the
+#   whole browser suite, Lighthouse on nine pages of the deployment and Lighthouse on the open
+#   build of the same commit. About 30 minutes over three jobs. It is REQUIRED before the launch,
+#   and worth running after a batch of changes.
+#
+# Do not add diagnosis runs here or on other branches without asking: measure on a local machine.
 name: Verify deploy
 
 on:
-  # Railway reports each deployment to GitHub. The jobs run when one succeeds.
+  # Railway reports each deployment to GitHub. The short check runs when one succeeds.
   deployment_status:
-  # By hand, from the Actions tab: checks the site as it is now, with the code of the main branch.
+  # By hand: the complete check of the site as it is now, with the code of the main branch.
   workflow_dispatch:
 
 permissions:
@@ -26,13 +37,11 @@ env:
   NEXT_TELEMETRY_DISABLED: "1"
 
 jobs:
-  browser:
-    name: Smoke, axe and Playwright at 1280 and 390 px, against the deployment
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'kardenum / production')
+  quick:
+    name: Short check of a deployment (smoke, Lighthouse on three pages, part of the browser tests)
+    if: github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'kardenum / production'
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: web
@@ -45,12 +54,91 @@ jobs:
           node-version: 22
       # pnpm at the version package.json names (packageManager), through Corepack.
       - run: corepack enable
+      - name: Where pnpm keeps its packages
+        id: pnpm-store
+        run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.pnpm-store.outputs.path }}
+          key: pnpm-${{ runner.os }}-${{ hashFiles('web/pnpm-lock.yaml') }}
+          restore-keys: pnpm-${{ runner.os }}-
       - run: pnpm install --frozen-lockfile
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('web/pnpm-lock.yaml') }}
+      # With the browser in the cache this only installs the system libraries it needs.
       - run: pnpm exec playwright install --with-deps chromium
       - name: Wait until the deployment answers
         run: |
           for attempt in $(seq 1 30); do
-            code=$(curl -s -o /dev/null -w '%{http_code}' "$SITE_UNDER_TEST/")
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$SITE_UNDER_TEST/" || true)
+            [ "$code" = "200" ] && exit 0
+            sleep 10
+          done
+          echo "The site did not answer 200 in five minutes (last status: $code)"
+          exit 1
+      - name: Smoke test (structure, technical SEO, security headers, hidden pages)
+        run: pnpm smoke "$SITE_UNDER_TEST" --expect="$SITE_EXPECTATION" --site-url=self
+      # The home page, a line page and the questions page (web/lighthouse-paths.cjs), three runs
+      # each, 95 or more. SEO is not measured here: while the site is closed its noindex fails it.
+      - name: Warm up and Lighthouse CI on three pages of the deployment
+        run: |
+          node scripts/warm-up.mjs "$SITE_UNDER_TEST"
+          npx --yes "@lhci/cli@$LHCI_VERSION" autorun --config=lighthouserc.cjs
+        env:
+          LHCI_MODE: deployed
+          LHCI_PAGES: short
+          LHCI_BASE_URL: ${{ env.SITE_UNDER_TEST }}
+      - name: Browser tests, the short set (home, menus, quote form, carousel, questions, fonts, language, policy)
+        run: pnpm test:e2e:short
+        env:
+          E2E_BASE_URL: ${{ env.SITE_UNDER_TEST }}
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: short-check
+          path: |
+            web/.lighthouseci
+            web/test-results
+          include-hidden-files: true
+          retention-days: 14
+          if-no-files-found: ignore
+
+  browser:
+    name: Complete · smoke, axe and Playwright at 1280 and 390 px, against the deployment
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - run: corepack enable
+      - name: Where pnpm keeps its packages
+        id: pnpm-store
+        run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.pnpm-store.outputs.path }}
+          key: pnpm-${{ runner.os }}-${{ hashFiles('web/pnpm-lock.yaml') }}
+          restore-keys: pnpm-${{ runner.os }}-
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('web/pnpm-lock.yaml') }}
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Wait until the deployment answers
+        run: |
+          for attempt in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$SITE_UNDER_TEST/" || true)
             [ "$code" = "200" ] && exit 0
             sleep 10
           done
@@ -71,10 +159,8 @@ jobs:
           if-no-files-found: ignore
 
   lighthouse-deployed:
-    name: Lighthouse on the deployment (performance, accessibility, best practices at 95 or more)
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'kardenum / production')
+    name: Complete · Lighthouse on the deployment (performance, accessibility, best practices at 95 or more)
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     defaults:
@@ -88,7 +174,7 @@ jobs:
         with:
           node-version: 22
       # One request to each page, in the order they are measured, and one load in the browser that
-      # measures (web/scripts/warm-up.mjs; spec 013, RF-40). The first run of a job is the slow one
+      # measures (web/scripts/warm-up.mjs; spec 013, RF-45). The first run of a job is the slow one
       # and it always fell on the first page, the home page, which lost one of its three runs to it.
       - name: Warm up the deployment before measuring
         run: node scripts/warm-up.mjs "$SITE_UNDER_TEST"
@@ -109,10 +195,8 @@ jobs:
           if-no-files-found: ignore
 
   lighthouse-open:
-    name: Lighthouse on the open build of the same commit (the four categories at 95 or more)
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'kardenum / production')
+    name: Complete · Lighthouse on the open build of the same commit (the four categories at 95 or more)
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     defaults:
@@ -126,6 +210,14 @@ jobs:
         with:
           node-version: 22
       - run: corepack enable
+      - name: Where pnpm keeps its packages
+        id: pnpm-store
+        run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.pnpm-store.outputs.path }}
+          key: pnpm-${{ runner.os }}-${{ hashFiles('web/pnpm-lock.yaml') }}
+          restore-keys: pnpm-${{ runner.os }}-
       - run: pnpm install --frozen-lockfile
       # The site as it will be when it is open to search engines, built here only to be measured:
       # nothing built in this job is published. SITE_LAUNCH_CHECK=off is accepted in GitHub Actions
@@ -169,7 +261,7 @@ jobs:
 
   report:
     name: Tell when the verification fails
-    needs: [browser, lighthouse-deployed, lighthouse-open]
+    needs: [quick, browser, lighthouse-deployed, lighthouse-open]
     if: failure()
     runs-on: ubuntu-24.04
     timeout-minutes: 5
@@ -183,6 +275,7 @@ jobs:
           REPO: ${{ github.repository }}
           COMMIT: ${{ github.sha }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          QUICK: ${{ needs.quick.result }}
           BROWSER: ${{ needs.browser.result }}
           DEPLOYED: ${{ needs.lighthouse-deployed.result }}
           OPEN: ${{ needs.lighthouse-open.result }}
@@ -193,9 +286,12 @@ jobs:
             "" \
             "| Comprobación | Resultado |" \
             "|---|---|" \
-            "| Humo, axe y Playwright (1280 y 390 px) contra el despliegue | $BROWSER |" \
-            "| Lighthouse contra el despliegue (rendimiento, accesibilidad, buenas prácticas) | $DEPLOYED |" \
-            "| Lighthouse sobre el build abierto (las cuatro categorías, con SEO) | $OPEN |" \
+            "| Corta, tras cada despliegue: humo, Lighthouse de tres páginas y parte de las pruebas de navegador | $QUICK |" \
+            "| Completa · humo, axe y Playwright (1280 y 390 px) contra el despliegue | $BROWSER |" \
+            "| Completa · Lighthouse contra el despliegue (rendimiento, accesibilidad, buenas prácticas) | $DEPLOYED |" \
+            "| Completa · Lighthouse sobre el build abierto (las cuatro categorías, con SEO) | $OPEN |" \
+            "" \
+            "\"skipped\" es lo normal en la mitad que no corrió: tras un despliegue corre la corta; a mano, la completa." \
             "" \
             "Detalle y archivos de la corrida: $RUN_URL" \
             "" \

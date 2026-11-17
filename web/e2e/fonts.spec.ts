@@ -63,3 +63,40 @@ for (const pathname of ["/", "/en/services/design", "/servicios/discord", "/en/s
     expect(shift).toBeLessThan(0.03);
   });
 }
+
+// Archivo is two files (spec 013, RF-43): the base one, which every page preloads, and one with the
+// rest of the Latin letters, which a browser must ask for only where one of them is shown.
+const EXTENDED_FONT = /Archivo-ext[^/]*\.woff2/;
+
+test("no page of the site asks for the extended file of Archivo", async ({ page }) => {
+  // Twelve pages, each one loaded and walked to the end: more than the 30 s of a single test.
+  test.setTimeout(120_000);
+  const asked: string[] = [];
+  page.on("request", (request) => {
+    if (EXTENDED_FONT.test(request.url())) asked.push(`${page.url()} → ${request.url()}`);
+  });
+  const pages = ["/", "/en", "/servicios", "/servicios/minecraft", "/en/services/discord", "/preguntas-frecuentes", "/en/faq", "/nosotros", "/contacto", "/legal/privacidad", "/legal/terminos", "/no-existe"];
+  for (const pathname of pages) {
+    await page.goto(pathname, { waitUntil: "load" });
+    await page.evaluate(() => document.fonts.ready);
+    // To the end and back, so that what is drawn only when the visitor comes near is drawn too.
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await page.evaluate(() => document.fonts.ready);
+  }
+  expect(asked).toEqual([]);
+});
+
+test("a letter of another language typed into the quote form brings the extended file, and is drawn in Archivo", async ({ page }) => {
+  await page.goto("/contacto", { waitUntil: "load" });
+  await page.evaluate(() => document.fonts.ready);
+  const name = page.getByLabel("Tu nombre");
+  await name.scrollIntoViewIfNeeded();
+  const extended = page.waitForResponse((response) => EXTENDED_FONT.test(response.url()) && response.status() === 200, { timeout: 15_000 });
+  await name.fill("João Ångström");
+  await extended;
+  await page.evaluate(() => document.fonts.ready);
+  // Both files of the family are loaded now, and the field is still set in Archivo.
+  const loaded = await page.evaluate(() => [...document.fonts].filter((face) => face.status === "loaded" && face.family.replaceAll('"', "") === "Archivo").length);
+  expect(loaded).toBe(2);
+  expect(await name.evaluate((field) => getComputedStyle(field).fontFamily)).toMatch(/^"?Archivo"?,/);
+});

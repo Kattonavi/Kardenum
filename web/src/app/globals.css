@@ -39,6 +39,23 @@
 }
 
 /*
+ * The second file of Archivo (spec 013, RF-43): the Latin letters and signs the base file leaves
+ * out (ã, ç, è, ő...), with the same weights and widths. The base file is declared by next/font
+ * (src/app/fonts.ts) with the range of its own characters; this one carries the rest, so a browser
+ * downloads it only on a page that shows one of them, such as a name typed into the quote form.
+ * No text of the site needs it. The range is written by scripts/subset-archivo.py.
+ */
+@font-face {
+  font-family: "Archivo";
+  src: url("../assets/fonts/Archivo-ext.woff2") format("woff2");
+  font-weight: 400 800;
+  font-stretch: 100% 125%;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+00A2-00A6, U+00A8, U+00AC-00AD, U+00AF, U+00B1-00B6, U+00B8-00B9, U+00BC-00BE, U+00C0, U+00C2-00C8, U+00CA-00CC, U+00CE-00D0, U+00D2, U+00D4-00D9, U+00DB, U+00DD-00E0, U+00E2-00E8, U+00EA-00EC, U+00EE-00F0, U+00F2, U+00F4-00F9, U+00FB, U+00FD-017F, U+018F, U+0192, U+019D, U+01A0-01A1, U+01AF-01B0, U+01C4-01DC, U+01E6-01E7, U+01EA-01EB, U+01FA-021B, U+022A-022D, U+0230-0233, U+0237, U+1E24-1E25, U+1E62-1E63, U+1E6C-1E6D, U+1E80-1E85, U+1E9E, U+1EA0-1EF9, U+2009, U+2010-2011, U+2015, U+2017, U+201A, U+201E, U+2020-2021, U+2030, U+2032-2033, U+2039, U+203E, U+2044, U+2052, U+2070, U+2074-2079, U+207F-2089, U+2099, U+20A1, U+20A3-20A4, U+20A6-20A7, U+20A9, U+20AB, U+20AD, U+20B1-20B2, U+20B5, U+20B9-20BA, U+20BC-20BD, U+2113, U+2190-2191, U+2193, U+2212, U+2215;
+}
+
+/*
  * Fonts are loaded by next/font (src/app/fonts.ts), self-hosted and with display: swap.
  * While they load, text is drawn with a system font resized to Archivo's measures, so it wraps
  * in the same lines and nothing moves when the real font arrives (no layout shift).

@@ -4,13 +4,16 @@ import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-// Archivo is served cut to the characters of the site's texts (spec 013, RF-40;
-// scripts/subset-archivo.py). A text with a character the cut font lost would be drawn, for that
-// one character, with the system font, and nobody would notice until it is on screen.
+// Archivo is served in two files (spec 013, RF-43; scripts/subset-archivo.py): a base one, cut to
+// the characters of the site's texts, that every page loads, and an extended one with the rest of
+// the Latin letters, which a browser downloads only where one of them is shown. A text of the
+// site with a character outside the base file would make its page download the second file, or
+// draw that character with the system font, and nobody would notice until it is on screen.
 
 const srcDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const webDir = path.join(srcDir, "..");
 const fontsDir = path.join(srcDir, "assets", "fonts");
+const report = JSON.parse(readFileSync(path.join(fontsDir, "Archivo-site.json"), "utf8")) as { kept: string; extended: string; baseRange: string; extendedRange: string };
 
 function files(dir: string, pattern: RegExp): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -20,34 +23,56 @@ function files(dir: string, pattern: RegExp): string[] {
   });
 }
 
-test("every character of the site's texts that Archivo has is in the file the site serves", () => {
-  const report = JSON.parse(readFileSync(path.join(fontsDir, "Archivo-site.json"), "utf8")) as { kept: string; source: string };
+/** The code points a CSS unicode-range covers. */
+function covered(range: string): Set<number> {
+  const codes = new Set<number>();
+  for (const part of range.split(",")) {
+    const [from, to = from] = part.trim().replace("U+", "").split("-");
+    for (let code = Number.parseInt(from ?? "", 16); code <= Number.parseInt(to ?? "", 16); code += 1) codes.add(code);
+  }
+  return codes;
+}
+
+test("every character of the site's texts that Archivo has is in the base file", () => {
   const kept = new Set(report.kept);
-  const inSource = new Set(report.source);
-  assert.ok(kept.size >= 100 && inSource.size > kept.size, "the report of the cut font is not the expected one");
+  const extended = new Set(report.extended);
+  assert.ok(kept.size >= 100 && extended.size >= 300, "the report of the cut font is not the expected one");
 
   // The same files the script reads: any text of the site comes from one of them.
   const sources = [...files(path.join(webDir, "messages"), /\.json$/), ...files(srcDir, /\.(ts|tsx|mdx)$/)];
   assert.ok(sources.length > 50, `only ${sources.length} files read: the scan is not reaching the texts`);
-  const lost = new Map<string, string>();
+  const outside = new Map<string, string>();
   for (const file of sources) {
     for (const written of readFileSync(file, "utf8")) {
       // Titles and buttons are set in capitals by the stylesheet: each character counts in both forms.
       for (const char of new Set([written, ...written.toUpperCase(), ...written.toLowerCase()])) {
-        if (inSource.has(char) && !kept.has(char) && !lost.has(char)) lost.set(char, path.relative(webDir, file));
+        if (extended.has(char) && !kept.has(char) && !outside.has(char)) outside.set(char, path.relative(webDir, file));
       }
     }
   }
   assert.deepEqual(
-    [...lost].map(([char, file]) => `"${char}" (U+${char.codePointAt(0)?.toString(16).toUpperCase().padStart(4, "0")}) in ${file}`),
+    [...outside].map(([char, file]) => `"${char}" (U+${char.codePointAt(0)?.toString(16).toUpperCase().padStart(4, "0")}) in ${file}`),
     [],
-    "characters the cut font lost: run scripts/subset-archivo.py again and commit its three files",
+    "characters of the texts that are only in the extended file: run scripts/subset-archivo.py again, copy the ranges it prints and commit",
   );
 });
 
-test("the font the site serves is the cut one, far under the size of the whole Latin subset", () => {
-  const cut = statSync(path.join(fontsDir, "Archivo-site.woff2")).size;
-  const whole = statSync(path.join(fontsDir, "source", "Archivo-latin-variable.woff2")).size;
-  assert.ok(cut < 48_000, `Archivo-site.woff2 is ${cut} bytes`);
-  assert.ok(cut < whole * 0.55, `${cut} of ${whole} bytes`);
+test("the two files of Archivo share no character, and the ranges in the code are the ones of the files", () => {
+  const base = covered(report.baseRange);
+  const extended = covered(report.extendedRange);
+  assert.deepEqual([...base].filter((code) => extended.has(code)), [], "a character is in both ranges");
+  assert.deepEqual([...base].sort((a, b) => a - b), [...report.kept].map((char) => char.codePointAt(0)).sort((a, b) => (a ?? 0) - (b ?? 0)));
+  assert.equal(extended.size, [...report.extended].length);
+
+  const fonts = readFileSync(path.join(srcDir, "app", "fonts.ts"), "utf8");
+  assert.ok(fonts.includes(`{ prop: "unicode-range", value: "${report.baseRange}" }`), "src/app/fonts.ts does not carry the range of the base file");
+  const css = readFileSync(path.join(srcDir, "app", "globals.css"), "utf8");
+  assert.ok(css.includes(`unicode-range: ${report.extendedRange};`), "src/app/globals.css does not carry the range of the extended file");
+  assert.ok(css.includes('src: url("../assets/fonts/Archivo-ext.woff2") format("woff2");'), "src/app/globals.css does not declare the extended file");
+});
+
+test("the base file stays small enough to arrive in two TCP flights", () => {
+  // 43,800 bytes fit in the first two flights of a new connection; the response headers take about 900.
+  const base = statSync(path.join(fontsDir, "Archivo-site.woff2")).size;
+  assert.ok(base <= 42_900, `Archivo-site.woff2 is ${base} bytes`);
 });
