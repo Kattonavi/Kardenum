@@ -10,7 +10,7 @@ Este archivo se actualiza al cerrar cada rebanada: de aquí sale el informe fina
 | 1 | Spec, plan y bitácora | **hecha** | `87cfd88` | corrida manual 44001275728: success (línea base; un push sin `web/**` no despliega) |
 | 2 | Cinco escenas y control de pausa | **en producción** | `d438bd1` | 44002958854: success (los tres trabajos) |
 | 3 | Carrusel | **en producción** | `2a93d0e` + `78962ae` | 44004820274: success (los tres trabajos) |
-| 4 | Inicio completo | en curso | — | — |
+| 4 | Inicio completo | **desplegada, verificación en rojo** (intento de arreglo 1 de 2 en curso) | `3f672fd` | 44006779132: humo y navegador success, Lighthouse contra el despliegue success, **Lighthouse sobre el build abierto failure** (rendimiento de `/`: 0,82 · 0,93 · 0,94; mínimo 0,95). Issue #3 abierto por el workflow |
 | 5 | Pie y preguntas frecuentes | pendiente | — | — |
 | 6 | Índice de servicios y líneas | pendiente | — | — |
 | 7 | Subpáginas (tras su flag) | pendiente | — | — |
@@ -85,6 +85,35 @@ Las diez primeras están razonadas en la spec 012 ("Decisiones"). Resumen:
   0,8 s tras la decisión 12.
 - `verify-deploy`: corrida 44004820274, success en los tres trabajos.
 
+### Rebanada 4 (`3f672fd`): inicio
+
+- Puerta de clon limpio: 144 unitarias; humo `OK: all 1055 checks passed (noindex)`; navegador 884 passed, 18 skipped.
+- Lighthouse local sobre el inicio real (celular): accesibilidad 1,00, buenas prácticas 1,00 (texto legible 73,8 % y
+  70,7 %), rendimiento 0,95 con LCP simulado de 3,0 s.
+- `verify-deploy` (corrida 44006779132): **falló un trabajo de tres.** "Lighthouse on the open build" dio rendimiento
+  0,94 en `/` (pasadas 0,82, 0,93 y 0,94; el mínimo es 0,95). `/en` y las otras cinco páginas pasaron; humo, axe y
+  navegador pasaron; Lighthouse contra el despliegue en Railway pasó. El workflow abrió el issue #3.
+
+**Diagnóstico (medido en local, 2026-11-16 por la noche):**
+
+| Hipótesis | Medida | Resultado |
+|---|---|---|
+| El movimiento retrasa el LCP | Lighthouse con `--force-prefers-reduced-motion` | Descartada: LCP simulado 3010 ms con animaciones y 3008 sin ellas |
+| El primer pintado llega tarde | Bandas inferiores con `content-visibility` (FCP observado de 124 a 112 ms) | Descartada: el LCP simulado no cambió (3010 ms) |
+| El documento no cabe en la primera ráfaga de TCP | Tamaño transferido: inicio 17.089 bytes, `/servicios` 11.562, `/servicios/minecraft` 14.051 | **Confirmada:** Lighthouse simula el arranque lento de TCP (10 segmentos de 1.460 bytes = 14.600). El inicio paga una ida y vuelta más: FCP simulado 910 ms frente a 760 ms en las otras dos, exactamente los 150 ms de la latencia simulada |
+
+- De qué está hecho el documento del inicio (gzip): 15,7 KB, de los cuales 9,3 KB son los datos que Next escribe para
+  el navegador (repiten el HTML) y 2,3 KB la cabecera. Las escenas ocupan unos 3 KB entre las dos copias.
+- Lo que más pesa y menos se ve: las cadenas largas de clases, que viajan dos veces. Con todas acortadas el
+  documento bajaría 3,1 KB (emulado sobre el HTML servido); solo las del contenido del inicio, 1,6 KB.
+- Lo que el diagnóstico todavía no explica: la pasada de 0,82. Las escenas animadas provocan unas 30
+  recalculaciones de estilo por segundo en el hilo principal (medido); si en el runner eso se vuelve tiempo de
+  bloqueo, aligerar el documento no lo arregla. Por eso el siguiente paso es medir en el runner, por pasada, desde
+  una rama de diagnóstico que no despliega.
+- **Criterio de reversión (intento 1 de 2):** si tras el segundo intento `verify-deploy` sigue en rojo, `git revert`
+  de `3f672fd` y se sigue con la rebanada 5, que no depende del inicio nuevo.
+- El trabajo adelantado de la rebanada 5 está en la rama `wip/fase-2-rebanada-5` (no despliega).
+
 ## Riesgos medidos y abiertos
 
 - **Auditoría "font-size" de Lighthouse (buenas prácticas):** cuenta como ilegible todo texto de menos de 12 px,
@@ -92,6 +121,8 @@ Las diez primeras están razonadas en la spec 012 ("Decisiones"). Resumen:
   texto de la página es legible. En la galería (casi todo era escena) fallaba. **En el inicio real pasa:** 73,8 % de
   texto legible en español y 70,7 % en inglés (medido el 2026-11-16). Si el inicio ganara escenas o perdiera texto,
   esta auditoría sería la primera en caer: buenas prácticas bajaría a 0,96.
+- **Presupuesto de bytes por documento: 14.600 transferidos.** Cualquier página cuyo HTML comprimido pase de ahí
+  pierde 150 ms de LCP simulado. `/servicios/minecraft` está en 14.051: con una escena encima lo cruza (rebanada 6).
 - **Rendimiento del inicio, sin margen en la medida local.** Lighthouse local (Windows, servidor en la misma
   máquina, limitación simulada; tres pasadas con la configuración de `verify-deploy`): inicio 0,95 con LCP simulado
   de 3,0 s en `/` y `/en`; una página sin escenas (`/servicios`, `/nosotros`) da 0,95 a 0,96 con 2,7 a 2,9 s. LCP y
