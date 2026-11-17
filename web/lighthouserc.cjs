@@ -12,10 +12,11 @@
 
 const MINIMUM = 0.95;
 
-// One page of each kind: home in both languages, the services index, a line page, the questions
-// page in both languages (the longest document of the site; spec 013, RF-41), about, contact
-// (with the quote form) and a legal page.
-const PATHS = ["/", "/en", "/servicios", "/servicios/minecraft", "/preguntas-frecuentes", "/en/faq", "/nosotros", "/contacto", "/legal/privacidad"];
+// The pages, in the order they are measured. The workflow asks for each one once before measuring
+// (scripts/warm-up.mjs): the first run after a start is slower than the rest, and without that
+// the first page of the list always lost one of its three runs to it.
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- a CommonJS file, as Lighthouse CI reads it
+const PATHS = require("./lighthouse-paths.cjs");
 
 const mode = process.env.LHCI_MODE;
 if (mode !== "deployed" && mode !== "open") throw new Error('LHCI_MODE must be "deployed" or "open".');
@@ -36,7 +37,9 @@ module.exports = {
         // Chrome's sandbox needs privileges the hosted runners do not give.
         chromeFlags: "--no-sandbox",
       },
-      ...(mode === "open"
+      // In the workflow the server is already running, started and warmed up by the step itself
+      // (LHCI_SERVER=running). Without that variable Lighthouse CI starts it, as before.
+      ...(mode === "open" && process.env.LHCI_SERVER !== "running"
         ? {
             // `pnpm start` serves the standalone build on PORT and prints "Ready" when it listens.
             startServerCommand: "pnpm start",

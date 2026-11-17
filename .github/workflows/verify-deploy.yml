@@ -87,6 +87,11 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
+      # One request to each page, in the order they are measured, and one load in the browser that
+      # measures (web/scripts/warm-up.mjs; spec 013, RF-40). The first run of a job is the slow one
+      # and it always fell on the first page, the home page, which lost one of its three runs to it.
+      - name: Warm up the deployment before measuring
+        run: node scripts/warm-up.mjs "$SITE_UNDER_TEST"
       # SEO is not measured here: while the site is closed, its noindex would fail that category.
       - name: Lighthouse CI against the deployment
         run: npx --yes "@lhci/cli@$LHCI_VERSION" autorun --config=lighthouserc.cjs
@@ -98,6 +103,8 @@ jobs:
         with:
           name: lighthouse-deployed
           path: web/.lighthouseci
+          # The folder is hidden and the action leaves hidden files out unless told otherwise.
+          include-hidden-files: true
           retention-days: 14
           if-no-files-found: ignore
 
@@ -128,10 +135,27 @@ jobs:
         env:
           SITE_INDEXABLE: "true"
           SITE_LAUNCH_CHECK: "off"
-      - name: Lighthouse CI against the open build
-        run: npx --yes "@lhci/cli@$LHCI_VERSION" autorun --config=lighthouserc.cjs
+      # The step starts the server itself so that it can warm it up before Lighthouse CI measures
+      # (LHCI_SERVER=running tells lighthouserc.cjs not to start another one). Same pages, same
+      # order, same three runs and the same minimum as before.
+      - name: Start the open build, warm it up and run Lighthouse CI against it
+        run: |
+          pnpm start > server.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/" || true)
+            [ "$code" = "200" ] && break
+            sleep 2
+          done
+          if [ "$code" != "200" ]; then
+            echo "The open build did not answer 200 in a minute (last status: $code)"
+            cat server.log
+            exit 1
+          fi
+          node scripts/warm-up.mjs "http://127.0.0.1:$PORT"
+          npx --yes "@lhci/cli@$LHCI_VERSION" autorun --config=lighthouserc.cjs
         env:
           LHCI_MODE: open
+          LHCI_SERVER: running
           SITE_INDEXABLE: "true"
           PORT: "4173"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -139,6 +163,7 @@ jobs:
         with:
           name: lighthouse-open
           path: web/.lighthouseci
+          include-hidden-files: true
           retention-days: 14
           if-no-files-found: ignore
 
