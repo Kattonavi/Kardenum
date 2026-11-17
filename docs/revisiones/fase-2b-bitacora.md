@@ -11,7 +11,25 @@ Sesión del 2026-11-17, desde otro computador. Encargo: el mensaje del fundador 
 | 1 | Ancho de página de 1320 px | **en producción** | `61e58ae` | 148 unitarias · humo 1285 · navegador 1128 passed | 44086433152: los tres trabajos en verde |
 | 2 | "Cotizar" relleno, títulos junto a la escena, las dos preguntas | **en producción** | `d9ac0ed` | 151 unitarias · humo 1285 · navegador 1152 passed | 44088502728: los tres trabajos en verde |
 | 3 | Rendimiento: hojas de estilo por página, dieta de la página de preguntas y su entrada a `verify-deploy` | **en producción** | `ece59cf` | 151 unitarias · humo 1287 · navegador 1152 passed | 44100140091: los tres trabajos en verde |
-| 4 | Contraste del rótulo del carrusel y revisión de diseño en celular | **hecha en local, sin subir**: falta su puerta de clon limpio (el sistema la detuvo por falta de memoria) | `849e9d8`, `1269710` | pendiente | — |
+| 4 | Contraste del rótulo del carrusel y lista numerada de las líneas (revisión de diseño en celular) | **en producción, sin `verify-deploy`** (ver "Bloqueo") | `849e9d8`, `1269710` (desplegado `605d6e1`) | 151 unitarias · humo 1287 · navegador 1155 passed | No corrió. Comprobación local contra producción: humo 1287 en verde · navegador 1154 de 1155 · Lighthouse 0,96 a 1,00 |
+| 5 | Títulos junto a la escena con un solo tamaño; la pregunta de las subpáginas de Minecraft | **en local, sin subir** | `3c4f00f` | 152 unitarias · humo 1287 · navegador 1162 passed | — |
+| 6 | Archivo recortada y calentamiento en `verify-deploy` | **en local, sin subir** | `2d2ad8a`, `7e38cc0` | 154 unitarias · humo 1287 · navegador 1162 passed | — |
+
+## Bloqueo: GitHub Actions no corre desde las 15:16 UTC del 2026-11-17
+
+- Al lanzar `verify-deploy` para la rebanada 4 (corrida 44112487200), GitHub no arrancó ningún trabajo: "The job was
+  not started because recent account payments have failed or your spending limit needs to be increased. Please check
+  the 'Billing & plans' section in your settings". Es de la cuenta y de dinero: lo resuelve el fundador.
+- Esta sesión gastó minutos de Actions: cuatro corridas completas de `verify-deploy` (tres trabajos cada una: la
+  línea base y las rebanadas 1 a 3) y tres de diagnóstico, dos de ellas con dos builds y hasta 60 pasadas de
+  Lighthouse.
+- Railway desplegó `605d6e1` (éxito a las 15:04 UTC) pero no avisó a GitHub: el estado del despliegue quedó "en curso"
+  y `verify-deploy` no arrancó solo. Por eso se lanzó a mano.
+- **Regla que se mantuvo:** sin `verify-deploy` en verde no se sube la siguiente. Las rebanadas 5 y 6 pasaron su puerta
+  de clon limpio y esperan en local.
+- **Para retomar:** (1) `gh workflow run verify-deploy.yml --ref main` y esperar el verde de la rebanada 4;
+  (2) `git push origin 3c4f00f:main` y esperar su verificación; (3) `git push origin main` y esperar la de la rebanada
+  6, que es además la primera corrida real del calentamiento.
 
 ## Entorno de este computador
 
@@ -136,3 +154,50 @@ Medido con Lighthouse 12.6.1 (la versión que usa Lighthouse CI 0.15.1), celular
 - **El documento del inicio (13,2 KB comprimido) ya cabe en la primera ráfaga.** De esos 13,2 KB, 7,5 KB (57 %) son
   los datos que Next repite para el navegador; la cabecera, 0,9 KB; **las 13 escenas, 0,9 KB**; el pie, 0,6 KB.
 - En esta máquina el inicio queda en el filo del redondeo: con LCP de 2,856 s da 0,96 y con 2,860 s da 0,95.
+
+### Rebanada 4, comprobada en producción desde este computador (no es `verify-deploy`)
+
+Las mismas tres comprobaciones del workflow, una tras otra, contra `https://web-production-f1d7c246.up.railway.app`,
+con las pruebas del commit desplegado (`605d6e1`) y Node 22:
+
+- Humo: `OK: all 1287 checks passed (noindex)`.
+- Navegador: 1154 passed, 47 skipped, **1 failed**: `scenes.spec.ts` "the scenes move, and the control of the page
+  pauses and resumes all of them", en celular, en `/servicios`. Repetida cuatro veces contra producción: 64 de 64 en
+  verde. Es una carrera de tiempos de la prueba al reanudar (lee "animaciones corriendo" justo después de comprobar
+  que ninguna está en pausa), no algo de esta rebanada. Backlog 82.
+- Lighthouse contra el despliegue, tres pasadas por página: rendimiento de 0,96 a 1,00 en las nueve páginas (inicio
+  0,98 · 0,97 · 0,98; preguntas 1,00 · 1,00 · 1,00), accesibilidad y buenas prácticas 1,00. Son cifras de esta máquina
+  y esta red, no las del runner.
+
+### Rebanada 5 (`3c4f00f`): un solo tamaño de título
+
+Segunda ronda de decisiones del fundador. Detalle en la spec 013 (RF-20 a RF-26, decisiones 7 y 10) y en
+`docs/revisiones/fase-2b-diseno-titulos.md`.
+
+- 22 títulos a 1216, 1280, 1440 y 1920 px: un tamaño (41 px a 1440, 37 px a 1216), los renglones escritos, el bronce
+  al inicio de renglón, ninguna palabra corta sola al final y los dos botones en un renglón.
+- A 1024 y 1215 px la escena va debajo del texto, de 640 px como máximo.
+- Nada se mueve al llegar las fuentes en las páginas con los renglones más largos (`fonts.spec.ts`, 12 pruebas).
+- Revisión de diseño en escritorio: aprobado con ajustes; los tres medios que nacían del cambio, aplicados.
+
+### Rebanada 6 (`2d2ad8a`): Archivo recortada y calentamiento
+
+Medido en local con Lighthouse 12.6.1, celular, tres pasadas en el inicio y dos en las demás:
+
+| Página | Antes (rebanada 5) | Archivo recortada, Mono sin precarga | Archivo recortada, Mono con precarga (lo que quedó) |
+|---|---|---|---|
+| `/` | FCP 0,91 s · LCP 2,86 s · 0,95 | FCP 1,06 s · LCP 2,65 s · 0,96 a 0,97 | FCP 0,91 s · LCP 2,66 s · 0,97 |
+| `/en` | 0,91 · 2,86 · 0,95 a 0,96 | 1,06 · 2,65 · 0,97 | 0,91 · 2,65 · 0,97 |
+| `/servicios/minecraft` | 0,91 · 2,86 · 0,95 a 0,96 | 1,06 · 2,65 · 0,97 | 0,91 · 2,65 · 0,97 |
+| `/preguntas-frecuentes` | 0,76 · 2,71 · 0,96 | 1,06 · 2,64 · 0,97 | 0,76 · 2,65 · 0,97 |
+
+- **Archivo:** de 90.096 a 40.500 bytes (pesos 400 a 800, anchos 100 a 125, 132 caracteres). El inicio sale del filo:
+  de 0,95 a 0,97 en esta máquina. **No está medido en el runner** (Actions no corre).
+- **No es idéntica byte a byte.** Las 38 capturas conservan su tamaño (mismos renglones, misma altura de página), pero
+  entre el 0,04 % y el 0,21 % de los píxeles cambia en los bordes de las letras. Causa medida: al limitar los ejes,
+  fontTools redondea los contornos; difieren como máximo 1,3 unidades de 1.000 por eme (0,05 px en un título de
+  41 px) y el avance de algunas letras, 1 unidad. A simple vista no se distingue.
+- **JetBrains Mono sin precarga se probó y no se aplicó** (spec 013, decisión 14): mismo LCP y peor primer pintado.
+- **Calentamiento:** `web/scripts/warm-up.mjs` probado en local (nueve páginas en 200 y una carga en Chrome); la
+  configuración de Lighthouse CI no arranca servidor con `LHCI_SERVER=running` y sí sin ella. **El paso del workflow
+  no se pudo ejecutar en GitHub Actions:** su primera corrida real será la verificación de esta rebanada.
