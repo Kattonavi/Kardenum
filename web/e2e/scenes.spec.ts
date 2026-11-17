@@ -121,18 +121,25 @@ for (const path of PAGES) {
   });
 }
 
-test("the texts inside the scenes are translated", async ({ page }) => {
+// The words of a scene travel in data-t and the stylesheet draws them (see scene.tsx): they are
+// part of the picture. As text of the page they would be a few pixels tall and partly dimmed.
+test("the words inside the scenes are translated, and are not text of the page", async ({ page }) => {
+  const drawn = (line: string, word: string) => page.locator(`[data-scene="${line}"] [data-t="${word}"]`).first();
+
   const spanish = await openScenes(page, "/");
-  await expect(spanish.and(page.locator('[data-scene="desarrollo"]')).first()).toContainText("Carrito");
-  await expect(spanish.and(page.locator('[data-scene="minecraft"]')).first()).toContainText("Jugadores en línea");
-  await expect(spanish.and(page.locator('[data-scene="discord"]')).first()).toContainText("Ticket creado en #soporte");
+  await expect(drawn("desarrollo", "Carrito")).toBeAttached();
+  await expect(drawn("minecraft", "Jugadores en línea")).toBeAttached();
+  await expect(drawn("discord", "Ticket creado en #soporte")).toBeAttached();
+  expect(await drawn("desarrollo", "Carrito").evaluate((word) => getComputedStyle(word, "::before").content)).toBe('"Carrito"');
   await expect(spanish.first()).toHaveAttribute("aria-label", /^Escena de /);
+  expect((await spanish.allTextContents()).join("").trim(), "no text nodes inside a scene").toBe("");
 
   const english = await openScenes(page, "/en");
-  await expect(english.and(page.locator('[data-scene="desarrollo"]')).first()).toContainText("Cart");
-  await expect(english.and(page.locator('[data-scene="minecraft"]')).first()).toContainText("Players online");
-  await expect(english.and(page.locator('[data-scene="discord"]')).first()).toContainText("Ticket created in #support");
+  await expect(drawn("desarrollo", "Cart")).toBeAttached();
+  await expect(drawn("minecraft", "Players online")).toBeAttached();
+  await expect(drawn("discord", "Ticket created in #support")).toBeAttached();
   await expect(english.first()).toHaveAttribute("aria-label", / scene: /);
+  expect((await english.allTextContents()).join("").trim(), "no text nodes inside a scene").toBe("");
 });
 
 test.describe("before any script runs", () => {

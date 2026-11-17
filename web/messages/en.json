@@ -118,6 +118,10 @@
       "close": "Close"
     }
   },
+  "Carousel": {
+    "label": "What each line delivers",
+    "scenes": "Scenes of the five lines"
+  },
   "ContactCta": {
     "id": "contact",
     "title": "Let's talk about your project.",

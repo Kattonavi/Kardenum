@@ -118,6 +118,10 @@
       "close": "Cerrar"
     }
   },
+  "Carousel": {
+    "label": "Lo que entrega cada línea",
+    "scenes": "Escenas de las cinco líneas"
+  },
   "ContactCta": {
     "id": "contacto",
     "title": "Hablemos de tu proyecto.",

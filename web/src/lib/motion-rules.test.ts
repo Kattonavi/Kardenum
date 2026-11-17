@@ -95,14 +95,38 @@ test("a scene has a fixed 16:10 box and scales with its container", () => {
 // Without animation a scene must be its finished composition (reduced motion, a paused page, a
 // browser that does not know the feature): every animation of a scene is declared only for
 // visitors who have not asked for reduced motion, so the styles outside that block are what they see.
-test("the movement of the scenes exists only without a reduced-motion preference", () => {
-  const scenes = stylesheets.find(({ file }) => file === "app/scenes.css");
-  assert.ok(scenes, "src/app/scenes.css not found");
-  const start = scenes.css.indexOf("@media (prefers-reduced-motion: no-preference)");
-  assert.notEqual(start, -1, "the block for visitors without the preference is missing");
-  const moving = blockAt(scenes.css, start);
-  const outside = scenes.css.replace(moving, "");
-  const stray = [...outside.matchAll(/^\s*animation(?:-name)?\s*:[^;]+;/gm)].map((match) => match[0].trim());
-  assert.deepEqual(stray, []);
-  assert.match(moving, /body:has\(\.motion-toggle > input:checked\)[^{]+\{\s*animation-play-state:\s*paused/, "the pause control stops the scenes");
+// The same holds for the carousel: still, it shows the first scene in the centre.
+test("the movement of the scenes and of the carousel exists only without a reduced-motion preference", () => {
+  for (const name of ["app/scenes.css", "app/carousel.css"]) {
+    const sheet = stylesheets.find(({ file }) => file === name);
+    assert.ok(sheet, `src/${name} not found`);
+    const start = sheet.css.indexOf("@media (prefers-reduced-motion: no-preference)");
+    assert.notEqual(start, -1, `${name}: the block for visitors without the preference is missing`);
+    const moving = blockAt(sheet.css, start);
+    const outside = sheet.css.replace(moving, "");
+    const stray = [...outside.matchAll(/^\s*animation(?:-name)?\s*:[^;]+;/gm)].map((match) => `${name}: ${match[0].trim()}`);
+    assert.deepEqual(stray, []);
+    // The pause control of the page (a native checkbox) stops it, without script.
+    assert.match(moving, /body:has\(\.motion-toggle > input:checked\)[^{]+\{\s*animation-play-state:\s*paused/, `${name}: the pause control stops the movement`);
+  }
+});
+
+// RF-21: five steps of 3.5 s, 2.8 s still and 0.7 s moving, and every animation of the carousel
+// lasts the same, so the row, the dimming of the slides and the tabs cannot drift apart.
+test("every animation of the carousel lasts the 17.5 s of its five steps", () => {
+  const sheet = stylesheets.find(({ file }) => file === "app/carousel.css");
+  assert.ok(sheet, "src/app/carousel.css not found");
+  const durations = [...sheet.css.matchAll(/animation:\s*[\w-]+\s+([\d.]+m?s)/g)].map((match) => match[1]);
+  assert.ok(durations.length >= 4, "the animations of the carousel were not found");
+  assert.deepEqual([...new Set(durations)], ["17.5s"]);
+  assert.match(sheet.css, /animation:\s*carousel-step-narrow 17\.5s cubic-bezier\(0\.7, 0, 0\.2, 1\) infinite/);
+  for (const name of ["carousel-step-narrow", "carousel-step-wide"]) {
+    const steps = keyframes(sheet.css).find((rule) => rule.name === name);
+    assert.ok(steps, `@keyframes ${name}`);
+    // Still from each multiple of 20 % to 16 % later (2.8 of 3.5 s), then the move.
+    assert.deepEqual(
+      [...steps.body.matchAll(/([\d.,%\s]+)\{/g)].map((match) => (match[1] ?? "").replace(/\s/g, "")),
+      ["0%,16%", "20%,36%", "40%,56%", "60%,76%", "80%,96%", "100%"],
+    );
+  }
 });

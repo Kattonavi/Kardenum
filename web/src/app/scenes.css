@@ -27,6 +27,9 @@
     line-height: 1.3;
     /* Text inside a scene is part of the drawing: it must not be selected or wrap by itself. */
     user-select: none;
+    /* A scene far from the screen is not laid out or painted until it comes near. Its box does
+       not depend on what is inside (the proportion is fixed), so nothing moves when it does. */
+    content-visibility: auto;
   }
 
   /* Inside a card the card draws the border. */
@@ -36,6 +39,11 @@
 
   .scene-frame :where(span, div) {
     display: block;
+  }
+
+  /* The words of a scene are drawn from an attribute: they belong to the picture, not to the text of the page. */
+  .sc-t::before {
+    content: attr(data-t);
   }
 
   /* Labels inside the drawings are set in capitals, like the labels of the site. */
@@ -519,8 +527,9 @@
     color: var(--color-stone);
   }
 
-  .sc-mc-prompt > span {
-    display: inline;
+  .sc-mc-prompt {
+    display: flex;
+    gap: 0.6em;
   }
 
   .sc-mc-panel {

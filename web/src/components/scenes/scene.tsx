@@ -9,6 +9,12 @@ import type { ServiceLineId } from "@/content/types";
  *
  * Server component, no script. Limits of what a scene may show: no client names, no result
  * figures, no official Minecraft art, no Discord logo or exact interface.
+ *
+ * The words inside a scene are not text of the page: each one travels in a `data-t` attribute and
+ * the stylesheet draws it (`content: attr(data-t)`). On a phone they are a few pixels tall, so as
+ * real text every audit would count them as illegible and, on the dimmed slides of the carousel,
+ * as low-contrast text; and a search engine would read "Carrito, Pagar" as content of the page.
+ * They are translated all the same.
  */
 
 type SceneProps = {
@@ -59,7 +65,7 @@ function DevelopmentScene() {
         <span className="sc-dev-dot" />
         <span className="sc-dev-dot" />
         <span className="sc-dev-dot" />
-        <span className="sc-dev-url">{t("url")}</span>
+        <span className="sc-dev-url sc-t" data-t={t("url")} />
       </div>
       <div className="sc-dev-body">
         <div className="sc-dev-grid">
@@ -71,10 +77,10 @@ function DevelopmentScene() {
           ))}
         </div>
         <div className="sc-dev-cart">
-          <span className="sc-dev-cart-title">{t("cart")}</span>
+          <span className="sc-dev-cart-title sc-t" data-t={t("cart")} />
           <span className="sc-dev-line" />
           <span className="sc-dev-line" />
-          <span className="sc-dev-pay">{t("pay")}</span>
+          <span className="sc-dev-pay sc-t" data-t={t("pay")} />
         </div>
       </div>
     </div>
@@ -100,13 +106,13 @@ function DesignScene() {
         ))}
       </div>
       <div className="sc-des-type">
-        <span className="sc-des-sample">Aa</span>
-        <span className="sc-des-face">Archivo Expanded</span>
+        <span className="sc-des-sample sc-t" data-t="Aa" />
+        <span className="sc-des-face sc-t" data-t="Archivo Expanded" />
       </div>
       <div className="sc-des-piece">
         <span className="sc-des-bar" />
         <span className="sc-des-bar" />
-        <span className="sc-des-caption">{t("piece")}</span>
+        <span className="sc-des-caption sc-t" data-t={t("piece")} />
       </div>
     </div>
   );
@@ -125,13 +131,11 @@ function VideoScene() {
           <span className="sc-vid-runner" />
           <span className="sc-vid-title" />
           <span className="sc-vid-sub" />
-          <span className="sc-vid-time">00:12:08</span>
+          <span className="sc-vid-time sc-t" data-t="00:12:08" />
         </div>
         <div className="sc-vid-formats">
           {VIDEO_FORMATS.map((format) => (
-            <span key={format} className="sc-vid-format">
-              {format}
-            </span>
+            <span key={format} className="sc-vid-format sc-t" data-t={format} />
           ))}
         </div>
       </div>
@@ -158,20 +162,20 @@ function MinecraftScene() {
   return (
     <div className="sc-mc">
       <div className="sc-mc-console">
-        <span className="sc-mc-title">{t("console")}</span>
+        <span className="sc-mc-title">
+          <span className="sc-t" data-t={t("console")} />
+        </span>
         {CONSOLE_LINES.map((line, index) => (
-          <span key={line} className="sc-mc-line">
-            [12:04:1{index + 1}] {t(line)}
-          </span>
+          <span key={line} className="sc-mc-line sc-t" data-t={`[12:04:1${index + 1}] ${t(line)}`} />
         ))}
-        <span className="sc-mc-line sc-mc-ready">[12:04:16] {t("ready")}</span>
-        <span className="sc-mc-prompt">
-          &gt; <span>_</span>
+        <span className="sc-mc-line sc-mc-ready sc-t" data-t={`[12:04:16] ${t("ready")}`} />
+        <span className="sc-mc-prompt sc-t" data-t=">">
+          <span className="sc-t" data-t="_" />
         </span>
       </div>
       <div className="sc-mc-panel">
         <div className="sc-mc-box">
-          <span className="sc-mc-label">{t("players")}</span>
+          <span className="sc-mc-label sc-t" data-t={t("players")} />
           <div className="sc-mc-bars">
             {range(8).map((bar) => (
               <span key={bar} className="sc-mc-bar" />
@@ -179,11 +183,11 @@ function MinecraftScene() {
           </div>
         </div>
         <div className="sc-mc-box">
-          <span className="sc-mc-label">{t("performance")}</span>
+          <span className="sc-mc-label sc-t" data-t={t("performance")} />
           <span className="sc-mc-meter" />
         </div>
         <div className="sc-mc-box">
-          <span className="sc-mc-label">{t("shop")}</span>
+          <span className="sc-mc-label sc-t" data-t={t("shop")} />
           <span className="sc-mc-items">
             <span />
           </span>
@@ -202,28 +206,26 @@ function DiscordScene() {
   return (
     <div className="sc-dc">
       <div className="sc-dc-channels">
-        <span className="sc-dc-server">{t("server")}</span>
+        <span className="sc-dc-server sc-t" data-t={t("server")} />
         {CHANNELS.map((channel) => (
-          <span key={channel} className={`sc-dc-channel${channel === "support" ? " sc-dc-channel--on" : ""}`}>
-            # {t(channel)}
-          </span>
+          <span key={channel} className={`sc-dc-channel sc-t${channel === "support" ? " sc-dc-channel--on" : ""}`} data-t={`# ${t(channel)}`} />
         ))}
       </div>
       <div className="sc-dc-chat">
         <div className="sc-dc-message">
           <div className="sc-dc-body">
-            <span className="sc-dc-author">{t("member")}</span>
-            <span className="sc-dc-command">{t("command")}</span>
+            <span className="sc-dc-author sc-t" data-t={t("member")} />
+            <span className="sc-dc-command sc-t" data-t={t("command")} />
           </div>
         </div>
         <div className="sc-dc-message sc-dc-message--bot">
           <div className="sc-dc-body">
-            <span className="sc-dc-author">{t("bot")}</span>
+            <span className="sc-dc-author sc-t" data-t={t("bot")} />
             <div className="sc-dc-card">
-              <span className="sc-dc-card-title">{t("ticket")}</span>
+              <span className="sc-dc-card-title sc-t" data-t={t("ticket")} />
               <span className="sc-dc-actions">
-                <span className="sc-dc-action">{t("assign")}</span>
-                <span className="sc-dc-action">{t("close")}</span>
+                <span className="sc-dc-action sc-t" data-t={t("assign")} />
+                <span className="sc-dc-action sc-t" data-t={t("close")} />
               </span>
             </div>
           </div>

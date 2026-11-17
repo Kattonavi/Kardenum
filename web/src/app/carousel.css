@@ -1,0 +1,362 @@
+/*
+ * Carousel of the home page (docs/specs/012-fase-2-rediseno-visual.md, RF-20 to RF-25): the five
+ * scenes in a row as wide as the window, one in the centre and its neighbours dimmed at the sides.
+ *
+ * It is CSS only. The row holds eight slides: a copy of the last scene, the five scenes, and
+ * copies of the first two. One animation moves the row a slide at a time and, when the copy of
+ * the first scene reaches the centre, starts again from the real one: both look the same, so the
+ * jump is not seen. Every animation of the carousel lasts the same 17.5 s (five steps of 3.5 s:
+ * 2.8 s still and 0.7 s moving), so the row, the dimming and the tabs can never drift apart.
+ *
+ * Sizes are percentages of the row, which is as wide as the window:
+ *   phone   slide 78 %, gap 3 %  → a step is 81 %, and the first scene is centred at -70 %
+ *   desktop slide 46 %, gap 2 %  → a step is 48 %, and the first scene is centred at -21 %
+ */
+@layer components {
+  .carousel-viewport {
+    overflow: hidden;
+    outline-offset: -2px;
+  }
+
+  .carousel-track {
+    display: flex;
+    gap: 3%;
+    width: 100%;
+    transform: translateX(-70%);
+  }
+
+  .carousel-slide {
+    flex: 0 0 78%;
+    min-width: 0;
+    opacity: 0.32;
+  }
+
+  /* Still (before the animation, or paused at the start): the first scene is the one in the centre. */
+  .carousel-slide:nth-child(2) {
+    opacity: 1;
+  }
+
+  @media (min-width: 48rem) {
+    .carousel-track {
+      gap: 2%;
+      transform: translateX(-21%);
+    }
+
+    .carousel-slide {
+      flex-basis: 46%;
+    }
+  }
+
+  /* Tabs: a bar per scene that fills while it is in the centre. They show progress; they are not controls. */
+  .carousel-tabs {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    column-gap: 0.5rem;
+    row-gap: 0.875rem;
+  }
+
+  .carousel-tab {
+    display: contents;
+  }
+
+  .carousel-tab-bar {
+    position: relative;
+    grid-row: 1;
+    height: 2px;
+    overflow: hidden;
+    background: var(--color-line);
+  }
+
+  .carousel-tab-bar::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--color-bronze);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  /* On a phone there is room for one name: they share the row under the bars and take turns. */
+  .carousel-tab-name {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0;
+  }
+
+  .carousel-tab:first-child > .carousel-tab-name {
+    opacity: 1;
+  }
+
+  .carousel-tab:first-child > .carousel-tab-bar::before {
+    transform: none;
+  }
+
+  @media (min-width: 48rem) {
+    .carousel-tabs {
+      column-gap: 0.75rem;
+      row-gap: 0.625rem;
+    }
+
+    /* On a wide screen each name sits under its own bar, dimmed until its turn. */
+    .carousel-tab-name {
+      grid-column: auto;
+      font-size: 0.6875rem;
+      letter-spacing: 0.1em;
+      opacity: 0.5;
+    }
+  }
+}
+
+@keyframes carousel-step-narrow {
+  0%,
+  16% {
+    transform: translateX(-70%);
+  }
+  20%,
+  36% {
+    transform: translateX(-151%);
+  }
+  40%,
+  56% {
+    transform: translateX(-232%);
+  }
+  60%,
+  76% {
+    transform: translateX(-313%);
+  }
+  80%,
+  96% {
+    transform: translateX(-394%);
+  }
+  100% {
+    transform: translateX(-475%);
+  }
+}
+
+@keyframes carousel-step-wide {
+  0%,
+  16% {
+    transform: translateX(-21%);
+  }
+  20%,
+  36% {
+    transform: translateX(-69%);
+  }
+  40%,
+  56% {
+    transform: translateX(-117%);
+  }
+  60%,
+  76% {
+    transform: translateX(-165%);
+  }
+  80%,
+  96% {
+    transform: translateX(-213%);
+  }
+  100% {
+    transform: translateX(-261%);
+  }
+}
+
+/* A slide is clear while it is in the centre and dims as it leaves. */
+@keyframes carousel-focus {
+  0%,
+  16% {
+    opacity: 1;
+  }
+  20%,
+  96% {
+    opacity: 0.32;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes carousel-tab-fill {
+  0% {
+    transform: scaleX(0);
+  }
+  20% {
+    transform: scaleX(1);
+  }
+  20.01%,
+  100% {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes carousel-tab-name {
+  0%,
+  20% {
+    opacity: 1;
+  }
+  22%,
+  100% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes carousel-tab-turn {
+  0% {
+    opacity: 0;
+  }
+  2%,
+  20% {
+    opacity: 1;
+  }
+  22%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .carousel-track {
+    animation: carousel-step-narrow 17.5s cubic-bezier(0.7, 0, 0.2, 1) infinite;
+  }
+
+  .carousel-slide {
+    animation: carousel-focus 17.5s infinite both;
+  }
+
+  .carousel-tab-bar::before {
+    animation: carousel-tab-fill 17.5s linear infinite both;
+  }
+
+  .carousel-tab-name {
+    animation: carousel-tab-turn 17.5s infinite both;
+  }
+
+  @media (min-width: 48rem) {
+    .carousel-track {
+      animation-name: carousel-step-wide;
+    }
+
+    .carousel-tab-name {
+      animation-name: carousel-tab-name;
+    }
+  }
+
+  /*
+   * Each scene takes its turn one step (3.5 s) after the one before. The delays are negative so
+   * that every piece starts already in place. A slide and its tab share the delay of their scene;
+   * the copies (slides 1, 7 and 8) take the delay of the scene they repeat.
+   */
+  .carousel-slide:nth-child(2),
+  .carousel-slide:nth-child(7),
+  .carousel-tab:nth-child(1) > ::before,
+  .carousel-tab:nth-child(1) > .carousel-tab-name {
+    animation-delay: -17.5s;
+  }
+
+  .carousel-slide:nth-child(3),
+  .carousel-slide:nth-child(8),
+  .carousel-tab:nth-child(2) > ::before,
+  .carousel-tab:nth-child(2) > .carousel-tab-name {
+    animation-delay: -14s;
+  }
+
+  .carousel-slide:nth-child(4),
+  .carousel-tab:nth-child(3) > ::before,
+  .carousel-tab:nth-child(3) > .carousel-tab-name {
+    animation-delay: -10.5s;
+  }
+
+  .carousel-slide:nth-child(5),
+  .carousel-tab:nth-child(4) > ::before,
+  .carousel-tab:nth-child(4) > .carousel-tab-name {
+    animation-delay: -7s;
+  }
+
+  .carousel-slide:nth-child(1),
+  .carousel-slide:nth-child(6),
+  .carousel-tab:nth-child(5) > ::before,
+  .carousel-tab:nth-child(5) > .carousel-tab-name {
+    animation-delay: -3.5s;
+  }
+
+  /*
+   * Pause (WCAG 2.2.2), without script: the pause control of the page, the cursor over the row of
+   * scenes, or keyboard focus on it. Everything stops together: the row, the dimming, the tabs
+   * and the movement inside the scenes of the carousel. The cursor only counts where there is
+   * one: on a touch screen "hover" would stay on after a tap.
+   */
+  body:has(.motion-toggle > input:checked) .carousel :is(.carousel-track, .carousel-slide, .carousel-tab-name),
+  body:has(.motion-toggle > input:checked) .carousel .carousel-tab-bar::before,
+  .carousel:has(.carousel-viewport:focus-within) :is(.carousel-track, .carousel-slide, .carousel-tab-name),
+  .carousel:has(.carousel-viewport:focus-within) .carousel-tab-bar::before,
+  .carousel-viewport:focus-within .scene-frame *,
+  .carousel-viewport:focus-within .scene-frame *::before,
+  .carousel-viewport:focus-within .scene-frame *::after {
+    animation-play-state: paused;
+  }
+
+  @media (hover: hover) {
+    .carousel:has(.carousel-viewport:hover) :is(.carousel-track, .carousel-slide, .carousel-tab-name),
+    .carousel:has(.carousel-viewport:hover) .carousel-tab-bar::before,
+    .carousel-viewport:hover .scene-frame *,
+    .carousel-viewport:hover .scene-frame *::before,
+    .carousel-viewport:hover .scene-frame *::after {
+      animation-play-state: paused;
+    }
+  }
+}
+
+/*
+ * Reduced motion (RF-24): the carousel does not advance by itself. The row becomes a strip that
+ * is moved by hand (or with the arrow keys once it has focus) and stops with a scene in the
+ * centre. The copies are not needed and the tabs have no progress to show.
+ */
+@media (prefers-reduced-motion: reduce) {
+  /* The strip measures its slides from the width of this box (cqw), not from its own, which is now
+     the sum of the slides. The room at both ends lets the first and the last scene stop in the
+     centre too: it is padding of the strip because the margin of a last item is not scrolled to. */
+  .carousel-viewport {
+    container-type: inline-size;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-graphite) var(--color-ink);
+  }
+
+  .carousel-track {
+    width: max-content;
+    gap: 3cqw;
+    padding: 0 11cqw 0.75rem;
+    transform: none;
+  }
+
+  .carousel-slide {
+    flex: none;
+    width: 78cqw;
+    opacity: 1;
+    scroll-snap-align: center;
+  }
+
+  .carousel-slide[aria-hidden="true"] {
+    display: none;
+  }
+
+  @media (min-width: 48rem) {
+    .carousel-track {
+      gap: 2cqw;
+      padding-inline: 27cqw;
+    }
+
+    .carousel-slide {
+      width: 46cqw;
+    }
+  }
+
+  .carousel-tabs {
+    display: none;
+  }
+}

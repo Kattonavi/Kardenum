@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./scenes.css";
+@import "./carousel.css";
 
 /*
  * Kardenum brand tokens (docs/handoff/docs/identidad-visual.md).

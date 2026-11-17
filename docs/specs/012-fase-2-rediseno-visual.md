@@ -106,6 +106,18 @@ Cada una queda también en la bitácora, con su fecha.
    rebanada 4 las mismas pruebas de navegador corren contra el inicio real, también en `verify-deploy`.
 10. **`lighthouserc.cjs` no se toca** (es parte de la verificación). El Lighthouse de las páginas que no mide
     (preguntas, las otras líneas) se corre aparte y va en el informe.
+11. **Las palabras dentro de una escena las dibuja la hoja de estilos** (`data-t` + `content: attr(data-t)`), no son
+    texto de la página. Medido el 2026-11-16 con la galería de prueba: como texto real, axe marcaba contraste
+    insuficiente en las escenas vecinas del carrusel (atenuadas a 0,32), la prueba de texto al 200 % fallaba (ese
+    texto escala con la escena, no con la letra) y un buscador leería "Carrito, Pagar" como contenido. Siguen
+    traducidas (RF-13) y ocultas a lectores de pantalla.
+12. **Una escena lejos de la pantalla no se dibuja hasta acercarse** (`content-visibility: auto`): su caja no
+    depende de lo de adentro, así que nada se mueve. Medido: el primer pintado de la galería bajó de 1,3 s a 0,8 s.
+13. **El control de pausa es una casilla con el mismo texto en sus dos estados** ("Pausar animación", con una marca
+    que se llena): así el nombre que dice un lector de pantalla es el texto en pantalla. Con solo CSS no se puede
+    cambiar a "Reanudar" sin que el nombre y el estado se contradigan.
+14. **El cursor solo pausa el carrusel donde hay cursor** (`hover: hover`): en una pantalla táctil el "hover" se
+    queda pegado tras un toque. Ahí la pausa es el control visible, o el foco del teclado.
 
 ## Fuera de alcance
 
