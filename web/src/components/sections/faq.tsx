@@ -27,17 +27,29 @@ export function FaqSection({ id, label, title, titleId, items, variant, last = t
       <div className="flex-[1_1_18rem]">
         <SectionHeader label={label} title={title} titleId={titleId} />
       </div>
-      <div className="min-w-0 flex-[2_1_32rem] border-t border-(--rule)">
-        {items.map((item, index) => (
-          <details key={item.id} open={index === 0} className="group border-b border-(--rule)">
-            <summary className="flex min-h-21 items-center justify-between gap-6 py-5 transition-colors duration-150 hover:text-(--accent-text)">
-              <h3 className="leading-[1.4] tracking-[0.02em] type-wide">{item.question}</h3>
-              <PlusIcon size={20} className="shrink-0 transition-transform duration-150 group-open:rotate-45" />
-            </summary>
-            <p className="max-w-[44rem] pb-6 leading-[1.6] text-(--muted-text)">{item.answer}</p>
-          </details>
-        ))}
+      <div className="min-w-0 flex-[2_1_32rem]">
+        <FaqList items={items} />
       </div>
     </section>
+  );
+}
+
+/**
+ * The questions alone, for a place that already has its heading (the groups of the questions
+ * page). `openFirst` is false for every group but the first: one open answer per page.
+ */
+export function FaqList({ items, openFirst = true }: { items: readonly FaqEntry[]; openFirst?: boolean }) {
+  return (
+    <div className="border-t border-(--rule)">
+      {items.map((item, index) => (
+        <details key={item.id} open={openFirst && index === 0} className="group border-b border-(--rule)">
+          <summary className="flex min-h-21 items-center justify-between gap-6 py-5 transition-colors duration-150 hover:text-(--accent-text)">
+            <h3 className="leading-[1.4] tracking-[0.02em] type-wide">{item.question}</h3>
+            <PlusIcon size={20} className="shrink-0 transition-transform duration-150 group-open:rotate-45" />
+          </summary>
+          <p className="max-w-[44rem] pb-6 leading-[1.6] text-(--muted-text)">{item.answer}</p>
+        </details>
+      ))}
+    </div>
   );
 }

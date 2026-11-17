@@ -62,6 +62,20 @@ export const pageMeta: Partial<Record<AppPathname, PageMeta>> = {
       en: { label: "About", lines: ["Several crafts."], accent: "One studio." },
     },
   },
+  "/preguntas-frecuentes": {
+    title: {
+      es: "Preguntas frecuentes sobre nuestros servicios — Kardenum",
+      en: "FAQ: web, design, video, Minecraft and Discord — Kardenum",
+    },
+    description: {
+      es: "Respuestas sobre desarrollo, diseño, video, Minecraft y Discord: qué incluye cada servicio, cómo trabajamos y qué cubre la garantía. Cotiza tu proyecto.",
+      en: "Answers about web development, design, video, Minecraft and Discord: what each service includes, how we work and what the warranty covers. Get a quote.",
+    },
+    og: {
+      es: { label: "Preguntas frecuentes", lines: ["Claridad antes"], accent: "de empezar." },
+      en: { label: "FAQ", lines: ["Clarity before"], accent: "we start." },
+    },
+  },
   "/contacto": {
     title: {
       es: "Contacto y cotización a la medida — Kardenum",
@@ -127,6 +141,7 @@ export function hasPageMeta(pathname: AppPathname): boolean {
 export const pageNames: Partial<Record<AppPathname, Localized<string>>> = {
   "/": { es: "Inicio", en: "Home" },
   "/servicios": { es: "Servicios", en: "Services" },
+  "/preguntas-frecuentes": { es: "Preguntas frecuentes", en: "FAQ" },
   "/nosotros": { es: "Nosotros", en: "About" },
   "/contacto": { es: "Contacto", en: "Contact" },
   "/portafolio": { es: "Portafolio", en: "Work" },

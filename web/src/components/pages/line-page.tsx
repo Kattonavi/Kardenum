@@ -5,7 +5,6 @@ import { ContactCta } from "@/components/contact/contact-cta";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { Container } from "@/components/layout/container";
 import { ChooserGrid, MarkedList, NumberedList, SplitSection, StackedSection, StepsSection } from "@/components/sections/content";
-import { FaqSection } from "@/components/sections/faq";
 import { BracketVisual, HeroStrip, PageHero } from "@/components/sections/page-hero";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buttonClass } from "@/components/ui/button";
@@ -140,15 +139,8 @@ export async function LinePage({ id, params }: { id: ServiceLineId; params: Loca
             </SplitSection>
           ) : null}
 
+          {/* The questions of the line live on the questions page (spec 012, RF-43): the closing band links to its group. */}
           <StepsSection label={sections("process")} titleId="process-title" variant="page" steps={steps} />
-
-          <FaqSection
-            label={sections("faq")}
-            title={page.faq.title[locale]}
-            titleId="faq-title"
-            variant="page"
-            items={page.faq.items.map((faq) => ({ id: faq.id, question: faq.question[locale], answer: faq.answer[locale] }))}
-          />
         </Container>
       </div>
 

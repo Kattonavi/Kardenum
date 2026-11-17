@@ -57,6 +57,7 @@ export const routeTable = {
   "/servicios/discord/bots": { en: "/services/discord/bots", ...behind("serviceSubpages") },
   "/portafolio": { en: "/work", ...behind("portfolio") },
   "/guias": { en: "/guides", ...behind("guides") },
+  "/preguntas-frecuentes": { en: "/faq", built: true, listed: true },
   "/nosotros": { en: "/about", built: true, listed: true },
   "/contacto": { en: "/contact", built: true, listed: true },
   "/legal/privacidad": { en: "/legal/privacy", built: true, listed: true },

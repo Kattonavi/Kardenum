@@ -15,11 +15,12 @@ const YEAR = new Date().getFullYear();
 /** The main pages, for the navigation shown when the phone menu cannot open. The five lines follow in the footer itself. */
 const FALLBACK_LINKS: readonly AppPathname[] = ["/servicios", "/nosotros", "/contacto"];
 
-const footerLinkClass = "inline-flex min-h-11 min-w-11 items-center justify-center transition-colors duration-150 hover:text-stone";
+const footerLinkClass = "inline-flex min-h-11 min-w-11 items-center transition-colors duration-150 hover:text-stone";
 
 /**
- * Site footer (maquetas B-Gremio-inicio-v2, B-Linea-Minecraft and B-Linea-Discord): brand, the
- * five lines, legal links and the trademark notices, each on the pages of its line (spec 008).
+ * Site footer (docs/handoff/fase-2/maquetas; spec 012, RF-40): brand, the five lines, the
+ * questions page, legal links and the year. The trademark notices stay, each on the pages of its
+ * line only (spec 008).
  * The lines are links: the footer is also where the phone menu control leads before its script runs.
  */
 export async function SiteFooter({ locale }: { locale: AppLocale }) {
@@ -44,24 +45,21 @@ export async function SiteFooter({ locale }: { locale: AppLocale }) {
               <span className="text-sm tracking-[0.16em] type-display">Kardenum</span>
             </span>
             <nav aria-label={t("linesLabel")}>
-              <ul className="flex flex-wrap items-center font-mono text-xs tracking-[0.1em] text-(--muted-text) uppercase">
-                {serviceLines.map((line, index) => (
-                  <li key={line.id} className="flex items-center">
+              <ul className="flex flex-wrap items-center gap-x-5.5 font-mono text-xs tracking-[0.1em] text-(--muted-text) uppercase">
+                {serviceLines.map((line) => (
+                  <li key={line.id}>
                     <AppLink href={line.pathname} className={footerLinkClass}>
                       {line.shortName[locale]}
                     </AppLink>
-                    {/* After the name, so a wrapped row never starts with the separator. */}
-                    {index < serviceLines.length - 1 ? (
-                      <span aria-hidden="true" className="px-1">
-                        ·
-                      </span>
-                    ) : null}
                   </li>
                 ))}
               </ul>
             </nav>
-            <div className="flex flex-wrap items-center gap-x-5 font-mono text-xs tracking-[0.1em] text-(--muted-text) uppercase">
-              <nav aria-label={t("legalLabel")} className="flex flex-wrap gap-x-5">
+            <div className="flex flex-wrap items-center gap-x-5.5 font-mono text-xs tracking-[0.1em] text-(--muted-text) uppercase">
+              <nav aria-label={t("legalLabel")} className="flex flex-wrap gap-x-5.5">
+                <AppLink href="/preguntas-frecuentes" className={footerLinkClass}>
+                  {t("faq")}
+                </AppLink>
                 {isListed("/guias") ? (
                   <AppLink href="/guias" className={footerLinkClass}>
                     {t("guides")}

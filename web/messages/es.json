@@ -35,6 +35,7 @@
   },
   "Footer": {
     "legalLabel": "Legal",
+    "faq": "Preguntas frecuentes",
     "privacy": "Privacidad",
     "terms": "Términos",
     "guides": "Guías",
@@ -127,7 +128,8 @@
     "id": "contacto",
     "label": "Contacto",
     "title": "Hablemos de tu proyecto.",
-    "text": "Elige el canal de tu preferencia. Analizamos tu solicitud y respondemos con una cotización a la medida."
+    "text": "Elige el canal de tu preferencia. Analizamos tu solicitud y respondemos con una cotización a la medida.",
+    "faq": "¿Tienes dudas? Ver preguntas frecuentes"
   },
   "ServicesPage": {
     "label": "Servicios",
@@ -141,6 +143,16 @@
     "guidanceTitle": "¿No sabes cuál necesitas?",
     "guidanceText": "Es lo habitual. Cuéntanos qué quieres lograr y te recomendamos el camino que realmente conviene.",
     "guidanceAction": "Cuéntanos tu idea"
+  },
+  "FaqPage": {
+    "label": "Preguntas frecuentes",
+    "titleLine": "Claridad antes",
+    "titleAccent": "de empezar.",
+    "text": "Lo que más nos preguntan antes de empezar un proyecto, ordenado por línea de servicio. Si tu duda no está aquí, escríbenos.",
+    "topicsLabel": "Temas",
+    "general": "General",
+    "generalId": "general",
+    "generalTitle": "Para empezar."
   },
   "Portfolio": {
     "label": "Portafolio",

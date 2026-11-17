@@ -6,6 +6,7 @@
 import { readFileSync } from "node:fs";
 import { portfolioCases } from "@/content/cases";
 import { guides } from "@/content/guides";
+import { faqAnchor, faqGroups } from "@/content/faq";
 import { homeFaqs } from "@/content/home";
 import { getPageMeta, getPageName } from "@/content/pages";
 import { serviceLines } from "@/content/service-lines";
@@ -578,6 +579,47 @@ for (const entry of generatedEntries(buildEnv)) {
 }
 // The page of the Minecraft line is always generated: both languages, at least.
 check("pages about Minecraft were found and checked", minecraftPagesSeen >= locales.length, `${minecraftPagesSeen} pages`);
+
+// ---------------------------------------------------------------------------------------------
+// 3d. Questions page and the links to it (docs/specs/012, RF-40 to RF-43). Every question of the
+//     site is on /preguntas-frecuentes, question and answer in the server HTML, folded or not.
+//     The pages of the lines no longer carry theirs. Every generated page links to the questions
+//     page from its footer and from its closing band; on the page of a line or of one of its
+//     services, the closing band leads to the group of that line.
+// ---------------------------------------------------------------------------------------------
+const FAQ_PATHNAME = "/preguntas-frecuentes";
+for (const locale of locales) {
+  const faqPath = localizedPath(FAQ_PATHNAME, locale);
+  const faqHtml = rendered((await get(faqPath)).body);
+  const all = faqGroups.flatMap((group) => group.items);
+  const missing = all.filter((faq) => !faqHtml.includes(faq.question[locale]) || !faqHtml.includes(faq.answer[locale]));
+  check(`[${locale}] ${faqPath} has every question and answer of the site (${all.length})`, all.length >= 20 && missing.length === 0, missing.map((faq) => faq.id).join(", "));
+  check(`[${locale}] ${faqPath} has ${all.length} folded answers, one of them open`, (faqHtml.match(/<details\b/g) ?? []).length === all.length && (faqHtml.match(/<details\b[^>]*\bopen\b/g) ?? []).length === 1);
+  const anchors = serviceLines.map((line) => faqAnchor(line, locale));
+  check(`[${locale}] ${faqPath} has one group per line, with its anchor`, anchors.every((anchor) => faqHtml.includes(`<section id="${anchor}"`)), anchors.join(", "));
+  // Read on the home page: on the questions page itself the header names it in the language links.
+  const homeHeader = rendered((await get(localizedPath("/", locale))).body).match(/<header\b[\s\S]*?<\/header>/)?.[0] ?? "";
+  check(`[${locale}] ${faqPath} is not in the menu`, homeHeader !== "" && !homeHeader.includes(`href="${faqPath}"`));
+
+  for (const pathname of generatedPathnames(buildEnv)) {
+    const path = localizedPath(pathname, locale);
+    const html = rendered((await get(path)).body);
+    const footer = html.match(/<footer\b[\s\S]*<\/footer>/)?.[0] ?? "";
+    check(`[${locale}] ${path} links to the questions page from its footer`, footer.includes(`href="${faqPath}"`));
+    // The line a page belongs to: its own, or the one of a sub-page (which keeps its own questions).
+    const line = lineByPathname.get(pathname) ?? serviceLines.find((candidate) => candidate.id === subpageByPathname.get(pathname)?.line);
+    if (lineByPathname.has(pathname) && line) {
+      const own = faqGroups.find((group) => group.line?.id === line.id)?.items ?? [];
+      const shown = own.filter((faq) => html.includes(faq.question[locale]));
+      check(`[${locale}] ${path} no longer carries the questions of its line`, own.length > 0 && shown.length === 0, shown.map((faq) => faq.id).join(", "));
+    }
+    const closing = html.match(new RegExp(`<section id="${messages[locale].ContactCta.id}"[\\s\\S]*?</section>`))?.[0];
+    if (closing === undefined) continue; // Contact has its own form instead of the closing band.
+    const target = pathname === FAQ_PATHNAME ? null : `${faqPath}${line ? `#${faqAnchor(line, locale)}` : ""}`;
+    const linked = [...closing.matchAll(/<a\b[^>]*data-faq-link[^>]*>/g)].map((tag) => tag[0].match(/href="([^"]*)"/)?.[1]);
+    check(`[${locale}] ${path} closing band ${target ? `leads to ${target}` : "does not link to its own page"}`, target ? linked.length === 1 && linked[0] === target : linked.length === 0, linked.join(", "));
+  }
+}
 
 for (const { source, destination, permanent } of shortLinkRedirects()) {
   const short = await get(source);

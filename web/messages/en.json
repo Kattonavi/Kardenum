@@ -35,6 +35,7 @@
   },
   "Footer": {
     "legalLabel": "Legal",
+    "faq": "FAQ",
     "privacy": "Privacy",
     "terms": "Terms",
     "guides": "Guides",
@@ -127,7 +128,8 @@
     "id": "contact",
     "label": "Contact",
     "title": "Let's talk about your project.",
-    "text": "Choose the channel you prefer. We review your request and reply with a quote made to fit."
+    "text": "Choose the channel you prefer. We review your request and reply with a quote made to fit.",
+    "faq": "Any questions? Read the FAQ"
   },
   "ServicesPage": {
     "label": "Services",
@@ -141,6 +143,16 @@
     "guidanceTitle": "Not sure which one you need?",
     "guidanceText": "That is the usual case. Tell us what you want to achieve and we recommend the path that truly fits.",
     "guidanceAction": "Tell us your idea"
+  },
+  "FaqPage": {
+    "label": "FAQ",
+    "titleLine": "Clarity before",
+    "titleAccent": "we start.",
+    "text": "What we are asked most before a project starts, sorted by service line. If your question is not here, write to us.",
+    "topicsLabel": "Topics",
+    "general": "General",
+    "generalId": "general",
+    "generalTitle": "To begin with."
   },
   "Portfolio": {
     "label": "Work",

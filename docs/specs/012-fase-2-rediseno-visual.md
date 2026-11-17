@@ -118,6 +118,26 @@ Cada una queda también en la bitácora, con su fecha.
     cambiar a "Reanudar" sin que el nombre y el estado se contradigan.
 14. **El cursor solo pausa el carrusel donde hay cursor** (`hover: hover`): en una pantalla táctil el "hover" se
     queda pegado tras un toque. Ahí la pausa es el control visible, o el foco del teclado.
+15. **Página de preguntas: textos nuevos, mínimos y provisionales** (el brief no los trae; los confirma el
+    fundador): la frase bajo el título ("Lo que más nos preguntan antes de empezar un proyecto, ordenado por línea
+    de servicio. Si tu duda no está aquí, escríbenos."), el título del grupo general ("Para empezar."), el título
+    y la descripción para buscadores, y sus equivalentes en inglés. El título de la página es el que tenía la
+    sección en el inicio: "Claridad antes de empezar.". Sin datos estructurados `FAQPage`, como el resto del sitio.
+16. **La página de preguntas no lleva escenas** (es texto: 34 respuestas), ni avisos de Minecraft o Discord en el
+    pie (habla de las cinco líneas, como el inicio; spec 008). Una respuesta de una línea que repite palabra por
+    palabra una general se muestra una sola vez, con las generales.
+17. **Cada línea enlaza a su grupo desde el cierre:** en la página de una línea (y en sus subpáginas), el enlace
+    "¿Tienes dudas? Ver preguntas frecuentes" del cierre lleva a `/preguntas-frecuentes#<línea>`. No se agregó una
+    sección aparte donde estaban las preguntas: sería un segundo enlace al mismo sitio, una pantalla más arriba.
+    Las subpáginas conservan sus propias preguntas (siguen tras su flag).
+18. **La entrada al bajar termina pronto.** La maqueta fundía el bloque a lo largo del 80 % de su altura; un
+    bloque alto (una lista de preguntas) quedaba semitransparente, por debajo del contraste AA, durante casi una
+    pantalla con la página en reposo (axe lo marcó en la página de preguntas). Ahora el movimiento dura los
+    primeros 8rem del bloque y el fundido termina en los primeros 2,5rem. Queda un límite conocido: una franja de
+    una línea de alto, en el borde inferior de la pantalla, puede verse a medio fundir. Regla técnica (contraste
+    AA) sobre maqueta.
+19. **El pie no lleva separadores entre las líneas** (como la maqueta): cierra el ítem 40 del backlog (el "·"
+    colgando en celular).
 
 ## Fuera de alcance
 

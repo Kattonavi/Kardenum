@@ -11,7 +11,7 @@ Este archivo se actualiza al cerrar cada rebanada: de aquí sale el informe fina
 | 2 | Cinco escenas y control de pausa | **en producción** | `d438bd1` | 44002958854: success (los tres trabajos) |
 | 3 | Carrusel | **en producción** | `2a93d0e` + `78962ae` | 44004820274: success (los tres trabajos) |
 | 4 | Inicio completo | **desplegada, verificación en rojo** (intento de arreglo 1 de 2 en curso) | `3f672fd` | 44006779132: humo y navegador success, Lighthouse contra el despliegue success, **Lighthouse sobre el build abierto failure** (rendimiento de `/`: 0,82 · 0,93 · 0,94; mínimo 0,95). Issue #3 abierto por el workflow |
-| 5 | Pie y preguntas frecuentes | pendiente | — | — |
+| 5 | Pie y preguntas frecuentes | lista en local, espera a que la 4 quede en verde | — | — |
 | 6 | Índice de servicios y líneas | pendiente | — | — |
 | 7 | Subpáginas (tras su flag) | pendiente | — | — |
 | 8 | Revisiones del lote | pendiente | — | — |
@@ -48,6 +48,11 @@ Las diez primeras están razonadas en la spec 012 ("Decisiones"). Resumen:
 | 24 | En celular, el nombre de la pestaña del carrusel sale antes de que entre el siguiente (la maqueta los cruza) | Dos nombres encimados durante el cruce no se leen |
 | 25 | Rama desechable `diag/lighthouse-open` con un workflow propio que repite "lighthouse-open" e imprime las métricas de cada pasada | `verify-deploy` solo dice pasa o falla y no guarda los informes; así se mide en el runner sin desplegar, sin abrir issues y sin tocar el workflow real. No se fusiona; se borra al cerrar el lote |
 | 26 | En el inicio, las bandas bajo el carrusel se dibujan al acercarse (`content-visibility: auto`) y los saltos a un ancla son directos, no suaves | Arreglo del fallo de `verify-deploy` de la rebanada 4 (tiempo de bloqueo en el runner) |
+| 27 | Página de preguntas con textos nuevos provisionales (frase, "Para empezar.", metadatos) | El brief no los trae; se reutilizan los de la rama sin publicar. **A confirmar por el fundador** |
+| 28 | La página de preguntas no lleva escenas ni avisos de marca | Es texto; habla de las cinco líneas, como el inicio |
+| 29 | Cada línea enlaza a su grupo de preguntas desde el cierre, no desde una sección aparte | Un solo enlace por página; el cierre de una línea cae en `#<línea>` |
+| 30 | La entrada al bajar dura los primeros 8rem del bloque y el fundido los primeros 2,5rem (la maqueta: 80 % del bloque) | Un bloque alto quedaba bajo contraste AA con la página en reposo; lo marcó axe |
+| 31 | Pie sin separadores entre las líneas | Así es la maqueta; cierra el ítem 40 del backlog |
 
 ## Evidencia
 
