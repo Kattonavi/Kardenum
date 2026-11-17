@@ -53,6 +53,12 @@ Las diez primeras están razonadas en la spec 012 ("Decisiones"). Resumen:
 | 29 | Cada línea enlaza a su grupo de preguntas desde el cierre, no desde una sección aparte | Un solo enlace por página; el cierre de una línea cae en `#<línea>` |
 | 30 | La entrada al bajar dura los primeros 8rem del bloque y el fundido los primeros 2,5rem (la maqueta: 80 % del bloque) | Un bloque alto quedaba bajo contraste AA con la página en reposo; lo marcó axe |
 | 31 | Pie sin separadores entre las líneas | Así es la maqueta; cierra el ítem 40 del backlog |
+| 32 | Presupuesto de peso: el documento del inicio cabe en 14.600 bytes; lo vigila el humo (13.560 de cuerpo en gzip) | Por encima, Lighthouse simula una ida y vuelta más y el rendimiento del build abierto queda al filo |
+| 33 | Looks con nombre en `globals.css` en vez de listas largas de utilidades en botones, títulos, cabecera, pie e inicio | Cada lista larga viaja dos veces por documento (HTML y datos de Next) |
+| 34 | El contenido del menú de celular y del desplegable de Servicios se dibuja al abrirlos, no viene en el HTML | Cerrados no se ven y pesaban 8 KB por página. Sin script sus controles ya eran enlaces (al pie y a `/servicios`); los enlaces a las líneas siguen en el pie. **Cambia el HTML de la cabecera, no su aspecto ni su comportamiento** |
+| 35 | Las palabras de las escenas las escribe la hoja de estilos por idioma (`:lang(en)`), y el interior de cada escena es un fragmento de HTML fijo | Como elementos de React con atributos, las escenas eran una cuarta parte del documento. Una prueba unitaria exige el par en inglés de cada palabra |
+| 36 | El cierre y el pie de todas las páginas se calculan al acercarse (`content-visibility: auto`) | Menos trabajo en el primer layout; nunca están en la primera pantalla |
+| 37 | Rama desechable `diag/lighthouse-diet` (segunda de diagnóstico) | Para no reescribir la primera; mismas reglas: no se fusiona, se borra al cerrar el lote |
 
 ## Evidencia
 
@@ -173,6 +179,43 @@ escritorio, en `/` y `/en` (882 passed, 2 failed). Tras reanudar, 63 animaciones
   debilitó ninguna aserción: la de "nada queda en pausa" sigue, sobre el conjunto correcto.
 - Comprobado antes de `main`: tres pasadas locales (47 passed) y una contra producción (47 passed); y
   `verify-deploy` lanzado a mano sobre la rama temporal `tmp/verify-tests` (no despliega).
+
+### El margen del inicio vuelve a fallar en la rebanada 5 y se arregla de raíz (`bb20f33`)
+
+- La verificación de la rebanada 5 (44017531353) falló en el mismo punto que la 4: Lighthouse sobre el build
+  abierto, `/` con 0,71 · 0,94 · 0,94. La rebanada 5 no tocó el inicio: es el margen fino que quedó anotado arriba.
+  La primera pasada de `/` siempre es mala (servidor recién arrancado), así que sus otras dos tienen que dar 0,95
+  las dos, y con el documento por encima de la primera ráfaga de TCP dan 0,94 o 0,95 según el día.
+- Otra medida en el runner, con la rebanada 6 ya escrita y sin dieta (44018814875, runner lento, índice 2.350):
+  `/` 0,91 · 0,91 · 0,95 (TBT 211 · 207 · 70); `/servicios/minecraft` con su escena 0,92 · 0,94 · 0,95;
+  `/servicios` con cinco escenas 0,96 · 0,96 · 0,94. Con escenas y sin dieta, la línea Minecraft también caería.
+- **Arreglo: dieta del documento, sin cambiar un píxel** (spec 012, decisiones 20 y 21). Qué se probó y cuánto dio,
+  medido sobre el HTML servido (bytes transferidos de `/`, gzip más cabeceras):
+
+  | Paso | `/` | Nota |
+  |---|---|---|
+  | Antes | 17.076 | 2.476 por encima de 14.600 |
+  | Looks con nombre para botones, contenedor y bloques del inicio | 16.535 | −541 |
+  | Menú de celular y desplegable de Servicios fuera del HTML mientras están cerrados | 15.875 | −660, en todas las páginas |
+  | Palabras de las escenas desde la hoja de estilos e interior de cada escena como HTML fijo | 15.106 | −769 |
+  | Looks con nombre para la cabecera, el pie, el enlace a preguntas y lo que quedaba del inicio | 14.280 | −826 |
+  | Colores del símbolo de la escena de diseño desde la hoja | 14.227 | −53; en inglés, 14.012 |
+
+  Descartado por los números: acortar solo las clases del contenido (no alcanzaba: 15.039), quitar elementos de
+  las escenas (el gzip ya comprime la repetición), y convertir las 116 cadenas largas del sitio una por una.
+- Comprobado que no cambia nada a la vista: 26 capturas idénticas byte a byte entre producción (sin dieta) y el
+  build con dieta, a 1280 y 390 px, en once páginas y con el menú de celular y el desplegable abiertos.
+- Puerta de clon limpio de `bb20f33`: 148 unitarias; humo `OK: all 1195 checks passed`; navegador 924 passed.
+- **En el runner (rama `diag/lighthouse-diet`, corrida 44021517261, runner rápido):** `/` 0,96 · 0,96 · 0,95
+  (documento 14.123 bytes; LCP 2,74 · 2,73 · 2,88 s; TBT 53 · 29 · 41 ms, y por primera vez la primera pasada no
+  es mala); `/en` 0,96 · 0,96 · 0,95; `/servicios/minecraft` 0,96 · 0,96 · 0,96; las demás 0,95 a 0,96.
+- **Efecto secundario medido, pendiente:** la hoja de estilos pasó de 13.227 a 15.060 bytes transferidos (los
+  looks con `@apply` repiten declaraciones y las palabras de las escenas pesan 718 bytes). También tiene su
+  ráfaga de 14.600: el FCP simulado de las páginas pequeñas subió de 0,78 a 0,92 s. Su LCP y su puntaje no
+  cambiaron en esa corrida (0,95 a 0,96), salvo `/nosotros`, que dio 0,95 las tres veces (antes 0,95 a 0,98). Se
+  pidió una segunda muestra del mismo commit antes de subir. Lo que se sabe para bajarla: 746 bytes son reglas
+  `@font-face` de alfabetos que el sitio no usa (cirílico, griego, vietnamita, latín extendido) que `next/font`
+  emite siempre; reagrupar los looks da 177.
 
 - **Criterio de reversión (intento 1 de 2):** si tras el segundo intento `verify-deploy` sigue en rojo, `git revert`
   de `3f672fd` y se sigue con la rebanada 5, que no depende del inicio nuevo.
