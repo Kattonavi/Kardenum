@@ -96,7 +96,7 @@ export default async function FaqPage({ params }: PageProps<"/[locale]/preguntas
                   </AppLink>
                 ) : null}
               </div>
-              <div className="reveal min-w-0 flex-[2_1_32rem]">
+              <div className="min-w-0 flex-[2_1_32rem]">
                 <FaqList items={group.items} openFirst={index === 0} />
               </div>
             </section>

@@ -1,5 +1,7 @@
 import { linePages } from "../src/content/lines";
 import { serviceLines } from "../src/content/service-lines";
+import { subpages } from "../src/content/subpages";
+import { isGenerated } from "../src/routes";
 import { expect, test } from "./helpers";
 
 // Services index and the pages of the five lines after the phase 2 redesign
@@ -84,3 +86,52 @@ for (const line of serviceLines) {
     for (const item of content.strip.items.es) await expect(main.getByText(item, { exact: true }).first()).toBeAttached();
   });
 }
+
+// Sub-pages (RF-52) are hidden behind a feature: they exist to be reviewed while the site is
+// closed, and are not generated on an open site with the feature off.
+for (const page of Object.values(subpages).filter((candidate) => isGenerated(candidate.pathname))) {
+  test(`${page.pathname}: the first screen has the scene of its line, as on the page of the line`, async ({ page: browser }) => {
+    await browser.goto(page.pathname);
+    const title = browser.getByRole("heading", { level: 1 });
+    const scene = browser.locator(`[data-scene="${page.line}"]`);
+    await expect(scene).toHaveCount(1);
+    await expect(browser.locator("[data-scene]")).toHaveCount(1);
+    await expect(browser.getByRole("checkbox", { name: "Pausar animación" })).toHaveCount(1);
+    const titleBox = await title.boundingBox();
+    const sceneBox = await scene.boundingBox();
+    if (!titleBox || !sceneBox) throw new Error("title or scene not on the page");
+    if ((browser.viewportSize()?.width ?? 0) >= 1280) expect(sceneBox.x, "the scene is to the right of the title").toBeGreaterThan(titleBox.x + titleBox.width - 1);
+    else expect(sceneBox.y, "the scene is under the title").toBeGreaterThan(titleBox.y + titleBox.height - 1);
+  });
+}
+
+// The entrance while scrolling reaches every inner page through the blocks they share (RF-34, RF-53).
+const WITH_BLOCKS = ["/servicios/desarrollo", "/servicios/minecraft", "/nosotros", "/contacto", "/legal/privacidad", "/preguntas-frecuentes"];
+
+for (const path of WITH_BLOCKS) {
+  test(`${path}: its blocks come in while scrolling and end in place`, async ({ page }) => {
+    await page.goto(path);
+    const blocks = page.locator("main .reveal");
+    expect(await blocks.count()).toBeGreaterThan(0);
+    const supported = await page.evaluate(() => CSS.supports("animation-timeline: view()"));
+    test.skip(!supported, "this browser has no scroll-driven animations: the blocks are simply in place");
+    // Scrolled to the end, every block the visitor went past is whole.
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await expect
+      .poll(() => blocks.evaluateAll((all) => all.filter((block) => block.getBoundingClientRect().bottom < window.innerHeight - 200).every((block) => getComputedStyle(block).opacity === "1")))
+      .toBe(true);
+  });
+}
+
+test.describe("with reduced motion", () => {
+  test.use({ reducedMotion: "reduce" });
+
+  for (const path of WITH_BLOCKS) {
+    test(`${path}: every block is in place from the start`, async ({ page }) => {
+      await page.goto(path);
+      const states = await page.locator("main .reveal").evaluateAll((all) => all.map((block) => `${getComputedStyle(block).opacity} ${getComputedStyle(block).transform}`));
+      expect(states.length).toBeGreaterThan(0);
+      expect(new Set(states)).toEqual(new Set(["1 none"]));
+    });
+  }
+});

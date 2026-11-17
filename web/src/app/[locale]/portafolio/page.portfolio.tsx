@@ -51,7 +51,7 @@ export default async function Page({ params }: LocalePageProps) {
           <section aria-label={t("projects")} className={`${FILTER_GROUP} flex flex-col gap-10 pt-12 pb-24`}>
             {showFilter(lines) ? <LineFilter locale={locale} legend={t("filterLabel")} allLabel={t("all")} lines={lines} variant="display" /> : null}
 
-            <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(21.25rem,100%),1fr))] gap-x-8 gap-y-12">
+            <ul className="reveal grid grid-cols-[repeat(auto-fill,minmax(min(21.25rem,100%),1fr))] gap-x-8 gap-y-12">
               {cases.map((item) => {
                 const year = showCaseValue(item.year, locale);
                 return (

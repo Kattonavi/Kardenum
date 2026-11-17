@@ -617,7 +617,9 @@ for (const locale of locales) {
     check(`[${locale}] ${path} is served without inline styles`, !/\sstyle="/.test(html) && !/<style[\s>]/.test(html));
     // The page of a line shows the scene of that line, and the services index the five of them (RF-50, RF-51).
     const scenesOnPage = new Set([...html.matchAll(/data-scene="([a-z]+)"/g)].map((match) => match[1]));
-    if (lineByPathname.has(pathname)) check(`[${locale}] ${path} carries the scene of its line`, scenesOnPage.size === 1 && scenesOnPage.has(lineByPathname.get(pathname).id), [...scenesOnPage].join(", "));
+    // The same for the page of a service inside a line (RF-52).
+    const sceneLine = lineByPathname.get(pathname)?.id ?? subpageByPathname.get(pathname)?.line;
+    if (sceneLine) check(`[${locale}] ${path} carries the scene of its line`, scenesOnPage.size === 1 && scenesOnPage.has(sceneLine), [...scenesOnPage].join(", "));
     if (pathname === "/servicios") check(`[${locale}] ${path} carries the scenes of the five lines`, serviceLines.every((candidate) => scenesOnPage.has(candidate.id)), [...scenesOnPage].join(", "));
     if (scenesOnPage.size > 0) check(`[${locale}] ${path} has scenes, so it has the control that pauses them`, (html.match(/class="motion-toggle[ "]/g) ?? []).length === 1);
     // The line a page belongs to: its own, or the one of a sub-page (which keeps its own questions).

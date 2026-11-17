@@ -87,7 +87,7 @@ export function NumberedList({ items, linkLabel }: { items: readonly NumberedIte
   const hasLinks = items.some((item) => item.href);
 
   return (
-    <ol className="border-t border-(--rule)">
+    <ol className="reveal border-t border-(--rule)">
       {items.map((item, index) => (
         <li key={item.title} className="flex flex-wrap items-baseline gap-x-8 gap-y-3 border-b border-mist py-7">
           <span aria-hidden="true" className="w-10 shrink-0 font-mono text-xs tracking-[0.1em] text-(--muted-text)">
@@ -114,7 +114,7 @@ export type ChooserCard = { condition: string; need: string; answer: string; tex
 /** "Which one do you need?": one card per situation, with the kind of project that answers it. */
 export function ChooserGrid({ options }: { options: readonly ChooserCard[] }) {
   return (
-    <ul className="grid grid-cols-[repeat(auto-fit,minmax(min(250px,100%),1fr))] border-t border-l border-t-(--rule) border-l-mist">
+    <ul className="reveal grid grid-cols-[repeat(auto-fit,minmax(min(250px,100%),1fr))] border-t border-l border-t-(--rule) border-l-mist">
       {options.map((option) => (
         <li key={option.need} className="flex flex-col gap-3 border-r border-b border-mist p-7">
           <span className="font-mono text-[0.6875rem] tracking-[0.14em] text-(--muted-text) uppercase">{option.condition}</span>
@@ -131,7 +131,7 @@ export function ChooserGrid({ options }: { options: readonly ChooserCard[] }) {
 /** List with a mark per line: a bronze square for what is included, a dash for what is not. */
 export function MarkedList({ items, mark = "included", roomy = false }: { items: readonly string[]; mark?: "included" | "excluded"; roomy?: boolean }) {
   return (
-    <ul className="border-t border-mist">
+    <ul className="reveal border-t border-mist">
       {items.map((item) => (
         <li key={item} className={`flex items-baseline border-b border-mist leading-normal ${roomy ? "gap-4 py-4" : "gap-3.5 py-3.5"}`}>
           <span aria-hidden="true" className={`shrink-0 ${mark === "included" ? "size-2 bg-bronze" : "h-0.5 w-2 bg-graphite"}`} />
@@ -145,7 +145,7 @@ export function MarkedList({ items, mark = "included", roomy = false }: { items:
 /** What a service covers, as numbered cards under one rule (maquetas B-Sub-*, "Qué hacemos"). */
 export function NumberedCards({ items }: { items: readonly { title: string; text: string }[] }) {
   return (
-    <ol className="grid grid-cols-[repeat(auto-fit,minmax(min(250px,100%),1fr))] gap-8 border-t border-(--rule) pt-8">
+    <ol className="reveal grid grid-cols-[repeat(auto-fit,minmax(min(250px,100%),1fr))] gap-8 border-t border-(--rule) pt-8">
       {items.map((item, index) => (
         <li key={item.title} className="flex flex-col gap-3">
           <span aria-hidden="true" className="font-mono text-xs tracking-[0.1em]">
@@ -169,7 +169,7 @@ export type RelatedLink = { label: string; name: string; href: AppPathname };
  */
 export function RelatedGrid({ items }: { items: readonly RelatedLink[] }) {
   return (
-    <ul className="grid grid-cols-[repeat(auto-fit,minmax(min(15.625rem,100%),1fr))] border-t border-l border-t-(--rule) border-l-mist">
+    <ul className="reveal grid grid-cols-[repeat(auto-fit,minmax(min(15.625rem,100%),1fr))] border-t border-l border-t-(--rule) border-l-mist">
       {items.map((item) => (
         <li key={`${item.label} ${item.name}`} className="flex min-w-0 border-r border-b border-mist">
           <AppLink href={item.href} className="flex min-h-35 min-w-0 flex-1 flex-col gap-2.5 p-6 transition-colors duration-150 hover:bg-[#e4e3dd]">
@@ -202,7 +202,7 @@ export function StepsSection({ label, titleId, steps, variant }: StepsSectionPro
         {label}
       </h2>
       <ol
-        className={`grid gap-8 ${
+        className={`reveal grid gap-8 ${
           variant === "home"
             ? "grid-cols-[repeat(auto-fit,minmax(min(220px,100%),1fr))]"
             : "grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))]"

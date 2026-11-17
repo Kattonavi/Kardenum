@@ -62,7 +62,7 @@ export default async function AboutPage({ params }: PageProps<"/[locale]/nosotro
             <h2 id="principles-title" className="type-label text-(--muted-text)">
               {t("principlesLabel")}
             </h2>
-            <ol className="grid grid-cols-[repeat(auto-fit,minmax(min(280px,100%),1fr))] gap-8 border-t border-(--rule) pt-8">
+            <ol className="reveal grid grid-cols-[repeat(auto-fit,minmax(min(280px,100%),1fr))] gap-8 border-t border-(--rule) pt-8">
               {principles.map((principle) => (
                 <li key={principle.number} className="flex flex-col gap-3">
                   <span aria-hidden="true" className="font-mono text-xs tracking-[0.1em]">
@@ -77,7 +77,7 @@ export default async function AboutPage({ params }: PageProps<"/[locale]/nosotro
           </section>
 
           <SplitSection last label={t("warrantyLabel")} title={t("warrantyTitle")} titleId="warranty-title">
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-8">
+            <div className="reveal grid grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-8">
               <div className="flex flex-col gap-3">
                 <h3 className="leading-[1.4] tracking-[0.1em] type-display">{t("coversTitle")}</h3>
                 <p className="leading-[1.6] text-(--muted-text)">{t("coversText")}</p>

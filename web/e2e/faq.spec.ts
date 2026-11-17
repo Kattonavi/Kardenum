@@ -118,3 +118,15 @@ test("the pages of the lines no longer show their questions", async ({ page }) =
     await expect(page.getByRole("heading", { name: linePages[line.id].faq.title.es }), line.id).toHaveCount(0);
   }
 });
+
+// The 404 page has its own footer (it replaces the layout): it follows the footer of the site.
+test("the footer of the 404 page leads to the questions page too, with the lines unseparated", async ({ page }) => {
+  await page.goto("/pagina-que-no-existe");
+  const footer = page.getByRole("contentinfo");
+  await expect(footer.getByRole("navigation", { name: "Legal" }).getByRole("link")).toHaveText(["Preguntas frecuentes", "Privacidad", "Términos"]);
+  await expect(footer.getByRole("link", { name: "Preguntas frecuentes" })).toHaveAttribute("href", "/preguntas-frecuentes");
+  await expect(footer.getByRole("navigation", { name: "Líneas de servicio" })).not.toContainText("·");
+  for (const link of await footer.getByRole("link").all()) {
+    expect((await link.boundingBox())?.height ?? 0, await link.innerText()).toBeGreaterThanOrEqual(44);
+  }
+});

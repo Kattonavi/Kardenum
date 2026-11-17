@@ -60,7 +60,7 @@ export async function LegalPage<SectionId extends string>({ document, data, para
               <span aria-hidden="true" className="size-2 shrink-0 bg-bronze" />
               {t("label")}
             </p>
-            <h1 className="text-[clamp(1.75rem,3.8vw,3rem)] leading-[1.05] tracking-[0.01em] type-display">{document.title[locale]}</h1>
+            <h1 className="text-[clamp(1.75rem,3.8vw,3rem)] leading-[1.05] font-extrabold tracking-[0.01em] type-display">{document.title[locale]}</h1>
             <p className="flex flex-wrap gap-x-5 gap-y-1.5 font-mono text-xs tracking-[0.1em] text-(--muted-text) uppercase">
               <span>
                 {t("effectiveFrom")} {showDate(data.effectiveDate, locale)}
@@ -105,7 +105,7 @@ export async function LegalPage<SectionId extends string>({ document, data, para
                 </p>
               ))}
               {entries.map((entry) => (
-                <section key={entry.anchor} aria-labelledby={entry.anchor} className="flex flex-col gap-3.5">
+                <section key={entry.anchor} aria-labelledby={entry.anchor} className="reveal flex flex-col gap-3.5">
                   <h2 id={entry.anchor} className="text-xl leading-[1.3] tracking-[0.04em] type-display">
                     <span className="font-mono text-[0.75em] tracking-[0.1em] text-(--muted-text)">{entry.number} · </span>
                     {entry.title}

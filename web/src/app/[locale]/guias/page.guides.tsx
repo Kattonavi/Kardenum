@@ -51,7 +51,7 @@ export default async function Page({ params }: LocalePageProps) {
           <Container>
             <section aria-label={t("published")} className={`${FILTER_GROUP} flex flex-col gap-8 pt-18 pb-24`}>
               {showFilter(lines) ? <LineFilter locale={locale} legend={t("filterLabel")} allLabel={t("all")} lines={lines} variant="mono" /> : null}
-              <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(21.25rem,100%),1fr))] border-t border-l border-t-ink border-l-mist">
+              <ul className="reveal grid grid-cols-[repeat(auto-fill,minmax(min(21.25rem,100%),1fr))] border-t border-l border-t-ink border-l-mist">
                 {guides.map((guide) => (
                   <GuideCard key={guide.id} guide={guide} locale={locale} texts={texts} heading="h2" withSummary className={filteredItemClass([guide.line])} />
                 ))}

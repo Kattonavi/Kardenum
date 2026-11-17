@@ -1,4 +1,6 @@
 import type { Locator, Page } from "@playwright/test";
+import { subpages } from "../src/content/subpages";
+import { isGenerated } from "../src/routes";
 import { expect, test } from "./helpers";
 
 // Scenes (docs/specs/012-fase-2-rediseno-visual.md, RF-10 to RF-15): what each service line
@@ -18,6 +20,13 @@ const PAGES: Record<string, readonly string[]> = {
   "/servicios/minecraft": ["minecraft"],
   "/servicios/discord": ["discord"],
   "/en/services/design": ["diseno"],
+  // The page of a service carries the scene of its line. They are hidden behind a feature: on an
+  // open site with the feature off they are not generated, and there is nothing to open.
+  ...Object.fromEntries(
+    Object.values(subpages)
+      .filter((page) => isGenerated(page.pathname))
+      .map((page) => [page.pathname, [page.line]]),
+  ),
 };
 
 async function openScenes(page: Page, path: string): Promise<Locator> {

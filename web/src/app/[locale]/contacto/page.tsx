@@ -146,7 +146,7 @@ export default async function ContactPage({ params }: PageProps<"/[locale]/conta
 
           <section aria-labelledby="after-title" className="flex flex-col gap-8 border-t border-(--rule) pt-18 pb-24">
             <SectionHeader label={t("afterLabel")} title={t("afterTitle")} titleId="after-title" />
-            <ol className="grid grid-cols-[repeat(auto-fit,minmax(min(260px,100%),1fr))] gap-8">
+            <ol className="reveal grid grid-cols-[repeat(auto-fit,minmax(min(260px,100%),1fr))] gap-8">
               {afterSteps.map((step) => (
                 <li key={step.number} className="flex flex-col gap-3">
                   <span aria-hidden="true" className="font-mono text-xs tracking-[0.1em]">

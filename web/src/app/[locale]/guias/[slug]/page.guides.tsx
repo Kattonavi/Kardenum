@@ -106,7 +106,7 @@ export default async function Page({ params }: EntryPageProps) {
               <span aria-hidden="true" className="size-2 shrink-0 bg-bronze" />
               {`${t("guide")} · ${lineName}`}
             </p>
-            <h1 className="max-w-[52rem] text-[clamp(1.75rem,3.8vw,3rem)] leading-[1.1] tracking-[0.01em] type-display">{meta.title[locale]}</h1>
+            <h1 className="max-w-[52rem] text-[clamp(1.75rem,3.8vw,3rem)] leading-[1.1] font-extrabold tracking-[0.01em] type-display">{meta.title[locale]}</h1>
             <p className="max-w-[40rem] text-lg leading-[1.6] text-(--muted-text)">{meta.summary[locale]}</p>
             <ul className="flex flex-wrap gap-x-5 gap-y-1.5 font-mono text-xs tracking-[0.1em] text-(--muted-text) uppercase">
               {byline.map((item) => (
@@ -177,7 +177,7 @@ export default async function Page({ params }: EntryPageProps) {
                   {t("relatedTitle")}
                 </h2>
               </div>
-              <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(20rem,100%),1fr))] border-t border-l border-t-ink border-l-mist">
+              <ul className="reveal grid grid-cols-[repeat(auto-fill,minmax(min(20rem,100%),1fr))] border-t border-l border-t-ink border-l-mist">
                 {related.map((other) => (
                   <GuideCard key={other.id} guide={other} locale={locale} texts={{ guide: t("guide"), read: t("read") }} heading="h3" />
                 ))}

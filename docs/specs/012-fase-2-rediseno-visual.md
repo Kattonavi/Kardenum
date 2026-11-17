@@ -154,6 +154,22 @@ Cada una queda también en la bitácora, con su fecha.
       un atributo: una prueba unitaria exige que cada palabra en español tenga su par en inglés.
     - **El interior de cada escena es un fragmento de HTML fijo por línea** (`scene.tsx`), no un árbol de
       elementos de React: como elementos, las escenas ocupaban una cuarta parte del documento.
+22. **Índice de servicios en Tinta, con las mismas tarjetas del inicio.** Cinco tarjetas: tres en la primera fila y
+    dos, más anchas, en la segunda (en una ventana ancha), para que ninguna fila quede corta. La orientación
+    "¿No sabes cuál necesitas?" sigue debajo, sobre Piedra. El control de pausa va sobre la rejilla.
+23. **Primera pantalla de las líneas:** el texto ocupa tres quintos y la escena dos. Con la escena al lado, el título
+    de Minecraft y Discord usa el mismo tamaño que el de las otras líneas (antes era mayor y, en la columna más
+    angosta, se partía en cinco renglones). La pieza del corchete que acompañaba esos dos títulos sale: su lugar lo
+    toma la escena.
+24. **Títulos en peso 800 en todo el sitio** (páginas, secciones, legales, casos, guías y 404), no solo en el inicio:
+    dos pesos de título entre páginas del mismo sitio se verían como un error. El tamaño mínimo del título de página
+    baja de 30 a 29 px: en peso 800 la palabra más larga ("DEVELOPMENT") medía 3 px más que una pantalla de 320.
+25. **Subpáginas:** misma primera pantalla que su línea, con su escena. Conservan sus propias preguntas.
+26. **La entrada al bajar llega al resto de las páginas por los bloques que comparten** (listas numeradas,
+    tarjetas, listas de marcas, pasos, preguntas) y, donde la página tiene los suyos, en ellos (Nosotros, Contacto,
+    legales, índices de portafolio y guías).
+27. **El pie de la 404 sigue al pie del sitio** (es un pie propio y estático: esa página reemplaza al layout):
+    sin separadores y con el enlace a Preguntas frecuentes.
 21. **Lo que no se ve al cargar se calcula después:** las bandas del inicio bajo el carrusel, y el cierre y el pie
     de todas las páginas, llevan `content-visibility: auto`. El primer layout del inicio era una tarea larga que
     Lighthouse contaba como bloqueo en el runner. En el inicio los saltos a un ancla son directos, no suaves, para

@@ -11,9 +11,9 @@ Este archivo se actualiza al cerrar cada rebanada: de aquí sale el informe fina
 | 2 | Cinco escenas y control de pausa | **en producción** | `d438bd1` | 44002958854: success (los tres trabajos) |
 | 3 | Carrusel | **en producción** | `2a93d0e` + `78962ae` | 44004820274: success (los tres trabajos) |
 | 4 | Inicio completo | **en producción** (verde al segundo arreglo; su margen de rendimiento volvió a fallar en la rebanada 5, ver abajo) | `3f672fd` + `d23fe40` + `68b1b80` | 44016256510: success (los tres trabajos). Antes: | 44006779132: humo y navegador success, Lighthouse contra el despliegue success, **Lighthouse sobre el build abierto failure** (rendimiento de `/`: 0,82 · 0,93 · 0,94; mínimo 0,95). Issue #3 abierto por el workflow |
-| 5 | Pie y preguntas frecuentes | **desplegada, verificación en rojo** por el margen del inicio (no por la rebanada) | `8b07a3b` + `5684ba2` | 44017531353: humo, navegador y Lighthouse contra el despliegue success; **Lighthouse sobre el build abierto failure** en `/` (0,71 · 0,94 · 0,94) |
-| 6 | Índice de servicios y líneas | pendiente | — | — |
-| 7 | Subpáginas (tras su flag) | pendiente | — | — |
+| 5 | Pie y preguntas frecuentes | **en producción** (verde tras la dieta `bb20f33`: corrida 44024408090, los tres trabajos) | `8b07a3b` + `5684ba2` + `bb20f33` | Antes: | 44017531353: humo, navegador y Lighthouse contra el despliegue success; **Lighthouse sobre el build abierto failure** en `/` (0,71 · 0,94 · 0,94) |
+| 6 | Índice de servicios y líneas | subida, verificando | `cebb917` | — |
+| 7 | Subpáginas, pie de la 404 y entrada al bajar en el resto | lista en local | — | — |
 | 8 | Revisiones del lote | pendiente | — | — |
 
 ## Decisiones tomadas sin preguntar
@@ -59,6 +59,11 @@ Las diez primeras están razonadas en la spec 012 ("Decisiones"). Resumen:
 | 35 | Las palabras de las escenas las escribe la hoja de estilos por idioma (`:lang(en)`), y el interior de cada escena es un fragmento de HTML fijo | Como elementos de React con atributos, las escenas eran una cuarta parte del documento. Una prueba unitaria exige el par en inglés de cada palabra |
 | 36 | El cierre y el pie de todas las páginas se calculan al acercarse (`content-visibility: auto`) | Menos trabajo en el primer layout; nunca están en la primera pantalla |
 | 37 | Rama desechable `diag/lighthouse-diet` (segunda de diagnóstico) | Para no reescribir la primera; mismas reglas: no se fusiona, se borra al cerrar el lote |
+| 38 | Índice de servicios sobre Tinta con las tarjetas del inicio (3 + 2 en ventana ancha) | "Cada línea es una tarjeta con su escena": se usa la tarjeta de la maqueta, sobre su mismo fondo |
+| 39 | Primera pantalla de las líneas: texto 3/5 y escena 2/5; mismo tamaño de título en las cinco líneas; sale la pieza del corchete | Con la escena al lado, el título grande de Minecraft y Discord se partía en cinco renglones |
+| 40 | Títulos en peso 800 en todo el sitio; mínimo del título de página de 30 a 29 px | Un solo peso de título en el sitio; en 800, "DEVELOPMENT" desbordaba 3 px a 320 px |
+| 41 | La entrada al bajar llega a las demás páginas por sus bloques compartidos | "Heredan la entrada al bajar" |
+| 42 | El pie de la 404 sigue al pie nuevo | Es un pie propio; si no, quedaba con el viejo |
 
 ## Evidencia
 

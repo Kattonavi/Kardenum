@@ -7,6 +7,7 @@ import { Container } from "@/components/layout/container";
 import { MarkedList, NumberedCards, RelatedGrid, SplitSection, StackedSection, StepsSection } from "@/components/sections/content";
 import { FaqSection } from "@/components/sections/faq";
 import { PageHero } from "@/components/sections/page-hero";
+import { HeroScene } from "@/components/scenes/line-card";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buttonClass } from "@/components/ui/button";
 import { linePages } from "@/content/lines";
@@ -67,6 +68,8 @@ export async function SubPage({ id, params }: { id: SubpageId; params: LocalePar
         text={page.hero.text[locale]}
         spacing="pt-10 pb-22"
         before={<Breadcrumbs pathname={page.pathname} locale={locale} label={sections("breadcrumb")} />}
+        // The scene of its line, as on the page of the line (spec 012, RF-52).
+        visual={<HeroScene line={page.line} />}
         actions={
           <>
             <a href={primaryHref} className={buttonClass.primary} {...(externalPrimary ? { target: "_blank", rel: "noopener noreferrer" } : {})}>

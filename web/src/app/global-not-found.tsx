@@ -46,6 +46,7 @@ const destinations = (
 
 const legalLinks = (
   [
+    { pathname: "/preguntas-frecuentes", name: es.Footer.faq },
     { pathname: "/legal/privacidad", name: es.Footer.privacy },
     { pathname: "/legal/terminos", name: es.Footer.terms },
   ] satisfies { pathname: AppPathname; name: string }[]
@@ -120,7 +121,7 @@ export default function GlobalNotFound() {
               <span aria-hidden="true" className="size-2 shrink-0 bg-bronze" />
               {es.NotFound.label}
             </p>
-            <h1 className="text-[clamp(2.125rem,5.4vw,4.25rem)] leading-[1.05] tracking-[0.01em] type-display">
+            <h1 className="text-[clamp(2.125rem,5.4vw,4.25rem)] leading-[1.05] font-extrabold tracking-[0.01em] type-display">
               <TitleLines lines={[es.NotFound.titleLine]} accent={es.NotFound.titleAccent} />
             </h1>
             <p className="max-w-[36rem] text-lg leading-[1.6] text-(--muted-text)">{es.NotFound.body}</p>
@@ -171,35 +172,23 @@ export default function GlobalNotFound() {
                   <span className="text-sm tracking-[0.16em] type-display">Kardenum</span>
                 </span>
                 <nav aria-label={es.Footer.linesLabel}>
-                  <ul className="flex flex-wrap items-center font-mono text-xs tracking-[0.1em] text-(--muted-text) uppercase">
+                  <ul className="label-row">
                     {serviceLines
                       .filter((line) => available(line.pathname))
-                      .map((line, index, lines) => (
-                        <li key={line.id} className="flex items-center">
-                          <Link
-                            href={href(line.pathname)}
-                            className="inline-flex min-h-11 min-w-11 items-center justify-center transition-colors duration-150 hover:text-stone"
-                          >
+                      .map((line) => (
+                        <li key={line.id}>
+                          <Link href={href(line.pathname)} className="quiet-link">
                             {line.shortName.es}
                           </Link>
-                          {index < lines.length - 1 ? (
-                            <span aria-hidden="true" className="px-1">
-                              ·
-                            </span>
-                          ) : null}
                         </li>
                       ))}
                   </ul>
                 </nav>
-                <div className="flex flex-wrap items-center gap-x-5 font-mono text-xs tracking-[0.1em] text-(--muted-text) uppercase">
+                <div className="label-row">
                   {legalLinks.length > 0 ? (
-                    <nav aria-label={es.Footer.legalLabel} className="flex flex-wrap gap-x-5">
+                    <nav aria-label={es.Footer.legalLabel} className="flex flex-wrap gap-x-5.5">
                       {legalLinks.map((link) => (
-                        <Link
-                          key={link.pathname}
-                          href={href(link.pathname)}
-                          className="inline-flex min-h-11 min-w-11 items-center justify-center transition-colors duration-150 hover:text-stone"
-                        >
+                        <Link key={link.pathname} href={href(link.pathname)} className="quiet-link">
                           {link.name}
                         </Link>
                       ))}

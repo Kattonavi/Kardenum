@@ -40,7 +40,7 @@ export function FaqSection({ id, label, title, titleId, items, variant, last = t
  */
 export function FaqList({ items, openFirst = true }: { items: readonly FaqEntry[]; openFirst?: boolean }) {
   return (
-    <div className="border-t border-(--rule)">
+    <div className="reveal border-t border-(--rule)">
       {items.map((item, index) => (
         <details key={item.id} open={openFirst && index === 0} className="group border-b border-(--rule)">
           <summary className="flex min-h-21 items-center justify-between gap-6 py-5 transition-colors duration-150 hover:text-(--accent-text)">

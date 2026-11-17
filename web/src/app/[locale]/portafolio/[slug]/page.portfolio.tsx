@@ -89,7 +89,7 @@ export default async function Page({ params }: EntryPageProps) {
           {/* Home › Portfolio › case: the way back to the portfolio (maqueta B-Caso), as on every inner page. */}
           <Breadcrumbs pathname={INDEX} locale={locale} label={sections("breadcrumb")} entry={{ name: item.name }} />
           <div className="flex flex-col gap-6 pt-10 pb-14">
-            <h1 className="text-[clamp(2.25rem,6vw,4.75rem)] leading-[1.05] tracking-[0.01em] type-display">{item.name}</h1>
+            <h1 className="text-[clamp(2.25rem,6vw,4.75rem)] leading-[1.05] font-extrabold tracking-[0.01em] type-display">{item.name}</h1>
             <p className="max-w-[36rem] text-lg leading-[1.6] text-(--muted-text)">{item.summary[locale]}</p>
             <dl className="flex flex-wrap gap-x-16 gap-y-5 border-t border-line pt-6">
               {facts.map((fact) => (
@@ -141,7 +141,7 @@ export default async function Page({ params }: EntryPageProps) {
             <h2 id="pieces-title" className={sectionTitleClass}>
               {t("pieces")}
             </h2>
-            <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(26.25rem,100%),1fr))] gap-6">
+            <ul className="reveal grid grid-cols-[repeat(auto-fill,minmax(min(26.25rem,100%),1fr))] gap-6">
               {item.pieces.map((piece, index) => (
                 <li key={`${piece.kind}-${index}`}>
                   <CasePieceView piece={piece} locale={locale} />
