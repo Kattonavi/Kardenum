@@ -121,7 +121,7 @@ test("every animation of the carousel lasts the 17.5 s of its five steps", () =>
   assert.deepEqual([...new Set(durations)], ["17.5s"]);
   assert.match(sheet.css, /animation:\s*carousel-step-narrow 17\.5s cubic-bezier\(0\.7, 0, 0\.2, 1\) infinite/);
   for (const name of ["carousel-step-narrow", "carousel-step-wide"]) {
-    const steps = keyframes(sheet.css).find((rule) => rule.name === name);
+    const steps: { name: string; body: string } | undefined = keyframes(sheet.css).find((rule) => rule.name === name);
     assert.ok(steps, `@keyframes ${name}`);
     // Still from each multiple of 20 % to 16 % later (2.8 of 3.5 s), then the move.
     assert.deepEqual(
