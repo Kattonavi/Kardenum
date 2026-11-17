@@ -30,7 +30,9 @@ Sesión del 2026-11-17, desde otro computador. Encargo: el mensaje del fundador 
   computador contra producción (humo y navegador; Lighthouse contra el despliegue; Lighthouse sobre el build abierto
   del mismo commit, compilado aquí). No es `verify-deploy`: es otra máquina y otra red.
 - **`verify-deploy` queda pendiente:** una sola corrida completa sobre el `main` final cuando Actions vuelva
-  (`gh workflow run verify-deploy.yml --ref main`; backlog 81).
+  (`gh workflow run verify-deploy.yml --ref main`; backlog 81). Se intentó al cerrar la sesión (corrida 44152178665) y GitHub
+  seguía sin arrancar los trabajos. El workflow nuevo sí se leyó bien: eligió los tres trabajos del completo y
+  saltó el corto.
 - La comprobación local de la rebanada 4 que se anotó antes no incluyó el Lighthouse sobre el build abierto; las de
   las rebanadas 5 y 6 sí, y cubren el mismo código.
 
@@ -260,8 +262,8 @@ Medido en local con Lighthouse 12.6.1, celular, tres pasadas en el inicio y dos 
 ### La rama `feat/motion-and-service-visuals`
 
 Solo existe en este disco (no tiene copia en el remoto). Tres commits del 2026-11-16 por la mañana, anteriores a la
-fase 2: es el lote que el brief de la fase 2 reemplazó (specs 009 a 011). Sale de `a8636ef`; `main` lleva 37 commits
-desde ahí. Lo que tiene y `main` no:
+fase 2: es el lote que el brief de la fase 2 reemplazó (specs 009 a 011). Sale de `a8636ef`; `main` lleva unos 40
+commits desde ahí. Lo que tiene y `main` no:
 
 - Las specs 009, 010 y 011.
 - Las escenas de cada línea como SVG (`components/visuals/`), la entrada al bajar con un observador en JavaScript
