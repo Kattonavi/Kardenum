@@ -32,18 +32,24 @@ los mínimos de Lighthouse (95, tres pasadas, pasada mediana) ni el presupuesto 
 
 ### C · Títulos junto a la escena (páginas de línea y subpáginas)
 
+Segunda ronda de decisiones del fundador (2026-11-17), que reemplaza a la primera: había dos tamaños y el bronce
+podía empezar a mitad de renglón.
+
 | # | Requisito |
 |---|---|
 | RF-20 | CUANDO la primera pantalla va en dos columnas, el texto DEBE ocupar el 55 % y la escena el 45 %. |
-| RF-21 | CUANDO la primera pantalla va en dos columnas, el título NO DEBE pasar de tres renglones ni dejar una palabra sola en un renglón, en ninguna de las 11 páginas (5 líneas y 6 subpáginas) ni en ninguno de los dos idiomas, a cualquier ancho de escritorio. |
-| RF-22 | El título DEBE repartir sus renglones de forma pareja (`text-wrap: balance`). |
+| RF-21 | Junto a la escena el título DEBE tener un solo tamaño en todas las páginas: 41 px en una ventana de 1440 px, y nunca menos de 32 px. |
+| RF-22 | SI a ese tamaño el texto no cabe junto a la escena, ENTONCES la escena DEBE pasar debajo del texto. |
 | RF-23 | En celular (una columna) el tamaño del título NO DEBE cambiar respecto a hoy. |
+| RF-24 | Los cortes de renglón del título DEBEN ser los escritos a mano con cada título, y la parte en bronce DEBE empezar al inicio de un renglón. |
+| RF-25 | El último renglón NO DEBE ser una palabra corta sola. Una palabra larga sola en el primer renglón se acepta. |
+| RF-26 | El título NO DEBE pasar de tres renglones en las páginas de línea en español; se aceptan cuatro en los títulos largos del inglés y de las subpáginas ocultas. |
 
 ### D · Preguntas frecuentes
 
 | # | Requisito |
 |---|---|
-| RF-30 | La pregunta repetida DEBE quedar en los dos grupos con el nombre de cada cosa: "¿Administran el servidor de Minecraft después de la entrega?" y "¿Administran el servidor de Discord después de la entrega?" (en inglés, "Do you manage the Minecraft server after delivery?" y "Do you manage the Discord server after delivery?", provisional como todo el inglés). Las respuestas no cambian. |
+| RF-30 | La pregunta repetida DEBE quedar en los dos grupos con el nombre de cada cosa: "¿Administran el servidor de Minecraft después de la entrega?" y "¿Administran el servidor de Discord después de la entrega?" (en inglés, "Do you manage the Minecraft server after delivery?" y "Do you manage the Discord server after delivery?", provisional como todo el inglés). Las respuestas no cambian. La misma pregunta en las dos subpáginas ocultas de Minecraft (plugins y servidores) lleva el mismo cambio. |
 | RF-31 | Ninguna pregunta DEBE repetirse palabra por palabra en la página de preguntas, en ningún idioma. |
 
 ### E · Rendimiento y verificación
@@ -53,6 +59,9 @@ los mínimos de Lighthouse (95, tres pasadas, pasada mediana) ni el presupuesto 
 | RF-40 | El inicio DEBE aligerarse sin cambiar lo que se ve: capturas idénticas antes y después a 1280 y 390 px, y un resultado en el runner que no sea peor que el de hoy. Lo que tenga riesgo se propone y no se aplica. |
 | RF-41 | `verify-deploy` DEBE medir `/preguntas-frecuentes` y `/en/faq` con el mismo mínimo que las demás páginas. |
 | RF-42 | El documento de la página de preguntas DEBE caber en la primera ráfaga de TCP (14.600 bytes transferidos) en los dos idiomas, y la prueba de humo DEBE vigilarlo. |
+| RF-43 | La fuente Archivo DEBE servirse recortada a los ejes, pesos y caracteres que usa el sitio, sin cambiar lo que se ve. SI un texto del sitio usa un carácter que el recorte perdió, ENTONCES el build DEBE fallar. |
+| RF-44 | ~~JetBrains Mono NO DEBE precargarse.~~ Pedido por el fundador, probado y **no aplicado**: empeora el primer pintado y no mejora el LCP (decisión 14). Queda a su decisión. |
+| RF-45 | ANTES de medir, `verify-deploy` DEBE hacer una petición a cada página que mide, en el mismo orden. El orden de las páginas, el número de pasadas y el mínimo NO DEBEN cambiar. |
 
 ### F · Carrusel y revisión de diseño
 
@@ -69,25 +78,40 @@ los mínimos de Lighthouse (95, tres pasadas, pasada mediana) ni el presupuesto 
    actual con el relleno; el borde es la señal a la vista y `aria-current` la del lector de pantalla.
 3. **El filete bajo la cabecera y la franja de idioma se quedan** (backlog 58): el fundador decidió solo el botón.
 4. **Junto a la escena los cortes del título van escritos con cada título** (`titleBeside`), y su tamaño sale del
-   ancho de su columna, así los renglones son los mismos de 1024 a 1920 px. Medido en la tipografía real, con solo
+   ancho de su columna (6,5 %), así los renglones son los mismos a todo ancho. Medido en la tipografía real, con solo
    `text-wrap: balance` el navegador dejaba una palabra sola en 12 de los 22 títulos: reparte anchos, no evita
-   palabras solas. `text-wrap: balance` está puesto, pero quien cumple la regla son los cortes. Hay **dos tamaños**:
-   6,5 % del ancho de la columna (41 px a 1440) y 5,2 % (33 px) para los títulos con un renglón de más de 17 letras.
-   Con ese tamaño menor quedan tres páginas públicas en inglés (Development, Design, Minecraft) y tres subpáginas en
-   español; ahí el título mide menos que los de sección (36 px). La parte en bronce puede empezar a mitad de renglón
-   ("Y SOFTWARE"). **Alternativa por decidir:** un solo tamaño de 41 px, aceptando que en esos títulos una palabra
-   larga quede sola en el primer renglón. En una columna (celular, o páginas sin escena) nada cambia.
-7. **RF-21 se cumple en 20 de 22 títulos.** Los otros dos son títulos en inglés de tres palabras, de subpáginas
-   ocultas ("Custom Minecraft plugins." y "Custom ecommerce websites."): no caben en un renglón y quedan con la
-   primera palabra sola, nunca la última.
+   palabras solas. `text-wrap: balance` sigue puesto, pero quien cumple las reglas son los cortes.
+7. **La escena va al lado del texto desde 1216 px de ventana, no desde 1072.** La regla del fundador era el mínimo
+   de 32 px, que se alcanza a 1072 px; pero ahí los dos botones bajo el título no cabían en un renglón (la revisión
+   de diseño lo marcó). A 1216 px caben el título y los dos botones de las 22 páginas (el par más ancho mide
+   568 px), y el título mide 37 px. **Consecuencia:** entre 1024 y 1215 px la escena va debajo del texto, con 640 px
+   de ancho como máximo, y el título tiene el tamaño de cualquier título de página (47 a 56 px), mayor que los 41 px
+   de cuando va junto a la escena.
+10. **Cortes que no tienen arreglo sin reescribir el título** (inglés, provisional): "Web / development and / custom
+    software." deja "WEB" sola en el primer renglón, porque "Web development and" no cabe en un renglón y el bronce
+    debe empezar renglón. "Custom Minecraft / plugins." termina en una palabra sola: es toda la parte en bronce.
 8. **RF-40 se cumple en su parte de "no cambiar lo que se ve" y "no peor", no en la de aligerar el inicio.** Lo que
    se aplicó (hojas de estilo por página) le da margen a la página de preguntas y a las páginas sin escenas; el
    inicio queda igual en el runner y su documento pierde holgura (de 346 a 207 bytes libres). Lo que sí lo
    aligeraría toca fuentes o JavaScript y quedó como propuesta (backlog 78).
 9. **RF-51 queda parcial:** la revisión vio 51 capturas de 13 páginas, no todas las pantallas de todas
    (`docs/revisiones/fase-2b-diseno-celular.md`).
-5. **Las preguntas de las subpáginas no se tocan** (dos de Minecraft repiten la pregunta sin el nombre): siguen
-   ocultas tras su flag y el fundador habló de los dos grupos de la página de preguntas.
+5. ~~Las preguntas de las subpáginas no se tocan.~~ Decidido después por el fundador: llevan el mismo cambio (RF-30).
+11. **El recorte de Archivo deja fuera las letras de otros idiomas** (ã, ç, è, ö…): 40,5 KB con lo que usa el sitio
+    más todo el español; 44,4 KB con las letras del portugués y el francés; 52,2 KB con todo el bloque Latin-1. Hasta
+    42,9 KB el archivo llega en dos ráfagas de TCP; por encima, en tres, igual que el de 90 KB. Un visitante que
+    escriba "João" en el cotizador ve esa letra en la fuente del sistema. Los textos del sitio nunca: el build falla
+    antes (`web/src/lib/fonts.test.ts`).
+12. **El calentamiento también abre una vez el navegador que mide.** Medido en el runner: al arrancar otra vez el
+    servidor en el mismo trabajo la pasada lenta no vuelve, así que el costo está en el primer arranque del navegador
+    tanto como en las primeras peticiones. `web/scripts/warm-up.mjs` hace las dos cosas y no cambia qué se mide.
+13. **Al tocar el workflow se arregló que no guardaba los informes de Lighthouse** (backlog 63:
+    `include-hidden-files: true`).
+14. **JetBrains Mono conserva su precarga, contra lo pedido.** Medido en local con Lighthouse 12.6.1, con Archivo ya
+    recortada: sin precarga el navegador la pide en el primer layout con prioridad máxima y Lighthouse la cuenta
+    como bloqueante. Primer pintado simulado: inicio de 0,91 a 1,06 s; preguntas y Nosotros de 0,76 a 1,06 s. El LCP
+    simulado es el mismo con y sin precarga (2,65 s). Quitarla es una línea (`preload: false` en
+    `web/src/app/fonts.ts`), si el fundador la prefiere así por otra razón.
 6. **El título repetido entre el inicio y `/servicios` (backlog 65) sigue abierto:** no vino decidido.
 
 ## Fuera de alcance
@@ -117,10 +141,12 @@ siguiente que no dependa de ella. Un rojo solo por `/` con 0,94 se relanza una v
 | RF-1, RF-2, RF-4 | `web/e2e/layout.spec.ts` (ancho del contenido a 1440 y 1920 px, sin desplazamiento horizontal) · prueba de CLS existente |
 | RF-3 | `web/e2e/layout.spec.ts` (el pie en una fila a 1440 px) |
 | RF-10, RF-11 | `web/e2e/navigation.spec.ts` |
-| RF-20 a RF-23 | `web/e2e/titles.spec.ts` (22 títulos a 1024, 1280, 1440 y 1920 px; tamaño en celular) · `web/src/content/content.test.ts` |
+| RF-20 a RF-26 | `web/e2e/titles.spec.ts` (22 títulos a 1216, 1280, 1440 y 1920 px; la escena debajo a 1024 y 1215 px; tamaño en celular) · `web/src/content/content.test.ts` · `web/e2e/fonts.spec.ts` (nada se mueve al llegar las fuentes) |
 | RF-30, RF-31 | `web/src/content/faq.test.ts` |
 | RF-40 | Capturas antes y después · corrida de diagnóstico en el runner |
 | RF-41 | `web/lighthouserc.cjs` · corrida de `verify-deploy` |
 | RF-42 | `pnpm smoke` |
+| RF-43, RF-44 | `web/src/lib/fonts.test.ts` · `web/e2e/fonts.spec.ts` · capturas antes y después |
+| RF-45 | `.github/workflows/verify-deploy.yml` · `web/scripts/warm-up.mjs` (solo se puede probar entero en GitHub Actions) |
 | RF-50 | `web/e2e/carousel.spec.ts` |
 | RF-51 | `docs/revisiones/fase-2b-diseno-celular.md` |
