@@ -31,8 +31,11 @@ test("every character of the site's texts that Archivo has is in the file the si
   assert.ok(sources.length > 50, `only ${sources.length} files read: the scan is not reaching the texts`);
   const lost = new Map<string, string>();
   for (const file of sources) {
-    for (const char of readFileSync(file, "utf8")) {
-      if (inSource.has(char) && !kept.has(char) && !lost.has(char)) lost.set(char, path.relative(webDir, file));
+    for (const written of readFileSync(file, "utf8")) {
+      // Titles and buttons are set in capitals by the stylesheet: each character counts in both forms.
+      for (const char of new Set([written, ...written.toUpperCase(), ...written.toLowerCase()])) {
+        if (inSource.has(char) && !kept.has(char) && !lost.has(char)) lost.set(char, path.relative(webDir, file));
+      }
     }
   }
   assert.deepEqual(

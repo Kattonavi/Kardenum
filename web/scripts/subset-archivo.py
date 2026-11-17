@@ -53,7 +53,9 @@ def site_texts() -> str:
 def main() -> None:
     font = TTFont(SOURCE)
     in_source = set(font.getBestCmap())
-    used = {ord(char) for char in site_texts()}
+    # Titles and buttons are set in capitals by the stylesheet (text-transform), so each character
+    # counts in both forms: a "ç" written in a title is drawn as "Ç".
+    used = {ord(form) for char in site_texts() for form in (char + char.upper() + char.lower())}
     kept = sorted((ALWAYS | used) & in_source)
 
     instancer.instantiateVariableFont(font, AXES, inplace=True)
