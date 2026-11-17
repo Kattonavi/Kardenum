@@ -8,6 +8,7 @@ export const servidores: SubpageContent = {
   hero: {
     titleLines: { es: ["Servidores y networks"], en: ["Minecraft server and"] },
     titleAccent: { es: "de Minecraft.", en: "network setup." },
+    titleBeside: { es: "Servidores y networks / de Minecraft.", en: "Minecraft server / and network setup." },
     text: {
       es: "Montamos tu servidor o tu network completa: proxy, modalidades, permisos y todo conectado entre sí, listo para recibir a tus jugadores.",
       en: "We set up your server or your whole network: proxy, game modes, permissions and everything connected, ready to welcome your players.",

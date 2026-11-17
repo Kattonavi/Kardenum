@@ -8,6 +8,7 @@ export const plugins: SubpageContent = {
   hero: {
     titleLines: { es: ["Plugins de Minecraft"], en: ["Custom Minecraft"] },
     titleAccent: { es: "a la medida.", en: "plugins." },
+    titleBeside: { es: "Plugins de Minecraft / a la medida.", en: "Custom / Minecraft plugins." },
     text: {
       es: "Creamos el plugin que tu servidor necesita, o ajustamos el que ya tienes para que funcione como lo imaginaste. Tú nos cuentas la mecánica; nosotros la construimos contigo.",
       en: "We build the plugin your server needs, or adjust the one you already have so it works the way you imagined. You tell us the mechanic; we build it with you.",

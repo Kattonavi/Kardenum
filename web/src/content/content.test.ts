@@ -205,3 +205,21 @@ test("each service sub-page is the one its line announces, with the sections of 
     }
   }
 });
+
+test("spec 013, RF-21: next to its scene a title takes at most three lines, with the same words and none alone", () => {
+  const heroes = [...Object.values(linePages), ...Object.values(subpages)].map((page) => page.hero);
+  assert.equal(heroes.length, 11);
+  for (const hero of heroes) {
+    for (const locale of locales) {
+      const title = [...hero.titleLines[locale], hero.titleAccent[locale]].join(" ");
+      const lines = hero.titleBeside[locale].split(" / ");
+      assert.equal(lines.join(" "), title, `the words of "${title}"`);
+      assert.ok(lines.length >= 1 && lines.length <= 3, `"${title}" takes ${lines.length} lines`);
+      if (lines.length === 1) continue;
+      const counts = lines.map((line) => line.split(" ").length);
+      assert.ok((counts.at(-1) ?? 0) > 1, `"${title}" ends with a word alone`);
+      // A title of three words or fewer that does not fit in one line cannot avoid a word alone.
+      if (title.split(" ").length > 3) assert.ok(counts.every((count) => count > 1), `"${lines.join(" / ")}" leaves a word alone`);
+    }
+  }
+});

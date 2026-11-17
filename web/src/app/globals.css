@@ -355,8 +355,14 @@
   @apply inline-flex min-h-11 cursor-pointer items-center gap-2 border-b-2 text-[0.9375rem] transition-colors duration-150 hover:text-(--accent-text);
 }
 
+/* "Cotizar": filled in bronze on every page, as in the phase 2 mockups (spec 013, RF-10). The fill
+   can no longer say "you are here", so on the Contact page it takes a stone border. */
 @utility nav-quote {
-  @apply inline-flex min-h-11 items-center border px-5 text-xs tracking-[0.14em] type-display transition-colors duration-150;
+  @apply inline-flex min-h-11 items-center border border-bronze bg-bronze px-5 text-[0.8125rem] font-bold tracking-[0.12em] text-ink type-display transition-colors duration-150 hover:border-stone hover:bg-stone;
+
+  &[aria-current="page"] {
+    @apply border-stone;
+  }
 }
 
 @utility nav-panel {
@@ -402,6 +408,38 @@
   & svg {
     @apply ml-2 inline align-[-0.2em];
   }
+}
+
+/*
+ * First screen of a line or a sub-page (spec 013, RF-20 to RF-23): the text and, beside it on a
+ * wide window, the scene, 55 to 45. There the title is sized by the width of its column (cqi), so
+ * it keeps the same lines from 1024 px up: the breaks are written with the title
+ * (`titleBeside`), at most three lines and none with a single word. A title with a longer line
+ * takes the smaller size. On one column nothing changes: the size of every page title.
+ */
+@utility hero-split {
+  @apply grid items-center gap-x-16 gap-y-12 lg:grid-cols-[minmax(0,55fr)_minmax(0,45fr)];
+}
+
+@utility hero-text {
+  @apply flex min-w-0 flex-col gap-6;
+
+  @media (min-width: 64rem) {
+    container-type: inline-size;
+  }
+}
+
+@utility title-beside {
+  @apply text-[clamp(1.8125rem,4.6vw,3.625rem)];
+
+  @media (min-width: 64rem) {
+    font-size: clamp(1.5rem, var(--title-fit, 6.5cqi), 2.75rem);
+    text-wrap: balance;
+  }
+}
+
+@utility title-beside-long {
+  --title-fit: 5.2cqi;
 }
 
 /* Home page: a line with its scene on one side and its text on the other; a step of the process. */

@@ -55,7 +55,7 @@ export function LineCard({ line, locale, headingLevel, children, className = "" 
  */
 export function HeroScene({ line }: { line: ServiceLineId }) {
   return (
-    <div className="flex min-w-0 flex-[2_1_24rem] flex-col gap-4">
+    <div className="flex min-w-0 flex-col gap-4">
       <Scene line={line} />
       <MotionToggle className="self-start" />
     </div>

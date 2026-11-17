@@ -73,6 +73,7 @@ export async function LinePage({ id, params }: { id: ServiceLineId; params: Loca
         label={`${line.numeral} · ${line.name[locale]}`}
         titleLines={page.hero.titleLines[locale]}
         titleAccent={page.hero.titleAccent[locale]}
+        titleBeside={page.hero.titleBeside[locale].split(" / ")}
         text={page.hero.text[locale]}
         tight
         before={<Breadcrumbs pathname={line.pathname} locale={locale} label={sections("breadcrumb")} />}

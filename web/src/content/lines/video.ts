@@ -9,6 +9,7 @@ export const video: LinePageContent = {
   hero: {
     titleLines: { es: ["Edición de video"], en: ["Video editing"] },
     titleAccent: { es: "y animación.", en: "and animation." },
+    titleBeside: { es: "Edición de video / y animación.", en: "Video editing / and animation." },
     text: {
       es: "Edición, motion graphics y animación 2D para tu marca, tus redes o tu comunidad. Escuchamos lo que quieres contar y lo convertimos en un video que se entiende y se recuerda.",
       en: "Editing, motion graphics and 2D animation for your brand, your channels or your community. We listen to what you want to tell and turn it into a video people understand and remember.",

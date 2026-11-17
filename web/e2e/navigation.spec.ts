@@ -161,6 +161,30 @@ test.describe("where you are", () => {
     await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "About" })).toHaveAttribute("aria-current", "page");
   });
 
+  test("spec 013, RF-10 and RF-11: Cotizar is filled in bronze on every page, and marked on the Contact page", async ({ page }) => {
+    const BRONZE = "rgb(184, 146, 58)";
+    const INK = "rgb(17, 17, 16)";
+    const STONE = "rgb(244, 244, 241)";
+    const look = (name: string) =>
+      page
+        .getByRole("banner")
+        .getByRole("link", { name, exact: true })
+        .evaluate((link) => {
+          const style = getComputedStyle(link);
+          return { fill: style.backgroundColor, text: style.color, border: style.borderTopColor, weight: style.fontWeight };
+        });
+
+    for (const pathname of ["/", "/servicios/minecraft", "/nosotros", "/preguntas-frecuentes", "/no-existe"]) {
+      await page.goto(pathname);
+      expect(await look("Cotizar"), pathname).toEqual({ fill: BRONZE, text: INK, border: BRONZE, weight: "700" });
+    }
+
+    // On the Contact page the fill stays and a stone border says "you are here".
+    await page.goto("/contacto");
+    expect(await look("Cotizar")).toEqual({ fill: BRONZE, text: INK, border: STONE, weight: "700" });
+    await expect(page.getByRole("banner").getByRole("link", { name: "Cotizar", exact: true })).toHaveAttribute("aria-current", "page");
+  });
+
   test("inner pages show the path from the home page", async ({ page }) => {
     await page.goto("/servicios/desarrollo");
     const trail = page.getByRole("navigation", { name: "Ruta" });

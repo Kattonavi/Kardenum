@@ -78,6 +78,12 @@ export type LinePageContent = {
     readonly titleLines: Localized<readonly string[]>;
     /** Last line of the title, in bronze. */
     readonly titleAccent: Localized<string>;
+    /**
+     * The same title in the lines it takes next to the scene on a wide window (spec 013, RF-21):
+     * at most three, and none with a single word when the words allow it. One text, its lines
+     * separated by " / ".
+     */
+    readonly titleBeside: Localized<string>;
     readonly text: Localized<string>;
     /** Label of the main button. */
     readonly cta: Localized<string>;
@@ -128,6 +134,12 @@ export type SubpageContent = {
     readonly titleLines: Localized<readonly string[]>;
     /** Last line of the title, in bronze. */
     readonly titleAccent: Localized<string>;
+    /**
+     * The same title in the lines it takes next to the scene on a wide window (spec 013, RF-21):
+     * at most three, and none with a single word when the words allow it. One text, its lines
+     * separated by " / ".
+     */
+    readonly titleBeside: Localized<string>;
     readonly text: Localized<string>;
     /** Label of the main button. */
     readonly cta: Localized<string>;

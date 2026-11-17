@@ -7,6 +7,7 @@ export const minecraft: LinePageContent = {
   hero: {
     titleLines: { es: ["Todo para tu servidor"], en: ["Everything for your"] },
     titleAccent: { es: "de Minecraft.", en: "Minecraft server." },
+    titleBeside: { es: "Todo para / tu servidor / de Minecraft.", en: "Everything for your / Minecraft server." },
     text: {
       es: "Plugins, servidores, networks, launchers y tiendas Tebex. Escuchamos lo que imaginas para tu comunidad y lo construimos contigo, listo para recibir a tus jugadores.",
       en: "Plugins, servers, networks, launchers and Tebex stores. We listen to what you imagine for your community and build it with you, ready to welcome your players.",
@@ -139,8 +140,8 @@ export const minecraft: LinePageContent = {
       {
         id: "administracion",
         question: {
-          es: "¿Administran el servidor después de la entrega?",
-          en: "Do you manage the server after delivery?",
+          es: "¿Administran el servidor de Minecraft después de la entrega?",
+          en: "Do you manage the Minecraft server after delivery?",
         },
         answer: {
           es: "No. Entregamos el trabajo configurado y funcionando. Después de los 30 días de garantía, cualquier ajuste se atiende mediante una cotización nueva.",

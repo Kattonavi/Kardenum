@@ -105,7 +105,7 @@ export default function GlobalNotFound() {
                 {available("/contacto") ? (
                   <Link
                     href={href("/contacto")}
-                    className="inline-flex min-h-11 items-center border border-stone px-5 text-xs tracking-[0.14em] type-display transition-colors duration-150 hover:border-bronze hover:text-bronze"
+                    className="nav-quote"
                   >
                     {es.Nav.quote}
                   </Link>

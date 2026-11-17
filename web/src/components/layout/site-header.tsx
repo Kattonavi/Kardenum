@@ -91,13 +91,8 @@ export async function SiteHeader({ locale }: { locale: AppLocale }) {
               <div className="@max-[22.5rem]:hidden">
                 <LocaleSwitcher locale={locale} label={language("label")} names={languageNames} variant="compact" entries={entries} />
               </div>
-              {/* Filled in bronze on the Contact page itself (maqueta B-Contacto). */}
-              <NavLink
-                href="/contacto"
-                className="nav-quote @max-5xl:hidden"
-                currentClassName="border-bronze bg-bronze text-ink"
-                idleClassName="border-stone hover:border-bronze hover:text-bronze"
-              >
+              {/* Filled in bronze on every page (spec 013, RF-10); the look itself marks the Contact page. */}
+              <NavLink href="/contacto" className="nav-quote @max-5xl:hidden" currentClassName="" idleClassName="">
                 {nav("quote")}
               </NavLink>
               {/* The menu hides its own control in the full header; its dialog must never be inside a hidden element. */}

@@ -8,6 +8,7 @@ export const bots: SubpageContent = {
   hero: {
     titleLines: { es: ["Bots de Discord"], en: ["Custom"] },
     titleAccent: { es: "a la medida.", en: "Discord bots." },
+    titleBeside: { es: "Bots de Discord / a la medida.", en: "Custom Discord bots." },
     text: {
       es: "Bots con las funciones que tu comunidad necesita, hechos para tu servidor. Escuchamos cómo se mueve tu comunidad y lo automatizamos contigo.",
       en: "Bots with the features your community needs, made for your server. We listen to how your community moves and automate it with you.",

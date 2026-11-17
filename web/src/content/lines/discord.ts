@@ -7,6 +7,7 @@ export const discord: LinePageContent = {
   hero: {
     titleLines: { es: ["Bots y servidores"], en: ["Custom Discord"] },
     titleAccent: { es: "de Discord a la medida.", en: "bots and servers." },
+    titleBeside: { es: "Bots y servidores / de Discord / a la medida.", en: "Custom Discord / bots and servers." },
     text: {
       es: "Bots, configuración de servidores, tickets, verificación e integraciones. Escuchamos cómo funciona tu comunidad y la dejamos organizada, segura y lista para crecer.",
       en: "Bots, server setup, tickets, verification and integrations. We listen to how your community works and leave it organized, safe and ready to grow.",
@@ -124,8 +125,8 @@ export const discord: LinePageContent = {
       {
         id: "administracion",
         question: {
-          es: "¿Administran el servidor después de la entrega?",
-          en: "Do you manage the server after delivery?",
+          es: "¿Administran el servidor de Discord después de la entrega?",
+          en: "Do you manage the Discord server after delivery?",
         },
         answer: {
           es: "No. Entregamos el trabajo configurado y funcionando. Después de los 30 días de garantía, cualquier ajuste se atiende mediante una cotización nueva.",

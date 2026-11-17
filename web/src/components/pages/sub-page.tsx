@@ -65,6 +65,7 @@ export async function SubPage({ id, params }: { id: SubpageId; params: LocalePar
         label={`${line.name[locale]} · ${name}`}
         titleLines={page.hero.titleLines[locale]}
         titleAccent={page.hero.titleAccent[locale]}
+        titleBeside={page.hero.titleBeside[locale].split(" / ")}
         text={page.hero.text[locale]}
         spacing="pt-10 pb-22"
         before={<Breadcrumbs pathname={page.pathname} locale={locale} label={sections("breadcrumb")} />}

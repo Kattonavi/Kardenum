@@ -8,6 +8,7 @@ export const tebex: SubpageContent = {
   hero: {
     titleLines: { es: ["Tiendas Tebex"], en: ["Tebex store setup"] },
     titleAccent: { es: "para tu servidor.", en: "for your server." },
+    titleBeside: { es: "Tiendas Tebex / para tu servidor.", en: "Tebex store setup / for your server." },
     text: {
       es: "Tu tienda lista para vender rangos y artículos, con la identidad de tu servidor e integrada para que cada compra llegue directo al juego.",
       en: "Your store ready to sell ranks and items, with your server's identity and integrated so every purchase reaches the game directly.",
