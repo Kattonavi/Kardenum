@@ -229,18 +229,24 @@
   }
 }
 
-/* On a phone the names share one row: a name leaves before the next one comes in, so two are never read on top of each other. */
+/*
+ * On a phone the names share one row: a name leaves before the next one comes in, so two are never
+ * read on top of each other. Both changes happen while the row moves (16 % to 20 % of a turn): a
+ * name is whole from the instant its scene stops in the centre to the instant it starts to leave,
+ * and pausing at any point of that leaves it readable (spec 013, RF-50). It used to come in after
+ * its scene had stopped, and for a sixth of a second it was under 4.5:1 against the band.
+ */
 @keyframes carousel-tab-turn {
-  0% {
-    opacity: 0;
-  }
-  2%,
-  18% {
+  0%,
+  16% {
     opacity: 1;
   }
-  20%,
-  100% {
+  18%,
+  98% {
     opacity: 0;
+  }
+  100% {
+    opacity: 1;
   }
 }
 

@@ -172,6 +172,59 @@ test("each tab fills while its scene is in the centre", async ({ page }) => {
   }
 });
 
+test("spec 013, RF-50: on a phone the name under the carousel reaches 4.5:1 for as long as its scene is still in the centre", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile", "on a wide window each name sits under its own bar");
+  const carousel = await openCarousel(page);
+
+  /** Contrast of each name against the band behind it, with its opacity counted: the name is drawn by the stylesheet, so axe does not see it. */
+  const contrasts = () =>
+    carousel.locator(".carousel-tab-name").evaluateAll((names) => {
+      const channels = (color: string) => (color.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+      const luminance = (rgb: number[]) => {
+        const [r = 0, g = 0, b = 0] = rgb.map((value) => {
+          const channel = value / 255;
+          return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+        });
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      };
+      // The first ancestor with a background of its own is the band the name is drawn on.
+      const backdrop = (element: Element): number[] => {
+        for (let node: Element | null = element; node; node = node.parentElement) {
+          const color = getComputedStyle(node).backgroundColor;
+          if (color !== "rgba(0, 0, 0, 0)" && color !== "transparent") return channels(color);
+        }
+        return [255, 255, 255];
+      };
+      return names.map((name) => {
+        const style = getComputedStyle(name);
+        const back = backdrop(name);
+        const opacity = Number(style.opacity);
+        const text = channels(style.color).map((value, index) => value * opacity + (back[index] ?? 0) * (1 - opacity));
+        const [light, dark] = [luminance(text), luminance(back)].sort((a, b) => b - a);
+        return { opacity, contrast: ((light ?? 0) + 0.05) / ((dark ?? 0) + 0.05), text: getComputedStyle(name, "::before").content };
+      });
+    });
+
+  for (const [step, line] of LINES.entries()) {
+    // From the moment the scene stops in the centre to the moment it starts to leave.
+    for (const offset of [0, 40, 100, 200, 350, 1400, STILL - 1]) {
+      await setClock(page, step * STEP + offset);
+      const centred = (await slides(carousel)).filter((slide) => slide.opacity > 0.99).map((slide) => slide.line);
+      expect(new Set(centred), `${line} is the scene in the centre ${offset} ms into its turn`).toEqual(new Set([line]));
+      const names = await contrasts();
+      expect(names[step]?.contrast ?? 0, `the name of ${line}, ${offset} ms after its scene stopped (opacity ${names[step]?.opacity})`).toBeGreaterThanOrEqual(4.5);
+      // One name at a time: the others are not on screen while this one is read.
+      expect(names.filter((name, index) => index !== step && name.opacity > 0.01), `only the name of ${line} shows`).toEqual([]);
+    }
+  }
+
+  // Pausing in the first instant of a turn leaves the name as it is: it must already be readable.
+  await page.reload();
+  await setClock(page, 2 * STEP + 40);
+  await page.getByRole("checkbox", { name: "Pausar animación" }).check();
+  expect((await contrasts())[2]?.contrast ?? 0, "the name of the third scene, paused 40 ms into its turn").toBeGreaterThanOrEqual(4.5);
+});
+
 test("the pause control stops and resumes everything at once", async ({ page }) => {
   await openCarousel(page);
   await expect.poll(async () => (await carouselAnimations(page)).running).toBeGreaterThan(20);
