@@ -69,6 +69,7 @@ Las diez primeras están razonadas en la spec 012 ("Decisiones"). Resumen:
 | 45 | La cabecera no se toca aunque la revisión de diseño la marcó (botón "Cotizar" con borde y no relleno, filete inferior, franja de idioma) | El brief dice "Cabecera: la actual". Queda para que el fundador lo vea |
 | 46 | El ancho de página sigue en 1200 px (decisión 17) aunque la revisión de diseño pide los 1320 de la maqueta | Cambia todas las páginas y la cabecera, después de las revisiones y las capturas. Queda como primera cosa a decidir a ojo: es una línea en `globals.css` |
 | 47 | Las ramas desechables (`diag/*`, `wip/*`) no se borran | Borrar ramas del remoto es irreversible: lo decide el fundador. Comando en el informe |
+| 49 | Trabajo local adelantado mientras corría una verificación (rebanada 7 escrita y revisiones lanzadas durante las verificaciones de la 6 y la 7) | Para no perder las esperas de 8 a 12 minutos. Los push fueron en orden y cada uno esperó el verde del anterior; el encargo decía "antes de empezar la siguiente" |
 | 48 | Los hallazgos de texto de la revisión de SEO (una pregunta repetida en dos grupos; el título de "Lo que hacemos" igual al de `/servicios`) no se tocan | El brief no deja cambiar textos no listados. Al backlog |
 
 ## Evidencia
@@ -295,7 +296,17 @@ Aplicado en la rebanada 8:
 Probado y descartado: el pie en una sola fila a 1280 px (como la maqueta) cabe bajando la separación, pero los dos
 grupos de enlaces quedan pegados y se leen como uno. La causa es el ancho de página (decisión 46).
 
-No aplicado, al backlog (ítems 57 a 71 de `docs/BACKLOG.md`): todo lo demás.
+No aplicado, al backlog (ítems 57 a 72 de `docs/BACKLOG.md`): todo lo demás.
+
+Comprobado en producción tras desplegar `0aec3aa` (Playwright, `/` a 1280 y 390 px): con la pausa marcada a
+menos de 100 ms de cargar, 0 piezas ocultas en las escenas dibujadas y 0 animaciones corriendo en escenas y
+carrusel; la escena del centro se ve igual que con movimiento reducido. Observado de paso: pausado en ese primer
+instante, el indicador de pestañas del carrusel queda en su fotograma inicial, con la de Discord aún encendida
+mientras se apaga (es el empalme de la vuelta). Una persona no alcanza a pausar tan pronto; anotado en el backlog 71.
+
+Revisión de diseño, lo que no alcanzó a ver: comparé a mano `home-mobile-05` con `mock-mobile-05` (tarjeta de
+Discord y arranque del proceso) y `home-mobile-07` (cierre): coinciden salvo la frase de la tarjeta, que es la del
+sitio (RF-31). Las páginas interiores en celular quedan sin revisión de diseño.
 
 Puerta de clon limpio de `0aec3aa`: build con 148 unitarias; humo `OK: all 1285 checks passed`; navegador
 1124 passed, 18 skipped. Verificación oficial 44029900173: los tres trabajos en verde. Informe final:
@@ -337,7 +348,7 @@ registro (el de los bytes por documento quedó resuelto para todas las páginas 
 
 ## Pendiente para el backlog
 
-Pasado a `docs/BACKLOG.md` al cerrar el lote (ítems 57 a 71; el 13 y el 40 quedan cerrados). Lo de abajo es el
+Pasado a `docs/BACKLOG.md` al cerrar el lote (ítems 57 a 72; el 13 y el 40 quedan cerrados). Lo de abajo es el
 registro de cómo se fue anotando durante la noche.
 
 - **Documento del inicio bajo 14.600 bytes** (hoy 16.935 en `/` y 16.722 en `/en`): quita la ida y vuelta extra

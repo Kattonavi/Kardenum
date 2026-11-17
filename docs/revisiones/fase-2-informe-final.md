@@ -3,7 +3,8 @@
 Sesión sin supervisión del 2026-11-16 al 17. Encargo: `docs/handoff/fase-2/BRIEF-FASE-2.md`.
 Detalle de cada paso, con todas las medidas: `docs/revisiones/fase-2-bitacora.md`. Spec: `docs/specs/012-fase-2-rediseno-visual.md`.
 
-**Las ocho rebanadas están en producción y verificadas.** `main` quedó en `0aec3aa`. No se encendió ningún flag, el
+**Las ocho rebanadas están en producción y verificadas.** El código desplegado es `0aec3aa` (los commits posteriores
+de `main` son solo documentación y no despliegan). No se encendió ningún flag, el
 sitio sigue cerrado a buscadores, no se tocó ninguna variable de Railway ni el workflow `verify-deploy`, y no hay
 dependencias nuevas (`package.json` y el lockfile no cambiaron).
 
@@ -54,15 +55,25 @@ funciones apagadas o propias de un solo ancho).
 
 Lo que hay que saber de esta tabla:
 
-- El LCP es el **simulado** en un celular lento; el medido de verdad en el runner va de 0,14 a 0,23 s. El objetivo
-  del brief (2,5 s) se cumple en lo medido, no en lo simulado, igual que antes de la fase 2.
-- La primera pasada de `/` (0,87) es la del servidor recién arrancado. Pasa siempre, también antes de la fase 2.
+- **El LCP de 2,5 s o menos que pide el brief no está demostrado.** El de la tabla es el simulado para un celular
+  lento y queda entre 2,7 y 3,0 s en casi todas las pasadas (solo algunas bajan a 2,4 s). El que el runner mide de
+  verdad va de 0,14 a 0,23 s, pero contra un servidor en su misma máquina: no dice nada de un celular real. Con el
+  sitio cerrado no hay medida de campo. No tengo línea base por pasada de antes de la fase 2 para comparar
+  (backlog 72).
+- La primera pasada de `/` (0,87) es la del servidor recién arrancado: salió fría en tres de las cuatro corridas
+  de diagnóstico (0,79 a 0,90).
+- **El inicio pasa con margen corto.** De las ocho pasadas en caliente de `/` medidas tras el arreglo, seis dieron
+  0,96 y dos 0,95, justo el mínimo. **Si un día `verify-deploy` sale en rojo solo por `/` con 0,94, relánzalo una
+  vez antes de tratarlo como regresión.**
 - **La página de preguntas pasa sin margen** y `verify-deploy` no la mide (backlog 61).
 - INP: Lighthouse no lo mide sin interacción. El bloqueo total va de 30 a 100 ms con la CPU limitada.
 - `verify-deploy` mide solo siete de estas páginas y no guarda sus informes (backlog 63). Las demás cifras salen
   de una rama de diagnóstico que repite su mismo trabajo.
 
-**Revisiones del lote** (cada revisor recibió la spec y el código):
+**Revisiones del lote.** Corrieron sobre `b1a3eb5`; cada revisor recibió la spec y el código. Los arreglos que
+salieron de ellas (`0aec3aa`: la pausa y el enlace del cierre) no los vio ningún revisor: los cubren la puerta de
+clon limpio, `verify-deploy` y una comprobación mía en producción (al pausar a menos de 100 ms de cargar, a 1280
+y 390 px, ninguna pieza de las escenas queda oculta y el dibujo es el mismo que con movimiento reducido).
 
 | Revisión | Resultado |
 |---|---|
@@ -71,6 +82,12 @@ Lo que hay que saber de esta tabla:
 | Navegador real, de 320 a 1920 px | Sin fallas de Crítico a Medio; 2 Bajo |
 | SEO técnico | **No rompe nada.** 2 hallazgos de texto (uno Medio), al backlog |
 | Diseño contra las maquetas | **Fiel con ajustes.** 1 Alto que no apliqué (ver decisiones), 4 Medio, 2 Bajo |
+
+La revisión de diseño fue **parcial**: según su propio informe no leyó el brief ni el plan (sí la spec y las
+maquetas) y no vio las capturas de celular de casi todas las páginas interiores, ni las de anchos intermedios, ni
+las del zoom. De lo que no vio, miré yo tres capturas del inicio en celular contra la maqueta (tarjeta de Discord,
+proceso y cierre): coinciden salvo la frase de la tarjeta, que es la del sitio (decisión 15 de abajo). Las páginas
+interiores en celular quedan sin revisión de diseño: están en la lista para ver a ojo.
 
 ## 3. Decisiones que tomé por mi cuenta
 
@@ -97,17 +114,25 @@ Están las 48 en la bitácora. Las que cambian lo que se ve o cómo se trabaja:
 12. **No cambié textos no listados**, tampoco los dos que marcó la revisión de SEO.
 13. **Dos ramas de diagnóstico** con un workflow propio que solo mide y nunca se fusiona, para ver en el runner lo
     que `verify-deploy` no muestra. No toqué el workflow oficial.
-14. **Paré de optimizar al tener margen real.** La hoja de estilos quedó 500 bytes sobre su ráfaga; medido en tres
-    corridas, no cuesta puntos. Bajarla exige cambiar la carga de fuentes y va al backlog.
+14. **Paré de optimizar cuando el inicio pasó de forma repetida**, aunque el margen es corto (ver evidencia). La
+    hoja de estilos quedó 500 bytes sobre su ráfaga; medido en tres corridas, no cuesta puntos. Bajarla exige
+    cambiar la carga de fuentes y va al backlog.
+15. **Las frases de cada línea son las que ya usa el sitio**, no las de la maqueta, que difieren en detalles (por
+    ejemplo, en Discord la maqueta dice "servidores, tickets y seguridad" y el sitio "servidores, sistemas de
+    tickets y seguridad"). **Los textos nuevos de la página de preguntas son provisionales** (la frase bajo el
+    título, "Para empezar." y sus metadatos): el brief no los trae.
+16. **Adelanté trabajo local mientras corría una verificación.** El encargo pedía terminar cada rebanada antes de
+    empezar la siguiente. Los push sí fueron estrictamente en orden y cada uno esperó el verde del anterior, pero
+    escribí y probé en local la rebanada 7 y lancé las revisiones mientras se verificaban la 6 y la 7.
 
 ## 4. Backlog
 
-`docs/BACKLOG.md`, ítems 57 a 71. Se cierran el 13 (movimiento) y el 40 (el "·" colgando en el pie).
+`docs/BACKLOG.md`, ítems 57 a 72. Se cierran el 13 (movimiento) y el 40 (el "·" colgando en el pie).
 
 - **Para decidir tú:** ancho de página (57), cabecera frente a la maqueta (58), título de las líneas con la escena
   al lado (59), la pregunta repetida en dos grupos (64) y el título repetido entre inicio y servicios (65).
 - **Antes del lanzamiento:** peso de la hoja de estilos (60), peso de la página de preguntas (61), margen del
-  inicio al completar los datos de contacto (62).
+  inicio al completar los datos de contacto (62), medir el LCP real con el dominio (72).
 - **Pulido:** redes en el pie (66), transiciones entre páginas (67), recordar la pausa (68), código muerto (69),
   una prueba que asume un ancho (70), detalles menores de las revisiones (71), informes de Lighthouse que el
   workflow no guarda (63).
@@ -123,10 +148,13 @@ Producción: `https://web-production-f1d7c246.up.railway.app`. Capturas de la no
 3. **Botón "Pausar animación"** bajo el carrusel: pulsarlo una vez y ver que el resultado es el esperado.
 4. **`/servicios/desarrollo` y `/servicios/minecraft`:** el título ocupa cuatro renglones junto a la escena.
 5. **`/servicios`:** las cinco tarjetas, tres y dos.
-6. **`/preguntas-frecuentes`:** el orden de los grupos y la pregunta repetida entre Minecraft y Discord.
+6. **`/preguntas-frecuentes`:** el orden de los grupos, la pregunta repetida entre Minecraft y Discord y los
+   textos provisionales (frase bajo el título y "Para empezar.").
 7. **Una subpágina** (oculta; se entra por su dirección, por ejemplo `/servicios/desarrollo/tiendas-online`): "DE"
    queda solo en un renglón del título.
 8. **Una dirección inexistente:** el pie nuevo en la 404.
+9. **Las páginas interiores en celular** (`/servicios`, una línea, `/nosotros`, `/contacto`): pasaron las pruebas
+   y la revisión en navegador, pero no la de diseño.
 
 ## 6. Lo que dejé sin hacer a propósito
 
