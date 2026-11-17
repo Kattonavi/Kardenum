@@ -12,9 +12,10 @@
 
 const MINIMUM = 0.95;
 
-// One page of each kind: home in both languages, the services index, a line page, about,
-// contact (with the quote form) and a legal page.
-const PATHS = ["/", "/en", "/servicios", "/servicios/minecraft", "/nosotros", "/contacto", "/legal/privacidad"];
+// One page of each kind: home in both languages, the services index, a line page, the questions
+// page in both languages (the longest document of the site; spec 013, RF-41), about, contact
+// (with the quote form) and a legal page.
+const PATHS = ["/", "/en", "/servicios", "/servicios/minecraft", "/preguntas-frecuentes", "/en/faq", "/nosotros", "/contacto", "/legal/privacidad"];
 
 const mode = process.env.LHCI_MODE;
 if (mode !== "deployed" && mode !== "open") throw new Error('LHCI_MODE must be "deployed" or "open".');

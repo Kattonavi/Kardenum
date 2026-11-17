@@ -597,7 +597,12 @@ check("pages about Minecraft were found and checked", minecraftPagesSeen >= loca
 const FAQ_PATHNAME = "/preguntas-frecuentes";
 for (const locale of locales) {
   const faqPath = localizedPath(FAQ_PATHNAME, locale);
-  const faqHtml = rendered((await get(faqPath)).body);
+  const faqPage = await get(faqPath);
+  const faqHtml = rendered(faqPage.body);
+  // The longest document of the site fits in the first TCP flight too (spec 013, RF-42), measured
+  // as the one of the home page: the body as written, gzip at the default level, 13,560 bytes.
+  const faqBytes = gzipSync(Buffer.from(faqPage.body)).length;
+  check(`[${locale}] the document of ${faqPath} fits in the first TCP flight (${faqBytes} of 13560 bytes, gzip)`, faqBytes <= 13560, faqBytes <= 13560 ? "" : `${faqBytes - 13560} bytes over`);
   const all = faqGroups.flatMap((group) => group.items);
   const missing = all.filter((faq) => !faqHtml.includes(faq.question[locale]) || !faqHtml.includes(faq.answer[locale]));
   check(`[${locale}] ${faqPath} has every question and answer of the site (${all.length})`, all.length >= 20 && missing.length === 0, missing.map((faq) => faq.id).join(", "));

@@ -1,0 +1,11 @@
+/*
+ * Everything that moves by itself: the scenes and the carousel of the home page, in that order
+ * (the rules of the carousel that pause a scene come after the ones that animate it).
+ *
+ * This sheet is imported by the components that draw a scene (scene.tsx, motion-toggle.tsx,
+ * scene-carousel.tsx), not by globals.css: only the pages with a scene load it, as one sheet of
+ * their own, and the sheet every page loads stays inside the first TCP flight (spec 013, RF-40).
+ * One sheet and not two: each sheet a page links is written three times in its document.
+ */
+@import "./scenes.css";
+@import "./carousel.css";

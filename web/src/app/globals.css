@@ -1,6 +1,12 @@
 @import "tailwindcss";
-@import "./scenes.css";
-@import "./carousel.css";
+
+/*
+ * The styles of the scenes and of the carousel (./motion.css) are not imported here: the
+ * components that draw a scene import them, so only the pages with a scene load them, as a sheet
+ * of their own (spec 013, RF-40). This sheet is on every page and has to fit in the first TCP
+ * flight (14,600 bytes with the response headers): over that, Lighthouse counts one more round
+ * trip before the first paint of every page.
+ */
 
 /*
  * Kardenum brand tokens (docs/handoff/docs/identidad-visual.md).
@@ -442,6 +448,39 @@
   --title-fit: 5.2cqi;
 }
 
+/*
+ * A question and its answer (src/components/sections/faq.tsx), as native <details>. The plus is
+ * drawn here, not written in the page: as an icon in the document it was repeated in each of the
+ * 23 questions of the questions page, twice (the HTML and the data Next sends along), and pushed
+ * that document over the first TCP flight (spec 013, RF-42). Same drawing: a 20 px box with two
+ * bars of a twelfth of its side, turned 45 degrees while the answer is open.
+ */
+@utility faq-item {
+  @apply border-b border-(--rule);
+}
+
+@utility faq-question {
+  @apply flex min-h-21 items-center justify-between gap-6 py-5 transition-colors duration-150 hover:text-(--accent-text);
+
+  &::after {
+    content: "";
+    @apply size-5 shrink-0 bg-current transition-transform duration-150;
+    clip-path: polygon(45.83% 16.67%, 54.17% 16.67%, 54.17% 45.83%, 83.33% 45.83%, 83.33% 54.17%, 54.17% 54.17%, 54.17% 83.33%, 45.83% 83.33%, 45.83% 54.17%, 16.67% 54.17%, 16.67% 45.83%, 45.83% 45.83%);
+  }
+
+  details[open] > &::after {
+    @apply rotate-45;
+  }
+}
+
+@utility faq-title {
+  @apply leading-[1.4] tracking-[0.02em] type-wide;
+}
+
+@utility faq-answer {
+  @apply max-w-[44rem] pb-6 leading-[1.6] text-(--muted-text);
+}
+
 /* Home page: a line with its scene on one side and its text on the other; a step of the process. */
 @utility feature-row {
   @apply flex flex-wrap items-center gap-6 md:gap-14;
@@ -461,7 +500,7 @@
 
 /* Guessed heights of the two bands of the home page that are drawn later (band-later), by width. */
 @utility band-lines {
-  @apply [--band-size:170rem] sm:[--band-size:205rem] md:[--band-size:145rem] lg:[--band-size:97rem] xl:[--band-size:109rem];
+  @apply [--band-size:171rem] sm:[--band-size:205rem] md:[--band-size:145rem] lg:[--band-size:97rem] xl:[--band-size:107.5rem] min-[88rem]:[--band-size:110rem];
 }
 
 @utility band-process {

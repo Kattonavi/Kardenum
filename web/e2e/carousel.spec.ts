@@ -221,6 +221,17 @@ test("advancing never moves the page", async ({ page }) => {
   });
   const carousel = await openCarousel(page);
   const height = () => page.evaluate(() => document.documentElement.scrollHeight);
+  // The bands under the carousel are drawn a moment after the load (band-later, globals.css) and
+  // go then from their guessed height to the real one, off screen. That is not the carousel
+  // moving the page: the step is measured once the page has settled. The layout shifts the
+  // browser reports are counted from the very start, as before.
+  await expect
+    .poll(async () => {
+      const first = await height();
+      await page.waitForTimeout(300);
+      return (await height()) === first;
+    })
+    .toBe(true);
   const before = await height();
   const top = (await carousel.boundingBox())?.y;
   // One whole step in real time: a still part and a move.

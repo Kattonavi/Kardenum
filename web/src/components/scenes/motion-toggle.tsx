@@ -1,4 +1,6 @@
 import { useTranslations } from "next-intl";
+// The look of the control and the pause itself live with the scenes.
+import "@/app/motion.css";
 
 /**
  * The control that pauses the movement of every scene on the page (spec 012, RF-15; WCAG 2.2.2:

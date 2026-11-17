@@ -1,5 +1,7 @@
 import { useTranslations } from "next-intl";
 import type { ServiceLineId } from "@/content/types";
+// Loaded only by the pages that draw a scene, as a sheet of their own (spec 013, RF-40).
+import "@/app/motion.css";
 
 /**
  * A scene: what a service line delivers, drawn with HTML and CSS (spec 012, RF-10 to RF-14;

@@ -1,4 +1,3 @@
-import { PlusIcon } from "@/components/ui/icons";
 import { SectionHeader } from "./content";
 
 export type FaqEntry = { id: string; question: string; answer: string };
@@ -17,6 +16,8 @@ type FaqSectionProps = {
 
 // Questions as native <details>: the answers are in the HTML even when folded, they work
 // without JavaScript and with the keyboard. The first one starts open, as in the mockups.
+// Each piece carries a named look and the plus is drawn by the stylesheet (globals.css, "A
+// question and its answer"): the page with every question has to fit in the first TCP flight.
 export function FaqSection({ id, label, title, titleId, items, variant, last = true }: FaqSectionProps) {
   return (
     <section
@@ -42,12 +43,11 @@ export function FaqList({ items, openFirst = true }: { items: readonly FaqEntry[
   return (
     <div className="reveal border-t border-(--rule)">
       {items.map((item, index) => (
-        <details key={item.id} open={openFirst && index === 0} className="group border-b border-(--rule)">
-          <summary className="flex min-h-21 items-center justify-between gap-6 py-5 transition-colors duration-150 hover:text-(--accent-text)">
-            <h3 className="leading-[1.4] tracking-[0.02em] type-wide">{item.question}</h3>
-            <PlusIcon size={20} className="shrink-0 transition-transform duration-150 group-open:rotate-45" />
+        <details key={item.id} open={openFirst && index === 0} className="faq-item">
+          <summary className="faq-question">
+            <h3 className="faq-title">{item.question}</h3>
           </summary>
-          <p className="max-w-[44rem] pb-6 leading-[1.6] text-(--muted-text)">{item.answer}</p>
+          <p className="faq-answer">{item.answer}</p>
         </details>
       ))}
     </div>

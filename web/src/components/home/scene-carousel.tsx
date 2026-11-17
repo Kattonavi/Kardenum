@@ -5,6 +5,8 @@ import { Scene } from "@/components/scenes/scene";
 import { serviceLines } from "@/content/service-lines";
 import type { ServiceLine } from "@/content/types";
 import type { AppLocale } from "@/i18n/locales";
+// The styles of the carousel travel with the ones of the scenes, in one sheet (spec 013, RF-40).
+import "@/app/motion.css";
 
 /**
  * Carousel of the home page (spec 012, RF-20 to RF-25; styles and movement in
