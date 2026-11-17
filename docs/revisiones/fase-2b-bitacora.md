@@ -10,7 +10,7 @@ Sesión del 2026-11-17, desde otro computador. Encargo: el mensaje del fundador 
 | 0 | Spec 013 y línea base | hecha | `5756538` | — (solo documentos) | 44083060175, a mano: los tres trabajos en verde |
 | 1 | Ancho de página de 1320 px | **en producción** | `61e58ae` | 148 unitarias · humo 1285 · navegador 1128 passed | 44086433152: los tres trabajos en verde |
 | 2 | "Cotizar" relleno, títulos junto a la escena, las dos preguntas | **en producción** | `d9ac0ed` | 151 unitarias · humo 1285 · navegador 1152 passed | 44088502728: los tres trabajos en verde |
-| 3 | Rendimiento: hojas de estilo por página, dieta de la página de preguntas y su entrada a `verify-deploy` | **desplegada; verificación en curso al cerrar esta nota** | `ece59cf` | 151 unitarias · humo 1287 · navegador 1152 passed | 44100140091: en curso |
+| 3 | Rendimiento: hojas de estilo por página, dieta de la página de preguntas y su entrada a `verify-deploy` | **en producción** | `ece59cf` | 151 unitarias · humo 1287 · navegador 1152 passed | 44100140091: los tres trabajos en verde |
 | 4 | Contraste del rótulo del carrusel y revisión de diseño en celular | **hecha en local, sin subir**: falta su puerta de clon limpio (el sistema la detuvo por falta de memoria) | `849e9d8`, `1269710` | pendiente | — |
 
 ## Entorno de este computador
