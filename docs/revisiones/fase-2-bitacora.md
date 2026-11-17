@@ -14,7 +14,7 @@ Este archivo se actualiza al cerrar cada rebanada: de aquí sale el informe fina
 | 5 | Pie y preguntas frecuentes | **en producción** (verde tras la dieta `bb20f33`: corrida 44024408090, los tres trabajos) | `8b07a3b` + `5684ba2` + `bb20f33` | Antes: | 44017531353: humo, navegador y Lighthouse contra el despliegue success; **Lighthouse sobre el build abierto failure** en `/` (0,71 · 0,94 · 0,94) |
 | 6 | Índice de servicios y líneas | **en producción** | `cebb917` | 44025551912: success (los tres trabajos) |
 | 7 | Subpáginas (tras su flag), pie de la 404 y entrada al bajar en el resto | **en producción** | `b1a3eb5` | 44026730842: success (los tres trabajos) |
-| 8 | Revisiones del lote y sus arreglos | **en producción** | ver «Rebanada 8» abajo | ver «Rebanada 8» abajo |
+| 8 | Revisiones del lote y sus arreglos | **en producción** | `0aec3aa` | 44029900173: success (los tres trabajos) |
 
 ## Decisiones tomadas sin preguntar
 
@@ -296,6 +296,10 @@ Probado y descartado: el pie en una sola fila a 1280 px (como la maqueta) cabe b
 grupos de enlaces quedan pegados y se leen como uno. La causa es el ancho de página (decisión 46).
 
 No aplicado, al backlog (ítems 57 a 71 de `docs/BACKLOG.md`): todo lo demás.
+
+Puerta de clon limpio de `0aec3aa`: build con 148 unitarias; humo `OK: all 1285 checks passed`; navegador
+1124 passed, 18 skipped. Verificación oficial 44029900173: los tres trabajos en verde. Informe final:
+`docs/revisiones/fase-2-informe-final.md`.
 
 ## Riesgos medidos y abiertos
 
