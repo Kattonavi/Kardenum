@@ -68,9 +68,24 @@ los mínimos de Lighthouse (95, tres pasadas, pasada mediana) ni el presupuesto 
 2. **En Contacto el botón "Cotizar" lleva además un borde en Piedra.** Relleno siempre, ya no puede marcar la página
    actual con el relleno; el borde es la señal a la vista y `aria-current` la del lector de pantalla.
 3. **El filete bajo la cabecera y la franja de idioma se quedan** (backlog 58): el fundador decidió solo el botón.
-4. **Junto a la escena el título corre como una sola frase**, sin el salto fijo antes de la parte en bronce: con el
-   salto, el reparto parejo solo actúa dentro de cada mitad y un título largo vuelve a los cuatro renglones. En una
-   columna (celular, o páginas sin escena) el salto se conserva.
+4. **Junto a la escena los cortes del título van escritos con cada título** (`titleBeside`), y su tamaño sale del
+   ancho de su columna, así los renglones son los mismos de 1024 a 1920 px. Medido en la tipografía real, con solo
+   `text-wrap: balance` el navegador dejaba una palabra sola en 12 de los 22 títulos: reparte anchos, no evita
+   palabras solas. `text-wrap: balance` está puesto, pero quien cumple la regla son los cortes. Hay **dos tamaños**:
+   6,5 % del ancho de la columna (41 px a 1440) y 5,2 % (33 px) para los títulos con un renglón de más de 17 letras.
+   Con ese tamaño menor quedan tres páginas públicas en inglés (Development, Design, Minecraft) y tres subpáginas en
+   español; ahí el título mide menos que los de sección (36 px). La parte en bronce puede empezar a mitad de renglón
+   ("Y SOFTWARE"). **Alternativa por decidir:** un solo tamaño de 41 px, aceptando que en esos títulos una palabra
+   larga quede sola en el primer renglón. En una columna (celular, o páginas sin escena) nada cambia.
+7. **RF-21 se cumple en 20 de 22 títulos.** Los otros dos son títulos en inglés de tres palabras, de subpáginas
+   ocultas ("Custom Minecraft plugins." y "Custom ecommerce websites."): no caben en un renglón y quedan con la
+   primera palabra sola, nunca la última.
+8. **RF-40 se cumple en su parte de "no cambiar lo que se ve" y "no peor", no en la de aligerar el inicio.** Lo que
+   se aplicó (hojas de estilo por página) le da margen a la página de preguntas y a las páginas sin escenas; el
+   inicio queda igual en el runner y su documento pierde holgura (de 346 a 207 bytes libres). Lo que sí lo
+   aligeraría toca fuentes o JavaScript y quedó como propuesta (backlog 78).
+9. **RF-51 queda parcial:** la revisión vio 51 capturas de 13 páginas, no todas las pantallas de todas
+   (`docs/revisiones/fase-2b-diseno-celular.md`).
 5. **Las preguntas de las subpáginas no se tocan** (dos de Minecraft repiten la pregunta sin el nombre): siguen
    ocultas tras su flag y el fundador habló de los dos grupos de la página de preguntas.
 6. **El título repetido entre el inicio y `/servicios` (backlog 65) sigue abierto:** no vino decidido.
@@ -99,10 +114,10 @@ siguiente que no dependa de ella. Un rojo solo por `/` con 0,94 se relanza una v
 
 | RF | Prueba |
 |---|---|
-| RF-1, RF-2, RF-4 | `web/e2e/navigation.spec.ts` (ancho del contenido a 1440 y 1920 px, sin desplazamiento horizontal) · prueba de CLS existente |
-| RF-3 | `web/e2e/home.spec.ts` (el pie en una fila a 1440 px) |
+| RF-1, RF-2, RF-4 | `web/e2e/layout.spec.ts` (ancho del contenido a 1440 y 1920 px, sin desplazamiento horizontal) · prueba de CLS existente |
+| RF-3 | `web/e2e/layout.spec.ts` (el pie en una fila a 1440 px) |
 | RF-10, RF-11 | `web/e2e/navigation.spec.ts` |
-| RF-20 a RF-23 | `web/e2e/lines.spec.ts` y `web/e2e/subpages.spec.ts` (renglones y palabras por renglón, de 1024 a 1920 px) |
+| RF-20 a RF-23 | `web/e2e/titles.spec.ts` (22 títulos a 1024, 1280, 1440 y 1920 px; tamaño en celular) · `web/src/content/content.test.ts` |
 | RF-30, RF-31 | `web/src/content/faq.test.ts` |
 | RF-40 | Capturas antes y después · corrida de diagnóstico en el runner |
 | RF-41 | `web/lighthouserc.cjs` · corrida de `verify-deploy` |

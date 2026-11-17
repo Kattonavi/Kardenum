@@ -17,8 +17,10 @@ Sesión del 2026-11-17, desde otro computador. Encargo: el mensaje del fundador 
 
 - **Node:** el computador trae Node 26.13.0 y el proyecto pide 22.x. Se instaló fnm 1.39.0 (con winget, sin permisos
   de administrador) y con él Node 22.23.5, al lado del 26. Todas las puertas de esta sesión corrieron con Node 22
-  (la primera línea de cada puerta lo imprime). fnm resuelve solo la versión dentro de `web/` a partir de
-  `engines.node` de `package.json`; fuera de `web/` sigue el 26.
+  (la primera línea de cada puerta lo imprime), poniéndolo delante en el `PATH` de cada comando. `fnm exec -- node -v`
+  dentro de `web/` da v22.23.5 (lee `engines.node` de `package.json`); fuera de `web/` sigue el 26.
+  **Falta un paso del fundador:** en una terminal suya, `node -v` dentro de `web/` sigue dando 26 hasta que el perfil
+  de PowerShell cargue fnm (`fnm env --use-on-cd`); esta sesión no pudo escribir ese archivo.
 - **Unidad E::** el disco viene de otro computador y Git rechaza clonar desde él ("dubious ownership"). La puerta
   clona con `git -c safe.directory=…` hacia `C:\kd-tmp\gate`, sin tocar la configuración global.
 - **Un servidor de pruebas mantiene bloqueada `.next/standalone`** mientras corre: hay que cerrarlo antes de cada

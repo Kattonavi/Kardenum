@@ -1,7 +1,8 @@
 # Fase 2b · Revisión de diseño en celular de las páginas interiores
 
-2026-11-17. Completa la revisión de diseño de la fase 2, que quedó parcial (`fase-2-informe-final.md`, sección 2).
-Spec 013, RF-51. Revisor independiente (`impeccable-finish-reviewer`): recibió el brief, el plan de la fase, las
+2026-11-17. Avanza la revisión de diseño de la fase 2, que había quedado parcial (`fase-2-informe-final.md`,
+sección 2). **Sigue siendo parcial:** vio 51 capturas de 13 páginas, pero no todas las pantallas de todas (ver "Qué
+vio y qué no"), y Términos no se capturó. Spec 013, RF-51. Revisor independiente (`impeccable-finish-reviewer`): recibió el brief, el plan de la fase, las
 specs 012 y 013, la maqueta de celular del inicio y 51 capturas a 390 × 844 px, no conclusiones.
 
 **Veredicto: FIEL CON AJUSTES.** Las piezas del sistema están en su sitio y siguen la maqueta: botones con borde de
