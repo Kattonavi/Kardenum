@@ -11,9 +11,9 @@ Sesión del 2026-11-17, desde otro computador. Encargo: el mensaje del fundador 
 | 1 | Ancho de página de 1320 px | **en producción** | `61e58ae` | 148 unitarias · humo 1285 · navegador 1128 passed | 44086433152: los tres trabajos en verde |
 | 2 | "Cotizar" relleno, títulos junto a la escena, las dos preguntas | **en producción** | `d9ac0ed` | 151 unitarias · humo 1285 · navegador 1152 passed | 44088502728: los tres trabajos en verde |
 | 3 | Rendimiento: hojas de estilo por página, dieta de la página de preguntas y su entrada a `verify-deploy` | **en producción** | `ece59cf` | 151 unitarias · humo 1287 · navegador 1152 passed | 44100140091: los tres trabajos en verde |
-| 4 | Contraste del rótulo del carrusel y lista numerada de las líneas (revisión de diseño en celular) | **en producción, sin `verify-deploy`** (ver "Bloqueo") | `849e9d8`, `1269710` (desplegado `605d6e1`) | 151 unitarias · humo 1287 · navegador 1155 passed | No corrió. Comprobación local contra producción: humo 1287 en verde · navegador 1154 de 1155 · Lighthouse 0,96 a 1,00 |
-| 5 | Títulos junto a la escena con un solo tamaño; la pregunta de las subpáginas de Minecraft | **en local, sin subir** | `3c4f00f` | 152 unitarias · humo 1287 · navegador 1162 passed | — |
-| 6 | Archivo recortada y calentamiento en `verify-deploy` | **en local, sin subir** (copia en la rama `wip/fase-2b-retenido`) | `2d2ad8a`, `7e38cc0`, `cacdae1` | 154 unitarias · humo 1287 · navegador 1162 passed (repetida sobre `cacdae1`) | — |
+| 4 | Contraste del rótulo del carrusel y lista numerada de las líneas (revisión de diseño en celular) | **en producción** | `849e9d8`, `1269710` (desplegado `605d6e1`) | 151 unitarias · humo 1287 · navegador 1155 passed | **Pendiente.** Comprobación local contra producción: humo 1287 · Lighthouse del despliegue 0,96 a 1,00 · navegador 1154 de 1155 (una intermitente) |
+| 5 | Títulos junto a la escena con un solo tamaño; la pregunta de las subpáginas de Minecraft | **en producción** | `3c4f00f` | 152 unitarias · humo 1287 · navegador 1162 passed | **Pendiente.** Comprobación local: humo 1287 · Lighthouse del despliegue 0,97 a 1,00 · Lighthouse del build abierto 0,95 a 0,96, pasa · navegador 1159 de 1162 (tres intermitentes) |
+| 6 | Archivo en dos archivos, calentamiento y `verify-deploy` en dos tamaños | **en producción** | `2d2ad8a`, `cacdae1`, `6046f95` (desplegado `c0cb073`) | 155 unitarias · humo 1287 · navegador 1166 passed | **Pendiente.** Comprobación local: humo 1287 · Lighthouse del despliegue 0,96 a 1,00 · Lighthouse del build abierto 0,97 en las nueve páginas · navegador 1166 de 1166 |
 
 ## Bloqueo: GitHub Actions no corre desde las 15:16 UTC del 2026-11-17
 
@@ -25,11 +25,39 @@ Sesión del 2026-11-17, desde otro computador. Encargo: el mensaje del fundador 
   Lighthouse.
 - Railway desplegó `605d6e1` (éxito a las 15:04 UTC) pero no avisó a GitHub: el estado del despliegue quedó "en curso"
   y `verify-deploy` no arrancó solo. Por eso se lanzó a mano.
-- **Regla que se mantuvo:** sin `verify-deploy` en verde no se sube la siguiente. Las rebanadas 5 y 6 pasaron su puerta
-  de clon limpio y esperan en local.
-- **Para retomar:** (1) `gh workflow run verify-deploy.yml --ref main` y esperar el verde de la rebanada 4;
-  (2) `git push origin 3c4f00f:main` y esperar su verificación; (3) `git push origin main` y esperar la de la rebanada
-  6, que es además la primera corrida real del calentamiento.
+- **Decisión del fundador (tercera ronda):** no esperar a Actions. Las rebanadas 5 y 6 se subieron una a la vez, cada
+  una con su puerta de clon limpio y, ya desplegada, con las tres comprobaciones del workflow corridas desde este
+  computador contra producción (humo y navegador; Lighthouse contra el despliegue; Lighthouse sobre el build abierto
+  del mismo commit, compilado aquí). No es `verify-deploy`: es otra máquina y otra red.
+- **`verify-deploy` queda pendiente:** una sola corrida completa sobre el `main` final cuando Actions vuelva
+  (`gh workflow run verify-deploy.yml --ref main`; backlog 81).
+- La comprobación local de la rebanada 4 que se anotó antes no incluyó el Lighthouse sobre el build abierto; las de
+  las rebanadas 5 y 6 sí, y cubren el mismo código.
+
+## Cuánto gasta `verify-deploy` y cómo quedó dividido
+
+Medido en las cuatro corridas completas del 2026-11-17 (GitHub cobra cada trabajo redondeado al minuto):
+
+| Trabajo | Duración | Qué se lo lleva |
+|---|---|---|
+| Humo y navegador contra el despliegue | 11 a 17 min | La suite de navegador: 906 s en la última corrida. Instalar dependencias, 10 s; instalar el navegador, 28 s; humo, 23 s |
+| Lighthouse contra el despliegue | 6 a 7 min | 27 pasadas (9 páginas × 3), unos 15 s cada una |
+| Lighthouse sobre el build abierto | 6 a 8 min | El build, 48 s, y otras 27 pasadas |
+| **Total por corrida** | **24 a 32 min cobrados** | Una por cada despliegue: cada push que toca `web/**` |
+
+Desde la rebanada 6 (spec 013, RF-46 y decisión 15):
+
+- **Corto, tras cada despliegue, en un solo trabajo:** humo; Lighthouse contra el despliegue en tres páginas (`/`,
+  `/servicios/minecraft`, `/preguntas-frecuentes`), tres pasadas cada una, mismo mínimo de 95; y 146 pruebas de
+  navegador (inicio, menús, cotizador, carrusel, preguntas, fuentes, idioma, ancho de página y política de contenido).
+  Estimado: 7 a 8 minutos cobrados, la cuarta parte. El subconjunto de navegador tarda 127 s desde este computador
+  contra producción. **Sin medir en GitHub** (Actions no corre).
+- **Completo, solo a mano:** los tres trabajos de siempre, con calentamiento. Obligatorio antes del lanzamiento.
+- **Caché** de los paquetes de pnpm y de los navegadores de Playwright: ahorra poco (instalar las dos cosas eran
+  38 s por trabajo), porque el tiempo se va en las pruebas, no en la instalación.
+- **Lo que el corto deja de vigilar en cada despliegue:** las pruebas de accesibilidad con axe de todas las páginas
+  (546 de las 1.166), el Lighthouse con SEO sobre el build abierto y seis de las nueve páginas. Todo eso sigue en la
+  puerta de clon limpio antes de cada push (menos Lighthouse) y en el completo.
 
 ## Entorno de este computador
 
@@ -202,3 +230,45 @@ Medido en local con Lighthouse 12.6.1, celular, tres pasadas en el inicio y dos 
 - **Calentamiento:** `web/scripts/warm-up.mjs` probado en local (nueve páginas en 200 y una carga en Chrome); la
   configuración de Lighthouse CI no arranca servidor con `LHCI_SERVER=running` y sí sin ella. **El paso del workflow
   no se pudo ejecutar en GitHub Actions:** su primera corrida real será la verificación de esta rebanada.
+
+### Rebanadas 5 y 6 en producción, comprobadas desde este computador (no es `verify-deploy`)
+
+| Comprobación | Rebanada 5 (`3c4f00f`) | Rebanada 6 (`c0cb073`) |
+|---|---|---|
+| Humo contra producción | `OK: all 1287 checks passed` | `OK: all 1287 checks passed` |
+| Lighthouse contra el despliegue, 9 páginas × 3 | pasa; rendimiento 0,97 a 1,00 | pasa; 0,96 a 1,00 |
+| Lighthouse sobre el build abierto, 9 páginas × 3, cuatro categorías | pasa; inicio 0,95 · 0,95 · 0,95, las demás 0,96 | pasa; **0,97 en las 27 pasadas** |
+| Navegador contra producción | 1159 passed, 3 failed | **1166 passed, 0 failed** |
+
+- Las tres que fallaron en la rebanada 5 son intermitentes contra el servidor remoto: repetidas cuatro veces
+  seguidas, 36 de 36 en verde. Dos eran la prueba de pausa de las escenas en celular, que leía una sola vez las
+  animaciones tras reanudar; en la rebanada 6 espera a que se cumpla y no volvió a fallar. La tercera es
+  `legal.spec.ts` "the contents of /legal/privacidad lead to each section" (backlog 82).
+- **El inicio sale del filo en el build abierto: de 0,95 a 0,97**, medido en esta máquina con la misma configuración
+  de Lighthouse CI. Falta la medida del runner.
+
+### Rebanada 6, segunda parte (`6046f95`): segundo archivo de Archivo
+
+- `Archivo-ext.woff2`: 73.816 bytes, 436 caracteres (el resto de Latin-1, latín extendido A, B y adicional,
+  puntuación y monedas), con `unicode-range`. El base no cambió ni un byte (40.500).
+- Ninguna de doce páginas del sitio lo pide, recorridas hasta el final (`e2e/fonts.spec.ts`); al escribir
+  "João Ångström" en el cotizador sí se descarga y el campo sigue en Archivo.
+- Costo para todas las páginas: la hoja de estilos pasa de 11.286 a 11.805 bytes transferidos (los dos rangos); cabe
+  en la primera ráfaga con 2,8 KB de margen. El documento del inicio no cambia (13.345 de 13.560 bytes).
+- Lighthouse local del inicio con los dos archivos: 0,97 · 0,97 · 0,97 (LCP simulado 2,64 s).
+
+### La rama `feat/motion-and-service-visuals`
+
+Solo existe en este disco (no tiene copia en el remoto). Tres commits del 2026-11-16 por la mañana, anteriores a la
+fase 2: es el lote que el brief de la fase 2 reemplazó (specs 009 a 011). Sale de `a8636ef`; `main` lleva 37 commits
+desde ahí. Lo que tiene y `main` no:
+
+- Las specs 009, 010 y 011.
+- Las escenas de cada línea como SVG (`components/visuals/`), la entrada al bajar con un observador en JavaScript
+  (`components/motion/reveal-observer.tsx`) y una lista interactiva de líneas en el inicio (`services-showcase.tsx`).
+  La fase 2 hizo lo mismo con HTML y solo CSS, que es lo que pedía su brief.
+- **Redes sociales en el pie** (`web/src/lib/social.ts` y su prueba): Facebook, Instagram y Discord desde
+  `site.config.ts`. Es lo único que sigue pendiente en `main` (backlog 66).
+- Dos archivos de pruebas de ese lote (`motion.spec.ts`, `visual-first.spec.ts`).
+
+Su página de preguntas ya se reutilizó en `main` (spec 012, decisión 1). No se borró.
