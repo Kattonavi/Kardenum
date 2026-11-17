@@ -76,6 +76,48 @@
     "faqId": "questions",
     "faqTitle": "Clarity before we start."
   },
+  "Scenes": {
+    "pause": "Pause animation",
+    "desarrollo": {
+      "label": "Development scene: an online store in a browser window",
+      "url": "yourstore.com/catalog",
+      "cart": "Cart",
+      "pay": "Checkout"
+    },
+    "diseno": {
+      "label": "Design scene: a brand board with symbol, palette, typeface and a social media piece",
+      "piece": "Social media piece · 1:1"
+    },
+    "video": {
+      "label": "Video scene: a viewer and an editing timeline with several formats"
+    },
+    "minecraft": {
+      "label": "Minecraft scene: a server console and its control panel",
+      "console": "Console",
+      "starting": "Starting server",
+      "world": "World loaded",
+      "plugins": "Plugins enabled",
+      "store": "Store connected",
+      "ready": "Ready · TPS 20.0",
+      "players": "Players online",
+      "performance": "Performance",
+      "shop": "Server store"
+    },
+    "discord": {
+      "label": "Discord scene: a bot answers a command and opens a support ticket",
+      "server": "Your community",
+      "announcements": "announcements",
+      "general": "general",
+      "support": "support",
+      "store": "store",
+      "member": "Member",
+      "command": "/ticket open",
+      "bot": "Server bot",
+      "ticket": "Ticket created in #support",
+      "assign": "Assign",
+      "close": "Close"
+    }
+  },
   "ContactCta": {
     "id": "contact",
     "title": "Let's talk about your project.",

@@ -1,0 +1,1137 @@
+/*
+ * Scenes (docs/specs/012-fase-2-rediseno-visual.md, RF-10 to RF-15): one composition per service
+ * line, drawn with HTML and CSS. A scene is a picture, not content: its container is role="img".
+ *
+ * - Fixed 16:10 box, so a scene never moves the page while it loads.
+ * - It scales with its container: .scene is the size container and everything inside is measured
+ *   in cqw (through the font size of the frame) and em. The same scene works at 300 px and 900 px.
+ * - The styles without animation are the finished composition. Animation only adds movement on
+ *   top (transform and opacity), so reduced motion, a paused page and an old browser all show the
+ *   complete picture.
+ */
+@layer components {
+  .scene {
+    container-type: inline-size;
+    width: 100%;
+  }
+
+  .scene-frame {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border: 1px solid var(--color-line);
+    background: var(--color-soot);
+    color: var(--color-ash);
+    font-family: var(--font-mono);
+    font-size: 2cqw;
+    line-height: 1.3;
+    /* Text inside a scene is part of the drawing: it must not be selected or wrap by itself. */
+    user-select: none;
+  }
+
+  /* Inside a card the card draws the border. */
+  .scene--bare > .scene-frame {
+    border: 0;
+  }
+
+  .scene-frame :where(span, div) {
+    display: block;
+  }
+
+  /* Labels inside the drawings are set in capitals, like the labels of the site. */
+  .sc-dev-cart-title,
+  .sc-dev-pay,
+  .sc-des-face,
+  .sc-des-caption,
+  .sc-mc-title,
+  .sc-mc-label,
+  .sc-dc-server,
+  .sc-dc-action {
+    text-transform: uppercase;
+  }
+
+  /* ---------- I · Desarrollo: a browser window with a store and its cart ---------- */
+  .sc-dev {
+    position: absolute;
+    inset: 7% 6% 0 6%;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-stone);
+    color: var(--color-ink);
+  }
+
+  .sc-dev-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.7em 1em;
+    border-bottom: 1px solid var(--color-mist);
+  }
+
+  .sc-dev-dot {
+    width: 0.6em;
+    height: 0.6em;
+    flex-shrink: 0;
+    background: var(--color-mist);
+  }
+
+  .sc-dev-dot:first-child {
+    background: var(--color-ink);
+  }
+
+  .sc-dev-url {
+    flex: 1;
+    margin-left: 0.8em;
+    padding: 0.3em 0.8em;
+    background: var(--color-chalk);
+    color: var(--color-graphite);
+    font-size: 0.8em;
+  }
+
+  .sc-dev-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    gap: 1.2em;
+    padding: 1.2em;
+  }
+
+  .sc-dev-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.9em;
+    align-content: start;
+  }
+
+  .sc-dev-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4em;
+  }
+
+  .sc-dev-item::before {
+    content: "";
+    aspect-ratio: 4 / 3;
+    background: var(--color-mist);
+  }
+
+  .sc-dev-item:nth-child(2)::before {
+    background: var(--color-ash);
+  }
+
+  .sc-dev-item:nth-child(3)::before {
+    background: var(--color-bronze);
+  }
+
+  .sc-dev-item:nth-child(4)::before {
+    background: var(--color-graphite);
+  }
+
+  .sc-dev-item:nth-child(6)::before {
+    background: var(--color-ink);
+  }
+
+  .sc-dev-name,
+  .sc-dev-price {
+    height: 0.45em;
+  }
+
+  .sc-dev-name {
+    width: 70%;
+    background: var(--color-ink);
+  }
+
+  .sc-dev-price {
+    width: 40%;
+    background: var(--color-ash);
+  }
+
+  .sc-dev-cart {
+    width: 27%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7em;
+    padding: 1em;
+    background: var(--color-ink);
+    color: var(--color-stone);
+  }
+
+  .sc-dev-cart-title {
+    font-size: 0.75em;
+    letter-spacing: 0.1em;
+  }
+
+  .sc-dev-line {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+  }
+
+  .sc-dev-line::before {
+    content: "";
+    width: 1.4em;
+    height: 1.4em;
+    flex-shrink: 0;
+    background: var(--color-bronze);
+  }
+
+  .sc-dev-line::after {
+    content: "";
+    width: 60%;
+    height: 0.4em;
+    background: var(--color-graphite);
+  }
+
+  .sc-dev-line + .sc-dev-line::before {
+    background: var(--color-mist);
+  }
+
+  .sc-dev-pay {
+    margin-top: auto;
+    padding: 0.7em 0;
+    background: var(--color-bronze);
+    color: var(--color-ink);
+    font-size: 0.75em;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-align: center;
+  }
+
+  /* ---------- II · Diseño: a brand board ---------- */
+  .scene-frame--light {
+    background: var(--color-stone);
+  }
+
+  .sc-des {
+    position: absolute;
+    inset: 7%;
+    display: grid;
+    grid-template-columns: 1.15fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 1em;
+  }
+
+  .sc-des-symbol {
+    grid-row: span 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-ink);
+  }
+
+  .sc-des-symbol > svg {
+    width: 46%;
+    height: auto;
+  }
+
+  .sc-des-palette {
+    display: flex;
+    overflow: hidden;
+    background: var(--color-chalk);
+  }
+
+  .sc-des-swatch {
+    flex: 1;
+    background: var(--color-ink);
+  }
+
+  .sc-des-swatch:nth-child(2) {
+    background: var(--color-graphite);
+  }
+
+  .sc-des-swatch:nth-child(3) {
+    background: var(--color-mist);
+  }
+
+  .sc-des-swatch:nth-child(4) {
+    background: var(--color-white);
+  }
+
+  .sc-des-swatch:nth-child(5) {
+    background: var(--color-bronze);
+  }
+
+  .sc-des-type {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.3em;
+    padding: 0 1em;
+    background: var(--color-white);
+    color: var(--color-ink);
+  }
+
+  .sc-des-sample {
+    font-family: var(--font-display);
+    font-stretch: 125%;
+    font-weight: 800;
+    font-size: 4.2em;
+    line-height: 1;
+  }
+
+  .sc-des-face {
+    font-size: 0.7em;
+    letter-spacing: 0.1em;
+    color: var(--color-graphite);
+  }
+
+  .sc-des-piece {
+    grid-column: span 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 0.5em;
+    padding: 1.1em;
+    background: var(--color-bronze);
+    color: var(--color-ink);
+  }
+
+  .sc-des-bar {
+    width: 72%;
+    height: 0.9em;
+    background: var(--color-ink);
+    transform-origin: left;
+  }
+
+  .sc-des-bar + .sc-des-bar {
+    width: 48%;
+  }
+
+  .sc-des-caption {
+    margin-top: 0.3em;
+    font-size: 0.7em;
+    letter-spacing: 0.1em;
+  }
+
+  /* ---------- III · Video: a viewer, format chips and a three-track timeline ---------- */
+  .scene-frame--ink {
+    background: var(--color-ink);
+  }
+
+  .sc-vid-top {
+    position: absolute;
+    inset: 7% 7% 40% 7%;
+    display: flex;
+    gap: 1em;
+  }
+
+  .sc-vid-viewer {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: var(--color-soot);
+    border: 1px solid var(--color-line);
+  }
+
+  /* The square crosses the viewer: the runner is as wide as the viewer and moves by its own width. */
+  .sc-vid-runner {
+    position: absolute;
+    inset: 0;
+  }
+
+  .sc-vid-runner::before {
+    content: "";
+    position: absolute;
+    top: 22%;
+    left: 8%;
+    width: 13%;
+    aspect-ratio: 1 / 1;
+    background: var(--color-bronze);
+  }
+
+  .sc-vid-title,
+  .sc-vid-sub {
+    position: absolute;
+    left: 8%;
+    transform-origin: left;
+  }
+
+  .sc-vid-title {
+    bottom: 20%;
+    width: 42%;
+    height: 0.9em;
+    background: var(--color-stone);
+  }
+
+  .sc-vid-sub {
+    bottom: 10%;
+    width: 26%;
+    height: 0.55em;
+    background: var(--color-ash);
+  }
+
+  .sc-vid-time {
+    position: absolute;
+    top: 8%;
+    right: 5%;
+    font-size: 0.75em;
+    color: var(--color-stone);
+  }
+
+  .sc-vid-formats {
+    width: 17%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+  }
+
+  .sc-vid-format {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4em;
+    padding: 0.5em 0.7em;
+    border: 1px solid var(--color-line);
+    font-size: 0.8em;
+    color: var(--color-stone);
+  }
+
+  .sc-vid-format::after {
+    content: "";
+    width: 0.6em;
+    height: 0.6em;
+    background: var(--color-bronze);
+  }
+
+  .sc-vid-timeline {
+    position: absolute;
+    inset: 66% 7% 8% 7%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4em;
+  }
+
+  .sc-vid-track {
+    flex: 1;
+    display: flex;
+    gap: 0.3em;
+  }
+
+  .sc-vid-clip {
+    flex: 3 1 0;
+    background: var(--color-graphite);
+  }
+
+  .sc-vid-track:nth-child(1) > :nth-child(2) {
+    flex-grow: 5;
+    background: var(--color-mist);
+  }
+
+  .sc-vid-track:nth-child(1) > :nth-child(3) {
+    flex-grow: 2;
+  }
+
+  .sc-vid-track:nth-child(1) > :nth-child(4) {
+    flex-grow: 4;
+    background: var(--color-line);
+  }
+
+  .sc-vid-track:nth-child(2) > :nth-child(1) {
+    flex-grow: 6;
+    background: var(--color-bronze);
+  }
+
+  .sc-vid-track:nth-child(2) > :nth-child(2) {
+    background: var(--color-line);
+  }
+
+  .sc-vid-track:nth-child(2) > :nth-child(3) {
+    flex-grow: 5;
+    background: var(--color-ash);
+  }
+
+  .sc-vid-track:nth-child(3) > :nth-child(1) {
+    flex-grow: 2;
+    background: var(--color-line);
+  }
+
+  .sc-vid-track:nth-child(3) > :nth-child(2) {
+    flex-grow: 8;
+  }
+
+  .sc-vid-track:nth-child(3) > :nth-child(3) {
+    flex-grow: 4;
+    background: var(--color-line);
+  }
+
+  /* The playhead: a box as wide as the timeline that moves by its own width, with the line on its left edge. */
+  .sc-vid-head {
+    position: absolute;
+    inset: -8% 0;
+    transform: translateX(38%);
+  }
+
+  .sc-vid-head::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    width: 2px;
+    background: var(--color-stone);
+  }
+
+  /* ---------- IV · Minecraft: a server console and its panel ---------- */
+  .scene-frame--coal {
+    background: var(--color-coal);
+  }
+
+  .sc-mc {
+    position: absolute;
+    inset: 7%;
+    display: flex;
+    gap: 1.1em;
+  }
+
+  .sc-mc-console {
+    flex: 1.25;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    padding: 1em;
+    overflow: hidden;
+    background: var(--color-ink);
+    border: 1px solid var(--color-line);
+    font-size: 0.82em;
+    white-space: nowrap;
+  }
+
+  .sc-mc-title {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    margin-bottom: 0.4em;
+    letter-spacing: 0.1em;
+    color: var(--color-stone);
+  }
+
+  .sc-mc-title::before {
+    content: "";
+    width: 0.6em;
+    height: 0.6em;
+    flex-shrink: 0;
+    background: var(--color-bronze);
+  }
+
+  .sc-mc-ready,
+  .sc-mc-prompt {
+    color: var(--color-stone);
+  }
+
+  .sc-mc-prompt > span {
+    display: inline;
+  }
+
+  .sc-mc-panel {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9em;
+  }
+
+  .sc-mc-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6em;
+    padding: 0.9em;
+    background: var(--color-ink);
+    border: 1px solid var(--color-line);
+  }
+
+  .sc-mc-box:first-child {
+    flex: 1;
+  }
+
+  .sc-mc-label {
+    font-size: 0.72em;
+    letter-spacing: 0.1em;
+  }
+
+  .sc-mc-bars {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    gap: 0.35em;
+  }
+
+  .sc-mc-bar {
+    flex: 1;
+    height: 45%;
+    background: var(--color-graphite);
+    transform-origin: bottom;
+  }
+
+  .sc-mc-bar:nth-child(2) {
+    height: 70%;
+  }
+
+  .sc-mc-bar:nth-child(3) {
+    height: 55%;
+  }
+
+  .sc-mc-bar:nth-child(4) {
+    height: 90%;
+  }
+
+  .sc-mc-bar:nth-child(5) {
+    height: 65%;
+  }
+
+  .sc-mc-bar:nth-child(6) {
+    height: 100%;
+    background: var(--color-bronze);
+  }
+
+  .sc-mc-bar:nth-child(7) {
+    height: 80%;
+  }
+
+  .sc-mc-bar:nth-child(8) {
+    height: 60%;
+  }
+
+  .sc-mc-meter {
+    height: 0.5em;
+    background: var(--color-line);
+  }
+
+  .sc-mc-meter::before {
+    content: "";
+    display: block;
+    width: 84%;
+    height: 100%;
+    background: var(--color-bronze);
+    transform-origin: left;
+  }
+
+  .sc-mc-items {
+    display: flex;
+    gap: 0.5em;
+  }
+
+  .sc-mc-items::before,
+  .sc-mc-items::after,
+  .sc-mc-items > span {
+    content: "";
+    width: 1.6em;
+    height: 1.6em;
+    flex-shrink: 0;
+    background: var(--color-graphite);
+  }
+
+  .sc-mc-items > span {
+    background: var(--color-mist);
+  }
+
+  .sc-mc-items::after {
+    background: var(--color-bronze);
+  }
+
+  /* ---------- V · Discord: channels, a command and the answer of a bot ---------- */
+  .sc-dc {
+    position: absolute;
+    inset: 7%;
+    display: flex;
+    background: var(--color-ink);
+    border: 1px solid var(--color-line);
+  }
+
+  .sc-dc-channels {
+    width: 25%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3em;
+    padding: 1em 0.7em;
+    border-right: 1px solid var(--color-line);
+    font-size: 0.8em;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .sc-dc-server {
+    margin: 0 0 0.6em 0.6em;
+    font-size: 0.9em;
+    letter-spacing: 0.1em;
+    color: var(--color-stone);
+  }
+
+  .sc-dc-channel {
+    padding: 0.35em 0.6em;
+  }
+
+  .sc-dc-channel--on {
+    background: var(--color-soot);
+    color: var(--color-stone);
+  }
+
+  .sc-dc-chat {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 1em;
+    padding: 1.1em 1.3em;
+  }
+
+  .sc-dc-message {
+    display: flex;
+    gap: 0.8em;
+  }
+
+  .sc-dc-message::before {
+    content: "";
+    width: 2em;
+    height: 2em;
+    flex-shrink: 0;
+    background: var(--color-graphite);
+  }
+
+  .sc-dc-message--bot::before {
+    background: var(--color-bronze);
+  }
+
+  .sc-dc-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35em;
+  }
+
+  .sc-dc-author {
+    font-size: 0.75em;
+    color: var(--color-stone);
+  }
+
+  .sc-dc-command {
+    padding: 0.3em 0.6em;
+    background: var(--color-soot);
+    font-size: 0.85em;
+    color: var(--color-stone);
+  }
+
+  .sc-dc-card {
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6em;
+    padding: 0.9em;
+    background: var(--color-coal);
+    border: 1px solid var(--color-line);
+  }
+
+  .sc-dc-card-title {
+    font-size: 0.9em;
+    color: var(--color-stone);
+  }
+
+  .sc-dc-card::before,
+  .sc-dc-card::after {
+    content: "";
+    order: 1;
+    width: 78%;
+    height: 0.4em;
+    background: var(--color-graphite);
+  }
+
+  .sc-dc-card::after {
+    width: 52%;
+    background: var(--color-line);
+  }
+
+  .sc-dc-actions {
+    order: 2;
+    display: flex;
+    gap: 0.6em;
+    margin-top: 0.2em;
+  }
+
+  .sc-dc-action {
+    padding: 0.45em 0.9em;
+    border: 1px solid var(--color-graphite);
+    font-size: 0.75em;
+    color: var(--color-stone);
+  }
+
+  .sc-dc-action:first-child {
+    border-color: var(--color-bronze);
+    background: var(--color-bronze);
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+
+  .sc-dc-typing {
+    display: flex;
+    gap: 0.35em;
+    padding-left: 2.8em;
+  }
+
+  .sc-dc-typing > span {
+    width: 0.45em;
+    height: 0.45em;
+    background: var(--color-ash);
+  }
+
+  /* ---------- The control that pauses the movement of the page (WCAG 2.2.2, RF-15) ---------- */
+  .motion-toggle {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    border: 1px solid var(--color-graphite);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: border-color 150ms;
+  }
+
+  .motion-toggle:hover {
+    border-color: var(--accent-text);
+  }
+
+  /* The native checkbox covers the button and stays invisible: it keeps its keyboard and its name. */
+  .motion-toggle > input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .motion-toggle:has(> input:focus-visible) {
+    outline: 2px solid var(--focus-ring, var(--color-bronze));
+    outline-offset: 2px;
+  }
+
+  /* A square that fills when the movement is paused: the mark of a native checkbox, in the brand's shape. */
+  .motion-toggle-mark {
+    width: 0.75rem;
+    height: 0.75rem;
+    flex-shrink: 0;
+    border: 1px solid currentColor;
+  }
+
+  .motion-toggle:has(> input:checked) {
+    border-color: var(--color-bronze);
+  }
+
+  .motion-toggle:has(> input:checked) > .motion-toggle-mark {
+    border-color: var(--color-bronze);
+    background: var(--color-bronze);
+  }
+
+  /* Only where there is something to pause. */
+  @media (prefers-reduced-motion: reduce) {
+    .motion-toggle {
+      display: none;
+    }
+  }
+}
+
+/*
+ * Movement of the scenes. It exists only for visitors who have not asked for reduced motion: the
+ * base rule that shortens every animation would leave each piece at its last keyframe, and
+ * several of them end hidden. Without these rules a scene is its finished composition.
+ */
+@keyframes scene-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(0.8em);
+  }
+  8%,
+  90% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+
+@keyframes scene-pulse {
+  0%,
+  55%,
+  100% {
+    transform: none;
+  }
+  70% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes scene-rise {
+  0% {
+    transform: translateY(100%);
+  }
+  12%,
+  88% {
+    transform: none;
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes scene-wipe {
+  0% {
+    transform: scaleX(0);
+  }
+  15%,
+  88% {
+    transform: scaleX(1);
+  }
+  100% {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes scene-run {
+  from {
+    transform: none;
+  }
+  to {
+    transform: translateX(70%);
+  }
+}
+
+@keyframes scene-scan {
+  from {
+    transform: none;
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes scene-on {
+  0%,
+  22% {
+    opacity: 1;
+  }
+  26%,
+  100% {
+    opacity: 0.18;
+  }
+}
+
+@keyframes scene-grow {
+  from {
+    transform: scaleY(0.3);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes scene-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes scene-dot {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .sc-dev-item {
+    animation: scene-pop 8s infinite both;
+  }
+
+  .sc-dev-item:nth-child(2) {
+    animation-delay: 0.35s;
+  }
+
+  .sc-dev-item:nth-child(3) {
+    animation-delay: 0.7s;
+  }
+
+  .sc-dev-item:nth-child(4) {
+    animation-delay: 1.05s;
+  }
+
+  .sc-dev-item:nth-child(5) {
+    animation-delay: 1.4s;
+  }
+
+  .sc-dev-item:nth-child(6) {
+    animation-delay: 1.75s;
+  }
+
+  .sc-dev-pay {
+    animation: scene-pulse 4s ease-in-out infinite;
+  }
+
+  .sc-des-swatch {
+    animation: scene-rise 8s infinite both;
+  }
+
+  .sc-des-swatch:nth-child(2) {
+    animation-delay: 0.25s;
+  }
+
+  .sc-des-swatch:nth-child(3) {
+    animation-delay: 0.5s;
+  }
+
+  .sc-des-swatch:nth-child(4) {
+    animation-delay: 0.75s;
+  }
+
+  .sc-des-swatch:nth-child(5) {
+    animation-delay: 1s;
+  }
+
+  .sc-des-bar {
+    animation: scene-wipe 8s 0.6s infinite both;
+  }
+
+  .sc-des-bar + .sc-des-bar {
+    animation-delay: 0.9s;
+  }
+
+  .sc-vid-runner {
+    animation: scene-run 4s ease-in-out infinite alternate;
+  }
+
+  .sc-vid-title {
+    animation: scene-wipe 8s infinite both;
+  }
+
+  .sc-vid-sub {
+    animation: scene-wipe 8s 0.3s infinite both;
+  }
+
+  .sc-vid-format::after {
+    animation: scene-on 8s infinite both;
+  }
+
+  .sc-vid-format:nth-child(2)::after {
+    animation-delay: 2s;
+  }
+
+  .sc-vid-format:nth-child(3)::after {
+    animation-delay: 4s;
+  }
+
+  .sc-vid-format:nth-child(4)::after {
+    animation-delay: 6s;
+  }
+
+  .sc-vid-head {
+    animation: scene-scan 8s linear infinite;
+  }
+
+  .sc-mc-line {
+    animation: scene-pop 9s infinite both;
+  }
+
+  .sc-mc-line:nth-child(3) {
+    animation-delay: 0.6s;
+  }
+
+  .sc-mc-line:nth-child(4) {
+    animation-delay: 1.2s;
+  }
+
+  .sc-mc-line:nth-child(5) {
+    animation-delay: 1.8s;
+  }
+
+  .sc-mc-line:nth-child(6) {
+    animation-delay: 2.4s;
+  }
+
+  .sc-mc-prompt > span {
+    animation: scene-blink 1s steps(1) infinite;
+  }
+
+  .sc-mc-bar {
+    animation: scene-grow 1.6s ease-in-out infinite alternate;
+  }
+
+  .sc-mc-bar:nth-child(2) {
+    animation-delay: 0.15s;
+  }
+
+  .sc-mc-bar:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+
+  .sc-mc-bar:nth-child(4) {
+    animation-delay: 0.45s;
+  }
+
+  .sc-mc-bar:nth-child(5) {
+    animation-delay: 0.6s;
+  }
+
+  .sc-mc-bar:nth-child(6) {
+    animation-delay: 0.75s;
+  }
+
+  .sc-mc-bar:nth-child(7) {
+    animation-delay: 0.9s;
+  }
+
+  .sc-mc-bar:nth-child(8) {
+    animation-delay: 1.05s;
+  }
+
+  .sc-mc-meter::before {
+    animation: scene-wipe 9s infinite both;
+  }
+
+  .sc-dc-message {
+    animation: scene-pop 9s infinite both;
+  }
+
+  .sc-dc-message--bot {
+    animation-delay: 1.2s;
+  }
+
+  .sc-dc-typing {
+    animation: scene-pop 9s 2.4s infinite both;
+  }
+
+  .sc-dc-typing > span {
+    animation: scene-dot 1.2s infinite;
+  }
+
+  .sc-dc-typing > span:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  .sc-dc-typing > span:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  /* The pause control of the page stops every scene on it (WCAG 2.2.2). */
+  body:has(.motion-toggle > input:checked) .scene-frame *,
+  body:has(.motion-toggle > input:checked) .scene-frame *::before,
+  body:has(.motion-toggle > input:checked) .scene-frame *::after {
+    animation-play-state: paused;
+  }
+}

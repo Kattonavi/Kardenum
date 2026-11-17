@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./scenes.css";
 
 /*
  * Kardenum brand tokens (docs/handoff/docs/identidad-visual.md).
@@ -20,6 +21,10 @@
   --color-line: #3a3936; /* Línea oscura: borders and lines on dark */
   --color-bronze: #b8923a; /* Bronce: accent */
   --color-bronze-deep: #7a5c14; /* Bronce oscuro: accent text and hover on light */
+  /* Surfaces of the phase 2 mockups (docs/handoff/fase-2): tones between the brand colors, never text. */
+  --color-coal: #1a1a18; /* Carbón: card on ink */
+  --color-soot: #22211f; /* Hollín: backdrop of a scene on ink */
+  --color-chalk: #e9e8e3; /* Tiza: a well on stone */
   --color-white: #ffffff;
   --color-black: #000000;
 }

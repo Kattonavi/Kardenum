@@ -76,6 +76,48 @@
     "faqId": "preguntas",
     "faqTitle": "Claridad antes de empezar."
   },
+  "Scenes": {
+    "pause": "Pausar animación",
+    "desarrollo": {
+      "label": "Escena de desarrollo: una tienda online en una ventana de navegador",
+      "url": "tutienda.com/catalogo",
+      "cart": "Carrito",
+      "pay": "Pagar"
+    },
+    "diseno": {
+      "label": "Escena de diseño: tablero de marca con símbolo, paleta, tipografía y una pieza para redes",
+      "piece": "Pieza para redes · 1:1"
+    },
+    "video": {
+      "label": "Escena de video: visor y línea de tiempo de edición con varios formatos"
+    },
+    "minecraft": {
+      "label": "Escena de Minecraft: consola de un servidor y su panel de control",
+      "console": "Consola",
+      "starting": "Iniciando servidor",
+      "world": "Mundo cargado",
+      "plugins": "Plugins activos",
+      "store": "Tienda conectada",
+      "ready": "Listo · TPS 20.0",
+      "players": "Jugadores en línea",
+      "performance": "Rendimiento",
+      "shop": "Tienda del servidor"
+    },
+    "discord": {
+      "label": "Escena de Discord: un bot responde a un comando y abre un ticket de soporte",
+      "server": "Tu comunidad",
+      "announcements": "anuncios",
+      "general": "general",
+      "support": "soporte",
+      "store": "tienda",
+      "member": "Miembro",
+      "command": "/ticket abrir",
+      "bot": "Bot del servidor",
+      "ticket": "Ticket creado en #soporte",
+      "assign": "Asignar",
+      "close": "Cerrar"
+    }
+  },
   "ContactCta": {
     "id": "contacto",
     "title": "Hablemos de tu proyecto.",
