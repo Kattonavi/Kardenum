@@ -135,3 +135,26 @@ test.describe("with reduced motion", () => {
     });
   }
 });
+
+// Design review on a phone (docs/revisiones/fase-2b-diseno-celular.md, spec 013 RF-51): in the
+// numbered list of services the description starts where the name starts, next to the number,
+// not back at the margin under it.
+test("on a narrow window, each numbered service lines its description up with its name", async ({ page }) => {
+  for (const width of [390, 640]) {
+    await page.setViewportSize({ width, height: 844 });
+    for (const pathname of ["/servicios/desarrollo", "/en/services/minecraft"]) {
+      await page.goto(pathname);
+      const rows = await page.locator("#services-title").locator("xpath=ancestor::section[1]").locator("ol > li").evaluateAll((items) =>
+        items.map((item) => {
+          const left = (selector: string) => Math.round(item.querySelector(selector)?.getBoundingClientRect().left ?? -1);
+          return { number: left("span"), name: left("h3"), text: left("p") };
+        }),
+      );
+      expect(rows.length, `${pathname} at ${width} px`).toBeGreaterThanOrEqual(4);
+      for (const row of rows) {
+        expect(row.text, `${pathname} at ${width} px: ${JSON.stringify(row)}`).toBe(row.name);
+        expect(row.name).toBeGreaterThan(row.number);
+      }
+    }
+  }
+});

@@ -89,19 +89,25 @@ export function NumberedList({ items, linkLabel }: { items: readonly NumberedIte
   return (
     <ol className="reveal border-t border-(--rule)">
       {items.map((item, index) => (
-        <li key={item.title} className="flex flex-wrap items-baseline gap-x-8 gap-y-3 border-b border-mist py-7">
+        // Below md the row does not fit in one line: the number keeps its own column and the name,
+        // the description and the link share the other one, so they all start at the same place
+        // (design review on a phone, docs/revisiones/fase-2b-diseno-celular.md).
+        <li
+          key={item.title}
+          className="grid grid-cols-[2.5rem_minmax(0,1fr)] items-baseline gap-x-3 gap-y-3 border-b border-mist py-7 md:flex md:flex-wrap md:gap-x-8"
+        >
           <span aria-hidden="true" className="w-10 shrink-0 font-mono text-xs tracking-[0.1em] text-(--muted-text)">
             {String(index + 1).padStart(2, "0")}
           </span>
           <h3 className="flex-[1_1_14rem] text-lg leading-[1.3] tracking-[0.08em] type-display">{item.title}</h3>
-          <p className="flex-[2_1_22rem] leading-[1.55] text-(--muted-text)">{item.text}</p>
+          <p className="flex-[2_1_22rem] leading-[1.55] text-(--muted-text) max-md:col-start-2">{item.text}</p>
           {item.href ? (
-            <AppLink href={item.href} className={`${buttonClass.line} min-w-38`}>
+            <AppLink href={item.href} className={`${buttonClass.line} min-w-38 max-md:col-start-2 max-md:justify-self-start`}>
               {linkLabel}
               <ArrowRightIcon size={14} />
             </AppLink>
           ) : hasLinks ? (
-            <span aria-hidden="true" className="min-w-38" />
+            <span aria-hidden="true" className="min-w-38 max-md:hidden" />
           ) : null}
         </li>
       ))}
