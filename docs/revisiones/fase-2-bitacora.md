@@ -154,6 +154,21 @@ Las diez primeras están razonadas en la spec 012 ("Decisiones"). Resumen:
   cifras absolutas no se comparan entre corridas; la comparación válida es el inicio contra las demás páginas de
   la misma corrida.
 
+**Intento 1 desplegado (`d23fe40`, verify-deploy 44013432702):** los dos trabajos de Lighthouse pasaron. Falló
+el de navegador, por otra causa: `scenes.spec.ts` "the control of the page pauses and resumes all of them", en
+escritorio, en `/` y `/en` (882 passed, 2 failed). Tras reanudar, 63 animaciones seguían "en pausa".
+
+- Causa: la prueba contaba todas las animaciones de la página. Las de una escena que el navegador ya no dibuja
+  (lejos de la pantalla, `content-visibility: auto`) conservan el estado en que quedaron hasta que la escena vuelve
+  a dibujarse. En mi máquina y contra producción la prueba pasaba; en el runner, más lento, no. El sitio hace lo
+  correcto: al volver a pantalla, la escena sigue el estado de la página.
+- **Intento 2 (`68b1b80`, solo pruebas):** la prueba cuenta las animaciones de lo que se está dibujando
+  (`checkVisibility({ contentVisibilityAuto: true })`) y comprueba algo más: una escena del final de la página llega
+  en pausa cuando el visitante baja hasta ella con la página pausada, y se mueve en cuanto se reanuda. No se
+  debilitó ninguna aserción: la de "nada queda en pausa" sigue, sobre el conjunto correcto.
+- Comprobado antes de `main`: tres pasadas locales (47 passed) y una contra producción (47 passed); y
+  `verify-deploy` lanzado a mano sobre la rama temporal `tmp/verify-tests` (no despliega).
+
 - **Criterio de reversión (intento 1 de 2):** si tras el segundo intento `verify-deploy` sigue en rojo, `git revert`
   de `3f672fd` y se sigue con la rebanada 5, que no depende del inicio nuevo.
 - El trabajo adelantado de la rebanada 5 está en la rama `wip/fase-2-rebanada-5` (no despliega).
